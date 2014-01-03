@@ -19,14 +19,15 @@
 
 #include "Component.hpp"
 
-//class Component;
-
 class Widget : public Component {
 
 private:
 
-public:
+protected:
 	void onDraw() const override;
+
+public:
+
 };
 
 #endif // SWT_CORE_WIDGET

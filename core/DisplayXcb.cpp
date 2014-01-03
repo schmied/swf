@@ -25,8 +25,8 @@
 xcb_rectangle_t rectBorder;
 
 DisplayXcb::DisplayXcb(const unsigned short w, const unsigned short h) {
-	setWidth(w);
-	setHeight(h);
+	width = w;
+	height = h;
 
 	int n;
 	connection = xcb_connect(NULL, &n);
@@ -56,7 +56,7 @@ DisplayXcb::DisplayXcb(const unsigned short w, const unsigned short h) {
 	const uint32_t valueListWindow[] { screen->white_pixel,
 	    XCB_EVENT_MASK_EXPOSURE };
 	xcb_create_window(connection, XCB_COPY_FROM_PARENT, window,
-	    screen->root, 0, 0, getWidth(), getHeight(), 0,
+	    screen->root, 0, 0, width, height, 0,
 	    XCB_WINDOW_CLASS_INPUT_OUTPUT, screen->root_visual,
 	    XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK, valueListWindow);
 
@@ -78,11 +78,12 @@ DisplayXcb::~DisplayXcb() {
 	std::cout << "displayxcb terminated." << std::endl;
 }
 
-void DisplayXcb::onDraw(const Component &c) const {
-	rectBorder.x = c.getDimX();
-	rectBorder.y = c.getDimY();
-	rectBorder.width = c.getDimWidth();
-	rectBorder.height = c.getDimHeight();
+void DisplayXcb::drawBorder(const unsigned short x, const unsigned short y,
+    const unsigned short w, const unsigned short h) const {
+	rectBorder.x = x;
+	rectBorder.y = y;
+	rectBorder.width = w;
+	rectBorder.height = h;
 	xcb_poly_rectangle(connection, window, gContext, 1, &rectBorder);
 	xcb_flush(connection);
 }

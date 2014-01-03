@@ -16,6 +16,7 @@
 
 #include "Display.hpp"
 
+/*
 void Display::setHeight(unsigned short h) {
 	height = h;
 }
@@ -31,6 +32,7 @@ unsigned short Display::getHeight() const {
 unsigned short Display::getWidth() const {
 	return width;
 }
+*/
 
 void Display::setRootContainer(Container *c) {
 	rootContainer = c;

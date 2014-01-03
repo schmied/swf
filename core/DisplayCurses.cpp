@@ -27,21 +27,21 @@ DisplayCurses::DisplayCurses() {
 	window = initscr();
         cbreak();
         noecho();
-
         nonl();
         intrflush(window, FALSE);
         keypad(window, TRUE);
         meta(window, TRUE);
         raw();
         scrollok(window, FALSE);
-
         erase();
         refresh();
 }
 
 DisplayCurses::~DisplayCurses() {
+	endwin();
 }
 
-void DisplayCurses::onDraw(const Component &c) const {
+void DisplayCurses::drawBorder(const unsigned short x, const unsigned short y,
+    const unsigned short w, const unsigned short h) const {
 }
 

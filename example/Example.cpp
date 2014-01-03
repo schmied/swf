@@ -25,7 +25,6 @@
 //#include "../core/Component.hpp"
 #include "../core/DisplayCurses.hpp"
 #include "../core/DisplayXcb.hpp"
-//#include "../core/SWF.hpp"
 
 int main(int argc, char **argv) {
 

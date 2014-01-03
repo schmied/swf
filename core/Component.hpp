@@ -27,21 +27,27 @@ class Component {
 private:
 	Display *display;
 //	Container *parent;
-	unsigned short dimX;
-	unsigned short dimY;
-	unsigned short dimWidth;
-	unsigned short dimHeight;
+	void traverse(const Component &c, void (*)(const Component&));
 
-public:
-	unsigned short getDimHeight() const;
-	unsigned short getDimWidth() const;
-	unsigned short getDimX() const;
-	unsigned short getDimY() const;
+protected:
+	unsigned short dimX, dimY, dimWidth, dimHeight;
+	Display* getDisplay() const;
 	bool isStateActive() const;
 	bool isStateFocus() const;
-	virtual void onDraw() const;
-	virtual std::vector<Component> getContents() const;
+	virtual std::vector<Component*> getContents() const;
+	virtual void onDraw() const = 0;
+
+public:
+
 };
 
 #endif // SWT_CORE_COMPONENT
+
+
+// XXX delete
+//	unsigned short getDimHeight() const;
+//	unsigned short getDimWidth() const;
+//	unsigned short getDimX() const;
+//	unsigned short getDimY() const;
+
 

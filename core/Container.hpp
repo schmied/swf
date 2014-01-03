@@ -24,11 +24,15 @@
 class Container : public Component {
 
 private:
-	std::vector<Component> contents {};
+	std::vector<Component*> contents {};
+
+protected:
+	virtual std::vector<Component*> getContents() const override;
+	void onDraw() const override;
 
 public:
-	void addComponent(const Component&);
-	virtual std::vector<Component> getContents() const override;
+	void addComponent(Component*);
+
 };
 
 #endif // SWT_CORE_CONTAINER

@@ -16,6 +16,9 @@
 
 #include "Widget.hpp"
 
+#include "Display.hpp"
+
 void Component::onDraw() const {
+	display->drawBorder(dimX, dimY, dimWidth, dimHeight);
 }
 

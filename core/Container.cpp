@@ -18,11 +18,17 @@
 
 #include "Container.hpp"
 
-void Container::addComponent(const Component &c) {
+#include "Display.hpp"
+
+void Container::addComponent(Component *c) {
 	contents.push_back(c);
 }
 
-std::vector<Component> Container::getContents() const {
+std::vector<Component*> Container::getContents() const {
 	return contents;
+}
+
+void Component::onDraw() const {
+	getDisplay()->drawBorder(dimX, dimY, dimWidth, dimHeight);
 }
 

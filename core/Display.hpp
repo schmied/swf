@@ -23,19 +23,23 @@ class Container;
 class Display {
 
 private:
-	unsigned short width, height;
 	Container *rootContainer;
 	Component *componentActive;
 	Component *componentFocus;
 
+protected:
+	unsigned short width, height;
+//	void setHeight(unsigned short);
+//	void setWidth(unsigned short);
+//	unsigned short getHeight() const;
+//	unsigned short getWidth() const;
+
 public:
-	void setHeight(unsigned short);
-	void setWidth(unsigned short);
-	unsigned short getHeight() const;
-	unsigned short getWidth() const;
 	void setRootContainer(Container*);
 	void draw();
-	virtual void onDraw(const Component&) const = 0;
+	virtual void drawBorder(const unsigned short, const unsigned short,
+	    const unsigned short, const unsigned short) const = 0;
+
 };
 
 #endif // SWT_CORE_DISPLAY

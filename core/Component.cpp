@@ -18,6 +18,7 @@
 
 #include "Component.hpp"
 
+/*
 unsigned short Component::getDimHeight() const {
 	return dimHeight;
 }
@@ -33,6 +34,11 @@ unsigned short Component::getDimX() const {
 unsigned short Component::getDimY() const {
 	return dimY;
 }
+*/
+
+Display* Component::getDisplay() const {
+	return display;
+}
 
 bool Component::isStateActive() const {
 	return false;
@@ -42,12 +48,21 @@ bool Component::isStateFocus() const {
 	return false;
 }
 
+/*
 void Component::onDraw() const {
 }
+*/
 
-static const std::vector<Component> empty_vector {};
+static const std::vector<Component*> emptyVector {};
 
-std::vector<Component> Component::getContents() const {
-	return empty_vector;
+std::vector<Component*> Component::getContents() const {
+	return emptyVector;
+}
+
+void Component::traverse(const Component &c, void (*cb)(const Component &c)) {
+	cb(c);
+	for (auto current : c.getContents()) {
+		traverse(*current, cb);
+	}
 }
 

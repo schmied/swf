@@ -33,7 +33,9 @@ private:
 public:
 	DisplayXcb(const unsigned short, const unsigned short);
 	~DisplayXcb();
-	void onDraw(const Component&) const override;
+	void drawBorder(const unsigned short, const unsigned short,
+	    const unsigned short, const unsigned short) const override;
+
 };
 
 #endif // SWT_CORE_DISPLAY_XCB
