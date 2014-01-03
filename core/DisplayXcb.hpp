@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -19,7 +19,7 @@
 
 #include <xcb/xcb.h>
 
-#include "Component.hpp"
+//#include "Component.hpp"
 #include "Display.hpp"
 
 class DisplayXcb : public Display {
@@ -31,12 +31,9 @@ private:
 	xcb_gcontext_t gContext;
 
 public:
-//	DisplayXcb();
 	DisplayXcb(const unsigned short, const unsigned short);
 	~DisplayXcb();
-	void drawBegin() const override;
-	void drawComponent(const Component&) const override;
-	void drawEnd() const override;
+	void onDraw(const Component&) const override;
 };
 
 #endif // SWT_CORE_DISPLAY_XCB

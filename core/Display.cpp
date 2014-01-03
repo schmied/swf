@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -16,14 +16,12 @@
 
 #include "Display.hpp"
 
-//#include "Context.hpp"
-
-//Display::Display() {
-//}
-
-Display::Display(const unsigned short w, const unsigned short h) {
-	width = w;
+void Display::setHeight(unsigned short h) {
 	height = h;
+}
+
+void Display::setWidth(unsigned short w) {
+	width = w;
 }
 
 unsigned short Display::getHeight() const {
@@ -32,5 +30,12 @@ unsigned short Display::getHeight() const {
 
 unsigned short Display::getWidth() const {
 	return width;
+}
+
+void Display::setRootContainer(Container *c) {
+	rootContainer = c;
+}
+
+void Display::draw() {
 }
 

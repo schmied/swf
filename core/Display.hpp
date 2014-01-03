@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -18,22 +18,24 @@
 #define SWT_CORE_DISPLAY
 
 class Component;
-class Context;
+class Container;
 
 class Display {
 
 private:
-	//Context *context;
 	unsigned short width, height;
+	Container *rootContainer;
+	Component *componentActive;
+	Component *componentFocus;
 
 public:
-	//Display();
-	Display(const unsigned short, const unsigned short);
-	virtual void drawBegin() const = 0;
-	virtual void drawComponent(const Component&) const = 0;
-	virtual void drawEnd() const = 0;
+	void setHeight(unsigned short);
+	void setWidth(unsigned short);
 	unsigned short getHeight() const;
 	unsigned short getWidth() const;
+	void setRootContainer(Container*);
+	void draw();
+	virtual void onDraw(const Component&) const = 0;
 };
 
 #endif // SWT_CORE_DISPLAY

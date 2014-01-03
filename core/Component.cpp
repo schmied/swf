@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,14 +14,9 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include "Component.hpp"
+#include <vector>
 
-Component::Component() {
-	dimX = 50;
-	dimY = 50;
-	dimWidth = 100;
-	dimHeight = 100;
-}
+#include "Component.hpp"
 
 unsigned short Component::getDimHeight() const {
 	return dimHeight;
@@ -45,5 +40,14 @@ bool Component::isStateActive() const {
 
 bool Component::isStateFocus() const {
 	return false;
+}
+
+void Component::onDraw() const {
+}
+
+static const std::vector<Component> empty_vector {};
+
+std::vector<Component> Component::getContents() const {
+	return empty_vector;
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Michael Schmiedgen
+ * Copyright (c) 2014, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,34 +14,22 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef SWT_CORE_COMPONENT
-#define SWT_CORE_COMPONENT
+#ifndef SWT_CORE_CONTAINER
+#define SWT_CORE_CONTAINER
 
 #include <vector>
 
-class Display;
-//class Container;
+#include "Component.hpp"
 
-class Component {
+class Container : public Component {
 
 private:
-	Display *display;
-//	Container *parent;
-	unsigned short dimX;
-	unsigned short dimY;
-	unsigned short dimWidth;
-	unsigned short dimHeight;
+	std::vector<Component> contents {};
 
 public:
-	unsigned short getDimHeight() const;
-	unsigned short getDimWidth() const;
-	unsigned short getDimX() const;
-	unsigned short getDimY() const;
-	bool isStateActive() const;
-	bool isStateFocus() const;
-	virtual void onDraw() const;
-	virtual std::vector<Component> getContents() const;
+	void addComponent(const Component&);
+	virtual std::vector<Component> getContents() const override;
 };
 
-#endif // SWT_CORE_COMPONENT
+#endif // SWT_CORE_CONTAINER
 

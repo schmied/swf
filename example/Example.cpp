@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -22,31 +22,27 @@
 */
 #include <unistd.h>
 
-#include "../core/Context.hpp"
+//#include "../core/Component.hpp"
+#include "../core/DisplayCurses.hpp"
 #include "../core/DisplayXcb.hpp"
+//#include "../core/SWF.hpp"
 
 int main(int argc, char **argv) {
 
 	//Context context {};
-	DisplayXcb display {100, 100};
+	//DisplayXcb display {100, 100};
+	DisplayCurses display {};
 	//context.setDisplay(&display);
-	Component component {};
+	//Component component {};
 	//context.setComponentRoot(&component);
+
+//	Component c {};
 
 	for (;;) {
 		sleep(1);
 
-		display.drawComponent(component);
-		display.drawEnd();
-/*
-		xvalues[0] = 10;
-		xvalues[1] = 10;
-		xcb_configure_window(xc, xwin, XCB_CONFIG_WINDOW_X |
-		    XCB_CONFIG_WINDOW_Y, xvalues);
+		display.draw();
 
-		xvalues[0] = XCB_STACK_MODE_ABOVE;
-		xcb_configure_window(xc, xwin, XCB_CONFIG_WINDOW_STACK_MODE, xvalues);
-*/
 	}
 
 	return 0;

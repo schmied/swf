@@ -18,7 +18,7 @@ clean: clean-example clean-core
 ################################### example
 
 EXAMPLELDIRS	= -L. -L/usr/lib -L/usr/local/lib
-EXAMPLELIBS	= -lc++ -lswfcore -lxcb
+EXAMPLELIBS	= -lc++ -lswfcore -lxcb -lcurses
 EXAMPLESRCS	= \
 	example/Example.cpp
 
@@ -32,14 +32,18 @@ clean-example:
 
 CORESRCS	= \
 	core/Component.cpp \
-	core/Context.cpp \
+	core/Container.cpp \
+	core/DisplayCurses.cpp \
 	core/DisplayXcb.cpp \
-	core/Display.cpp
+	core/Display.cpp \
+	core/Widget.cpp
 COREHDRS	= \
 	core/Component.hpp \
-	core/Context.hpp \
+	core/Container.hpp \
+	core/DisplayCurses.hpp \
 	core/DisplayXcb.hpp \
-	core/Display.hpp
+	core/Display.hpp \
+	core/Widget.hpp
 
 libswfcore.a: $(CORESRCS:.cpp=.o)
 	ar -c -r $@ $(CORESRCS:.cpp=.o)

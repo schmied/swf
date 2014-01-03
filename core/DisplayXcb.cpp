@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -21,15 +21,13 @@
 #include "DisplayXcb.hpp"
 
 #include "Component.hpp"
-#include "Display.hpp"
-
-//DisplayXcb::DisplayXcb() {
-//}
 
 xcb_rectangle_t rectBorder;
 
-DisplayXcb::DisplayXcb(const unsigned short w, const unsigned short h) :
-    Display(w, h) {
+DisplayXcb::DisplayXcb(const unsigned short w, const unsigned short h) {
+	setWidth(w);
+	setHeight(h);
+
 	int n;
 	connection = xcb_connect(NULL, &n);
 	if (connection == NULL) {
@@ -75,24 +73,17 @@ DisplayXcb::DisplayXcb(const unsigned short w, const unsigned short h) :
 }
 
 DisplayXcb::~DisplayXcb() {
-
 	if (connection != NULL)
 		xcb_disconnect(connection);
 	std::cout << "displayxcb terminated." << std::endl;
 }
 
-void DisplayXcb::drawBegin() const {
-}
-
-void DisplayXcb::drawComponent(const Component& c) const {
+void DisplayXcb::onDraw(const Component &c) const {
 	rectBorder.x = c.getDimX();
 	rectBorder.y = c.getDimY();
 	rectBorder.width = c.getDimWidth();
 	rectBorder.height = c.getDimHeight();
 	xcb_poly_rectangle(connection, window, gContext, 1, &rectBorder);
-}
-
-void DisplayXcb::drawEnd() const {
 	xcb_flush(connection);
 }
 

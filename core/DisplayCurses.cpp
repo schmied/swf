@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Michael Schmiedgen
+ * Copyright (c) 2014, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,34 +14,34 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef SWT_CORE_COMPONENT
-#define SWT_CORE_COMPONENT
+#include <curses.h>
 
-#include <vector>
+#include "DisplayCurses.hpp"
 
-class Display;
-//class Container;
+#include "Component.hpp"
 
-class Component {
+//DisplayCurses::DisplayCurses(const unsigned short w, const unsigned short h) :
+//    Display(w, h) {
 
-private:
-	Display *display;
-//	Container *parent;
-	unsigned short dimX;
-	unsigned short dimY;
-	unsigned short dimWidth;
-	unsigned short dimHeight;
+DisplayCurses::DisplayCurses() {
+	window = initscr();
+        cbreak();
+        noecho();
 
-public:
-	unsigned short getDimHeight() const;
-	unsigned short getDimWidth() const;
-	unsigned short getDimX() const;
-	unsigned short getDimY() const;
-	bool isStateActive() const;
-	bool isStateFocus() const;
-	virtual void onDraw() const;
-	virtual std::vector<Component> getContents() const;
-};
+        nonl();
+        intrflush(window, FALSE);
+        keypad(window, TRUE);
+        meta(window, TRUE);
+        raw();
+        scrollok(window, FALSE);
 
-#endif // SWT_CORE_COMPONENT
+        erase();
+        refresh();
+}
+
+DisplayCurses::~DisplayCurses() {
+}
+
+void DisplayCurses::onDraw(const Component &c) const {
+}
 
