@@ -43,7 +43,7 @@ DisplayCurses::~DisplayCurses() {
 
 void DisplayCurses::drawBorder(const unsigned short x, const unsigned short y,
     const unsigned short w, const unsigned short h) const {
-	mvaddstr(10, 10, "bla");
+	mvaddstr(10, 10, "blaaaaaa");
 	refresh();
 }
 

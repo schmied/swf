@@ -33,6 +33,7 @@ protected:
 //	unsigned short getWidth() const;
 
 public:
+	Display();
 	void setRootContainer(RootContainer*);
 	void draw();
 	virtual void drawBorder(const unsigned short, const unsigned short,

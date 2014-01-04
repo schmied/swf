@@ -18,6 +18,10 @@
 
 #include "RootContainer.hpp"
 
+Display::Display() {
+	rootContainer = nullptr;
+}
+
 /*
 void Display::setHeight(unsigned short h) {
 	height = h;
@@ -41,8 +45,8 @@ void Display::setRootContainer(RootContainer *c) {
 	if (rootContainer != nullptr)
 		rootContainer->traverseUnregisterDisplay();
 	rootContainer = c;
-//	if (rootContainer != nullptr)
-//		rootContainer->traverseRegisterDisplay(this);
+	if (rootContainer != nullptr)
+		rootContainer->traverseRegisterDisplay(this);
 }
 
 void Display::draw() {

@@ -38,6 +38,7 @@ int main(int argc, char **argv) {
 	//context.setComponentRoot(&component);
 	RootContainer root {};
 	Widget widget { &root };
+
 	//root.addComponent(&widget);
 	display.setRootContainer(&root);
 
