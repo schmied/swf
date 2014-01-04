@@ -19,25 +19,36 @@
 
 #include <vector>
 
+class Container;
 class Display;
-//class Container;
+class RootContainer;
 
 class Component {
 
 private:
-	Display *display;
-//	Container *parent;
-	void traverse(const Component &c, void (*)(const Component&));
+	Container *parent;
 
 protected:
+	Display *display;	/* connected to a display?		*/
+	static void cbDraw(Component &c);
+	static void cbRegisterDisplay(Component &c);
+	static void cbUnregisterDisplay(Component &c);
+	Container* getParent() const;
+//	Display* getDisplay() const;
+//	void unregisterDisplay();
+//	void setParent(Container*);
 	unsigned short dimX, dimY, dimWidth, dimHeight;
-	Display* getDisplay() const;
-	bool isStateActive() const;
-	bool isStateFocus() const;
+//	const RootContainer* getRootContainer() const;
 	virtual std::vector<Component*> getContents() const;
-	virtual void onDraw() const = 0;
+	static void traverse(Component &c, void (*)(Component&));
+	static void traverseChildren(const Component &c, void (*)(Component&));
 
 public:
+	Component(Container*);
+//	virtual Display* getDisplay() const;
+	bool isStateActive() const;
+	bool isStateFocus() const;
+	virtual void onDraw() const = 0;
 
 };
 

@@ -24,11 +24,14 @@ void Container::addComponent(Component *c) {
 	contents.push_back(c);
 }
 
+
 std::vector<Component*> Container::getContents() const {
 	return contents;
 }
 
-void Component::onDraw() const {
-	getDisplay()->drawBorder(dimX, dimY, dimWidth, dimHeight);
+void Container::onDraw() const {
+	if (display == nullptr)
+		return;
+	display->drawBorder(dimX, dimY, dimWidth, dimHeight);
 }
 

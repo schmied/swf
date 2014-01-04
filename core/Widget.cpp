@@ -18,7 +18,9 @@
 
 #include "Display.hpp"
 
-void Component::onDraw() const {
+void Widget::onDraw() const {
+	if (display == nullptr)
+		return;
 	display->drawBorder(dimX, dimY, dimWidth, dimHeight);
 }
 

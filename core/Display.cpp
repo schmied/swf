@@ -16,6 +16,8 @@
 
 #include "Display.hpp"
 
+#include "RootContainer.hpp"
+
 /*
 void Display::setHeight(unsigned short h) {
 	height = h;
@@ -34,10 +36,18 @@ unsigned short Display::getWidth() const {
 }
 */
 
-void Display::setRootContainer(Container *c) {
+void Display::setRootContainer(RootContainer *c) {
+	// unregister display of current tree
+	if (rootContainer != nullptr)
+		rootContainer->traverseUnregisterDisplay();
 	rootContainer = c;
+//	if (rootContainer != nullptr)
+//		rootContainer->traverseRegisterDisplay(this);
 }
 
 void Display::draw() {
+	if (rootContainer == nullptr)
+		return;
+	rootContainer->traverseDraw();
 }
 

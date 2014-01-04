@@ -36,6 +36,7 @@ CORESRCS	= \
 	core/DisplayCurses.cpp \
 	core/DisplayXcb.cpp \
 	core/Display.cpp \
+	core/RootContainer.cpp \
 	core/Widget.cpp
 COREHDRS	= \
 	core/Component.hpp \
@@ -43,6 +44,7 @@ COREHDRS	= \
 	core/DisplayCurses.hpp \
 	core/DisplayXcb.hpp \
 	core/Display.hpp \
+	core/RootContainer.hpp \
 	core/Widget.hpp
 
 libswfcore.a: $(CORESRCS:.cpp=.o)

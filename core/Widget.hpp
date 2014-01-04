@@ -27,6 +27,7 @@ protected:
 	void onDraw() const override;
 
 public:
+	Widget(Container *p) : Component(p) {};
 
 };
 

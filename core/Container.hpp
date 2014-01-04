@@ -24,13 +24,15 @@
 class Container : public Component {
 
 private:
+	Container() : Component(nullptr) {};
 	std::vector<Component*> contents {};
 
 protected:
-	virtual std::vector<Component*> getContents() const override;
+	std::vector<Component*> getContents() const override;
 	void onDraw() const override;
 
 public:
+	Container(Container *p) : Component(p) {};
 	void addComponent(Component*);
 
 };

@@ -25,6 +25,8 @@
 //#include "../core/Component.hpp"
 #include "../core/DisplayCurses.hpp"
 #include "../core/DisplayXcb.hpp"
+#include "../core/RootContainer.hpp"
+#include "../core/Widget.hpp"
 
 int main(int argc, char **argv) {
 
@@ -34,15 +36,21 @@ int main(int argc, char **argv) {
 	//context.setDisplay(&display);
 	//Component component {};
 	//context.setComponentRoot(&component);
+	RootContainer root {};
+	Widget widget { &root };
+	//root.addComponent(&widget);
+	display.setRootContainer(&root);
 
 //	Component c {};
 
-	for (;;) {
-		sleep(1);
+//	for (;;) {
+//		sleep(1);
 
 		display.draw();
 
-	}
+//	}
+
+	sleep(3);
 
 	return 0;
 }

@@ -18,27 +18,56 @@
 
 #include "Component.hpp"
 
+#include "Container.hpp"
+
+//#include "RootContainer.hpp"
+
+Component::Component(Container* p) : parent { p } {
+	if (parent == nullptr) // root container?
+		return;
+	parent->addComponent(this);
+	display = parent->display;
+};
+
 /*
-unsigned short Component::getDimHeight() const {
-	return dimHeight;
-}
-
-unsigned short Component::getDimWidth() const {
-	return dimWidth;
-}
-
-unsigned short Component::getDimX() const {
-	return dimX;
-}
-
-unsigned short Component::getDimY() const {
-	return dimY;
+Component::Component(Container *p) {
+	parent = p;
 }
 */
 
+Container* Component::getParent() const {
+	return parent;
+}
+
+/*
 Display* Component::getDisplay() const {
 	return display;
 }
+*/
+
+/*
+void Component::setParent(Container *p) {
+	parent = p;
+}
+*/
+
+/*
+const RootContainer* Component::getRootContainer() const {
+	if (parent == nullptr)
+		return nullptr;
+	const Component *c = this;
+	while (c->parent != nullptr)
+		c = c->parent;
+	return static_cast<const RootContainer*>(c);
+}
+
+Display* Component::getDisplay() const {
+	const RootContainer *r = getRootContainer();
+	if (r == nullptr)
+		return nullptr;
+	return r->getDisplay();
+}
+*/
 
 bool Component::isStateActive() const {
 	return false;
@@ -59,10 +88,45 @@ std::vector<Component*> Component::getContents() const {
 	return emptyVector;
 }
 
-void Component::traverse(const Component &c, void (*cb)(const Component &c)) {
+void Component::traverse(Component &c, void (*cb)(Component&)) {
 	cb(c);
+	traverseChildren(c, cb);
+}
+
+void Component::traverseChildren(const Component &c, void (*cb)(Component&)) {
 	for (auto current : c.getContents()) {
-		traverse(*current, cb);
+		cb(*current);
+		traverseChildren(*current, cb);
 	}
 }
+
+void Component::cbDraw(Component &c) {
+	c.onDraw();
+}
+
+void Component::cbRegisterDisplay(Component &c) {
+	c.display = c.parent->display;
+}
+
+void Component::cbUnregisterDisplay(Component &c) {
+	c.display = nullptr;
+}
+
+/*
+unsigned short Component::getDimHeight() const {
+	return dimHeight;
+}
+
+unsigned short Component::getDimWidth() const {
+	return dimWidth;
+}
+
+unsigned short Component::getDimX() const {
+	return dimX;
+}
+
+unsigned short Component::getDimY() const {
+	return dimY;
+}
+*/
 

@@ -25,8 +25,7 @@ class Context {
 private:
 	const Display *display;
 	Component *componentRoot;
-	Component *componentActive;
-	Component *componentFocus;
+
 //	Context() { };
 
 public:
