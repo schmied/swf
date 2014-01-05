@@ -24,9 +24,9 @@
 
 xcb_rectangle_t rectBorder;
 
-DisplayXcb::DisplayXcb(const unsigned short w, const unsigned short h) {
-	width = w;
-	height = h;
+DisplayXcb::DisplayXcb(int w, int h) : Display(w, h) {
+//	width = w;
+//	height = h;
 
 	int n;
 	connection = xcb_connect(NULL, &n);
@@ -78,8 +78,7 @@ DisplayXcb::~DisplayXcb() {
 	std::cout << "displayxcb terminated." << std::endl;
 }
 
-void DisplayXcb::drawBorder(const unsigned short x, const unsigned short y,
-    const unsigned short w, const unsigned short h) const {
+void DisplayXcb::drawBorder(const int x, const int y, const int w, const int h) const {
 	rectBorder.x = x;
 	rectBorder.y = y;
 	rectBorder.width = w;

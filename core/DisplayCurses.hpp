@@ -31,8 +31,7 @@ private:
 public:
 	DisplayCurses();
 	~DisplayCurses();
-	void drawBorder(const unsigned short, const unsigned short,
-	    const unsigned short, const unsigned short) const override;
+	void drawBorder(const int, const int, const int, const int) const override;
 
 };
 

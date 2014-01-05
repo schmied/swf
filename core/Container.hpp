@@ -24,7 +24,7 @@
 class Container : public Component {
 
 private:
-	Container() : Component(nullptr) {};
+	Container();
 	std::vector<Component*> contents {};
 
 protected:
@@ -32,7 +32,7 @@ protected:
 	void onDraw() const override;
 
 public:
-	Container(Container *p) : Component(p) {};
+	Container(Container *p);
 	void addComponent(Component*);
 
 };

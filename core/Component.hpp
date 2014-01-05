@@ -27,24 +27,30 @@ class Component {
 
 private:
 	Container *parent;
+	Display *display;	/* connected to a display? */
 
 protected:
-	Display *display;	/* connected to a display?		*/
-	static void cbDraw(Component &c);
-	static void cbRegisterDisplay(Component &c);
-	static void cbUnregisterDisplay(Component &c);
 	Container* getParent() const;
+	Display* getDisplay() const;
 //	Display* getDisplay() const;
 //	void unregisterDisplay();
 //	void setParent(Container*);
-	unsigned short dimX, dimY, dimWidth, dimHeight;
+	int dimX, dimY, dimWidth, dimHeight;
 //	const RootContainer* getRootContainer() const;
+
+	/* component traversing */
 	virtual std::vector<Component*> getContents() const;
-	static void traverse(Component &c, void (*)(Component&));
-	static void traverseChildren(const Component &c, void (*)(Component&));
+	static void traverse(Component &c, void (*)(Component&, void*), void*);
+	static void traverse(const Component &c, void (*)(const Component&, void*), void*);
+	static void traverseChildren(const Component &c, void (*)(Component&, void*), void*);
+	static void traverseChildren(const Component &c, void (*)(const Component&, void*), void*);
+	static void cbDisplayRegister(Component &c, void*);
+	static void cbDisplayUnregister(Component &c, void*);
+	static void cbDraw(const Component &c, void*);
 
 public:
 	Component(Container*);
+	void init(Container*, Display*);
 //	virtual Display* getDisplay() const;
 	bool isStateActive() const;
 	bool isStateFocus() const;

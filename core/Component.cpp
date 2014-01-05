@@ -22,12 +22,17 @@
 
 //#include "RootContainer.hpp"
 
-Component::Component(Container* p) : parent { p } {
-	if (parent == nullptr) // root container?
-		return;
-	parent->addComponent(this);
-	display = parent->display;
+Component::Component(Container* p) {
+	if (p == nullptr) // root container?
+		init(nullptr, nullptr);
+	else
+		p->addComponent(this);
 };
+
+void Component::init(Container *p, Display *d) {
+	parent = p;
+	display = d;
+}
 
 /*
 Component::Component(Container *p) {
@@ -37,6 +42,10 @@ Component::Component(Container *p) {
 
 Container* Component::getParent() const {
 	return parent;
+}
+
+Display* Component::getDisplay() const {
+	return display;
 }
 
 /*
@@ -88,28 +97,40 @@ std::vector<Component*> Component::getContents() const {
 	return emptyVector;
 }
 
-void Component::traverse(Component &c, void (*cb)(Component&)) {
-	cb(c);
-	traverseChildren(c, cb);
+void Component::traverse(Component &c, void (*cb)(Component&, void*), void *userData) {
+	cb(c, userData);
+	traverseChildren(c, cb, userData);
 }
 
-void Component::traverseChildren(const Component &c, void (*cb)(Component&)) {
+void Component::traverse(const Component &c, void (*cb)(const Component&, void*), void *userData) {
+	cb(c, userData);
+	traverseChildren(c, cb, userData);
+}
+
+void Component::traverseChildren(const Component &c, void (*cb)(Component&, void*), void *userData) {
 	for (auto current : c.getContents()) {
-		cb(*current);
-		traverseChildren(*current, cb);
+		cb(*current, userData);
+		traverseChildren(*current, cb, userData);
 	}
 }
 
-void Component::cbDraw(Component &c) {
-	c.onDraw();
+void Component::traverseChildren(const Component &c, void (*cb)(const Component&, void*), void *userData) {
+	for (auto current : c.getContents()) {
+		cb(*current, userData);
+		traverseChildren(*current, cb, userData);
+	}
 }
 
-void Component::cbRegisterDisplay(Component &c) {
-	c.display = c.parent->display;
+void Component::cbDisplayRegister(Component &c, void *userData) {
+	c.display = static_cast<Display*>(userData);
 }
 
-void Component::cbUnregisterDisplay(Component &c) {
+void Component::cbDisplayUnregister(Component &c, void *userData) {
 	c.display = nullptr;
+}
+
+void Component::cbDraw(const Component &c, void *userData) {
+	c.onDraw();
 }
 
 /*

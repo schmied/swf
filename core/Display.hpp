@@ -34,10 +34,10 @@ protected:
 
 public:
 	Display();
+	Display(const int, const int);
 	void setRootContainer(RootContainer*);
 	void draw();
-	virtual void drawBorder(const unsigned short, const unsigned short,
-	    const unsigned short, const unsigned short) const = 0;
+	virtual void drawBorder(const int, const int, const int, const int) const = 0;
 
 };
 

@@ -20,18 +20,25 @@
 
 #include "Display.hpp"
 
+Container::Container() : Component(nullptr) {
+};
+
+Container::Container(Container *p) : Component(p) {
+};
+
 void Container::addComponent(Component *c) {
+	c->init(this, getDisplay());
 	contents.push_back(c);
 }
-
 
 std::vector<Component*> Container::getContents() const {
 	return contents;
 }
 
 void Container::onDraw() const {
-	if (display == nullptr)
+	const Display *d = getDisplay();
+	if (d == nullptr)
 		return;
-	display->drawBorder(dimX, dimY, dimWidth, dimHeight);
+	d->drawBorder(dimX, dimY, dimWidth, dimHeight);
 }
 

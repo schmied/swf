@@ -31,10 +31,9 @@ private:
 	xcb_gcontext_t gContext;
 
 public:
-	DisplayXcb(const unsigned short, const unsigned short);
+	DisplayXcb(const int, const int);
 	~DisplayXcb();
-	void drawBorder(const unsigned short, const unsigned short,
-	    const unsigned short, const unsigned short) const override;
+	void drawBorder(const int, const int, const int, const int) const override;
 
 };
 

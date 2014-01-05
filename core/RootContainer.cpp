@@ -23,8 +23,8 @@ RootContainer::RootContainer() : Container(nullptr) {
 }
 */
 
-void RootContainer::traverseDraw() {
-	traverse(*this, Component::cbDraw);
+void RootContainer::traverseDraw() const {
+	traverse(*this, Component::cbDraw, nullptr);
 }
 
 /*
@@ -33,9 +33,8 @@ void RootContainer::cbRegisterDisplay(const Component &c) {
 }
 */
 
-void RootContainer::traverseRegisterDisplay(Display *d) {
-	display = d;
-	traverseChildren(*this, Component::cbRegisterDisplay);
+void RootContainer::traverseDisplayRegister(Display *d) {
+	traverse(*this, Component::cbDisplayRegister, d);
 }
 
 /*
@@ -44,7 +43,7 @@ void RootContainer::cbUnregisterDisplay(const Component &c) {
 }
 */
 
-void RootContainer::traverseUnregisterDisplay() {
-	traverse(*this, Component::cbUnregisterDisplay);
+void RootContainer::traverseDisplayUnregister() {
+	traverse(*this, Component::cbDisplayUnregister, nullptr);
 }
 

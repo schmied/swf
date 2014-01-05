@@ -32,9 +32,9 @@ protected:
 
 public:
 	RootContainer() : Container(nullptr) {};
-	void traverseDraw();
-	void traverseRegisterDisplay(Display*);
-	void traverseUnregisterDisplay();
+	void traverseDraw() const;
+	void traverseDisplayRegister(Display*);
+	void traverseDisplayUnregister();
 
 };
 
