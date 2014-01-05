@@ -32,11 +32,7 @@ private:
 protected:
 	Container* getParent() const;
 	Display* getDisplay() const;
-//	Display* getDisplay() const;
-//	void unregisterDisplay();
-//	void setParent(Container*);
 	int dimX, dimY, dimWidth, dimHeight;
-//	const RootContainer* getRootContainer() const;
 
 	/* component traversing */
 	virtual std::vector<Component*> getContents() const;
@@ -47,24 +43,15 @@ protected:
 	static void cbDisplayRegister(Component &c, void*);
 	static void cbDisplayUnregister(Component &c, void*);
 	static void cbDraw(const Component &c, void*);
+	virtual void onDraw() const = 0;
 
 public:
 	Component(Container*);
 	void init(Container*, Display*);
-//	virtual Display* getDisplay() const;
 	bool isStateActive() const;
 	bool isStateFocus() const;
-	virtual void onDraw() const = 0;
 
 };
 
 #endif // SWT_CORE_COMPONENT
-
-
-// XXX delete
-//	unsigned short getDimHeight() const;
-//	unsigned short getDimWidth() const;
-//	unsigned short getDimX() const;
-//	unsigned short getDimY() const;
-
 

@@ -16,32 +16,16 @@
 
 #include "RootContainer.hpp"
 
-//#include "Display.hpp"
-
-/*
 RootContainer::RootContainer() : Container(nullptr) {
 }
-*/
 
 void RootContainer::traverseDraw() const {
 	traverse(*this, Component::cbDraw, nullptr);
 }
 
-/*
-void RootContainer::cbRegisterDisplay(const Component &c) {
-	c.display = c.parent->display;
-}
-*/
-
 void RootContainer::traverseDisplayRegister(Display *d) {
 	traverse(*this, Component::cbDisplayRegister, d);
 }
-
-/*
-void RootContainer::cbUnregisterDisplay(const Component &c) {
-	c.display = nullptr;
-}
-*/
 
 void RootContainer::traverseDisplayUnregister() {
 	traverse(*this, Component::cbDisplayUnregister, nullptr);

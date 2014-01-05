@@ -20,9 +20,7 @@
 
 #include "Component.hpp"
 
-//DisplayCurses::DisplayCurses(const unsigned short w, const unsigned short h) :
-//    Display(w, h) {
-
+//DisplayCurses::DisplayCurses(const int w, const int h) : Display(w, h) {
 DisplayCurses::DisplayCurses() {
 	window = initscr();
         cbreak();

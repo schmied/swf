@@ -28,10 +28,9 @@ private:
 	Component *componentFocus;
 
 protected:
-//	void onDraw() const override;
 
 public:
-	RootContainer() : Container(nullptr) {};
+	RootContainer();
 	void traverseDraw() const;
 	void traverseDisplayRegister(Display*);
 	void traverseDisplayUnregister();

@@ -17,24 +17,21 @@
 #ifndef SWT_CORE_DISPLAY
 #define SWT_CORE_DISPLAY
 
-//class Component;
 class RootContainer;
 
 class Display {
 
 private:
 	RootContainer *rootContainer;
+	int width, height;
 
 protected:
-	int width, height;
-//	void setHeight(unsigned short);
-//	void setWidth(unsigned short);
-//	unsigned short getHeight() const;
-//	unsigned short getWidth() const;
 
 public:
 	Display();
 	Display(const int, const int);
+	int getWidth() const;
+	int getHeight() const;
 	void setRootContainer(RootContainer*);
 	void draw();
 	virtual void drawBorder(const int, const int, const int, const int) const = 0;

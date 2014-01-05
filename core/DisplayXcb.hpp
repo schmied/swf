@@ -19,7 +19,6 @@
 
 #include <xcb/xcb.h>
 
-//#include "Component.hpp"
 #include "Display.hpp"
 
 class DisplayXcb : public Display {

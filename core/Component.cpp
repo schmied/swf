@@ -34,12 +34,6 @@ void Component::init(Container *p, Display *d) {
 	display = d;
 }
 
-/*
-Component::Component(Container *p) {
-	parent = p;
-}
-*/
-
 Container* Component::getParent() const {
 	return parent;
 }
@@ -48,36 +42,6 @@ Display* Component::getDisplay() const {
 	return display;
 }
 
-/*
-Display* Component::getDisplay() const {
-	return display;
-}
-*/
-
-/*
-void Component::setParent(Container *p) {
-	parent = p;
-}
-*/
-
-/*
-const RootContainer* Component::getRootContainer() const {
-	if (parent == nullptr)
-		return nullptr;
-	const Component *c = this;
-	while (c->parent != nullptr)
-		c = c->parent;
-	return static_cast<const RootContainer*>(c);
-}
-
-Display* Component::getDisplay() const {
-	const RootContainer *r = getRootContainer();
-	if (r == nullptr)
-		return nullptr;
-	return r->getDisplay();
-}
-*/
-
 bool Component::isStateActive() const {
 	return false;
 }
@@ -85,11 +49,6 @@ bool Component::isStateActive() const {
 bool Component::isStateFocus() const {
 	return false;
 }
-
-/*
-void Component::onDraw() const {
-}
-*/
 
 static const std::vector<Component*> emptyVector {};
 
@@ -134,6 +93,15 @@ void Component::cbDraw(const Component &c, void *userData) {
 }
 
 /*
+const RootContainer* Component::getRootContainer() const {
+	if (parent == nullptr)
+		return nullptr;
+	const Component *c = this;
+	while (c->parent != nullptr)
+		c = c->parent;
+	return static_cast<const RootContainer*>(c);
+}
+
 unsigned short Component::getDimHeight() const {
 	return dimHeight;
 }

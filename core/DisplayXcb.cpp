@@ -25,8 +25,6 @@
 xcb_rectangle_t rectBorder;
 
 DisplayXcb::DisplayXcb(int w, int h) : Display(w, h) {
-//	width = w;
-//	height = h;
 
 	int n;
 	connection = xcb_connect(NULL, &n);
@@ -56,7 +54,7 @@ DisplayXcb::DisplayXcb(int w, int h) : Display(w, h) {
 	const uint32_t valueListWindow[] { screen->white_pixel,
 	    XCB_EVENT_MASK_EXPOSURE };
 	xcb_create_window(connection, XCB_COPY_FROM_PARENT, window,
-	    screen->root, 0, 0, width, height, 0,
+	    screen->root, 0, 0, getWidth(), getHeight(), 0,
 	    XCB_WINDOW_CLASS_INPUT_OUTPUT, screen->root_visual,
 	    XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK, valueListWindow);
 

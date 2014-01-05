@@ -20,6 +20,8 @@
 
 Display::Display() {
 	rootContainer = nullptr;
+	width = 0;
+	height = 0;
 }
 
 Display::Display(const int w, const int h) {
@@ -28,23 +30,13 @@ Display::Display(const int w, const int h) {
 	height = h;
 }
 
-/*
-void Display::setHeight(unsigned short h) {
-	height = h;
-}
-
-void Display::setWidth(unsigned short w) {
-	width = w;
-}
-
-unsigned short Display::getHeight() const {
+int Display::getHeight() const {
 	return height;
 }
 
-unsigned short Display::getWidth() const {
+int Display::getWidth() const {
 	return width;
 }
-*/
 
 void Display::setRootContainer(RootContainer *c) {
 	// unregister display of current tree
