@@ -36,13 +36,13 @@ protected:
 
 	/* component traversing */
 	virtual std::vector<Component*> getContents() const;
-	static void traverse(Component &c, void (*)(Component&, void*), void*);
-	static void traverse(const Component &c, void (*)(const Component&, void*), void*);
-	static void traverseChildren(const Component &c, void (*)(Component&, void*), void*);
-	static void traverseChildren(const Component &c, void (*)(const Component&, void*), void*);
-	static void cbDisplayRegister(Component &c, void*);
-	static void cbDisplayUnregister(Component &c, void*);
-	static void cbDraw(const Component &c, void*);
+	static void traverse(Component&, void (*)(Component&, void*), void*);
+	static void traverse(const Component&, void (*)(const Component&, void*), void*);
+	static void traverseChildren(const Component&, void (*)(Component&, void*), void*);
+	static void traverseChildren(const Component&, void (*)(const Component&, void*), void*);
+	static void cbDisplayRegister(Component&, void*);
+	static void cbDisplayUnregister(Component&, void*);
+	static void cbDraw(const Component&, void*);
 	virtual void onDraw() const = 0;
 
 public:

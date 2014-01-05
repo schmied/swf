@@ -27,7 +27,7 @@ Component::Component(Container* p) {
 		init(nullptr, nullptr);
 	else
 		p->addComponent(this);
-};
+}
 
 void Component::init(Container *p, Display *d) {
 	parent = p;
@@ -75,8 +75,9 @@ void Component::traverseChildren(const Component &c, void (*cb)(Component&, void
 
 void Component::traverseChildren(const Component &c, void (*cb)(const Component&, void*), void *userData) {
 	for (auto current : c.getContents()) {
-		cb(*current, userData);
-		traverseChildren(*current, cb, userData);
+		const Component &cc = static_cast<const Component&>(*current);
+		cb(cc, userData);
+		traverseChildren(cc, cb, userData);
 	}
 }
 
