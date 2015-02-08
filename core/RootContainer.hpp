@@ -17,6 +17,9 @@
 #ifndef SWT_CORE_ROOT_CONTAINER
 #define SWT_CORE_ROOT_CONTAINER
 
+#include <deque>
+#include <string>
+
 #include "Container.hpp"
 
 class Display;
@@ -27,6 +30,8 @@ private:
 	Display *display;		/* connected to a display? */
 	Component *componentActive;
 	Component *componentFocus;
+	
+	std::deque<const std::basic_string<char>> logs; // = {};
 
 	void onDraw(const Display&) override;
 
@@ -36,6 +41,7 @@ public:
 	RootContainer(Display*);
 	Display* getDisplay() const;
 	void draw();
+	void log(const std::basic_string<char>&);
 
 };
 

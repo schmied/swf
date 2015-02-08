@@ -17,6 +17,7 @@
 #ifndef SWT_CORE_DISPLAY
 #define SWT_CORE_DISPLAY
 
+#include <string>
 #include <utility>
 
 class RootContainer;
@@ -29,6 +30,7 @@ protected:
 
 public:
 	virtual void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const = 0;
+	virtual void drawText(const std::pair<int,int>&, const std::basic_string<char>&) const = 0;
 	virtual std::pair<int,int> getDimension() const = 0;
 
 };

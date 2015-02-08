@@ -42,7 +42,10 @@ DisplayCurses::~DisplayCurses() {
 }
 
 void DisplayCurses::drawBorder(const std::pair<int,int> &offset, const std::pair<int,int> &dimension) const {
-	mvaddstr(offset.second, offset.first, "blaaaaaa");
+}
+
+void DisplayCurses::drawText(const std::pair<int,int> &offset, const std::basic_string<char> &text) const {
+	mvaddstr(offset.second, offset.first, text.c_str());
 	refresh();
 }
 

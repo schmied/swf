@@ -63,10 +63,17 @@ DisplayXcb::DisplayXcb(const std::pair<int,int> &dimension) {
 	xcb_map_window(connection, window);
 	xcb_flush(connection);
 
+	font = xcb_generate_id(connection);
+	xcb_open_font(connection, font, 9, "Helvetica");
+	
 	context = xcb_generate_id(connection);
-	const uint32_t valueListGContext[] { screen->black_pixel, 0 };
-	xcb_create_gc(connection, context, screen->root, XCB_GC_FOREGROUND |
-	    XCB_GC_GRAPHICS_EXPOSURES, valueListGContext);
+//	const uint32_t valueListGContext[] { screen->black_pixel, screen->white_pixel, font, 0 };
+	const uint32_t valueListGContext[] { screen->black_pixel, screen->white_pixel, 0 };
+	xcb_create_gc(connection, context, screen->root, XCB_GC_FOREGROUND | XCB_GC_BACKGROUND
+	    | XCB_GC_GRAPHICS_EXPOSURES, valueListGContext);
+//	    | XCB_GC_FONT | XCB_GC_GRAPHICS_EXPOSURES, valueListGContext);
+
+//	xcb_close_font(connection, font);
 
 	xcb_map_window(connection, window);
 	xcb_flush(connection);
@@ -85,12 +92,10 @@ void DisplayXcb::drawBorder(const std::pair<int,int> &offset, const std::pair<in
 	rectBorder.height = dimension.second;
 	xcb_poly_rectangle(connection, window, context, 1, &rectBorder);
 	xcb_flush(connection);
+}
 
-	rectBorder.x = 10;
-	rectBorder.y = 10;
-	rectBorder.width = 20;
-	rectBorder.height = 20;
-	xcb_poly_rectangle(connection, window, context, 1, &rectBorder);
+void DisplayXcb::drawText(const std::pair<int,int> &offset, const std::basic_string<char> &text) const {
+	xcb_image_text_8(connection, text.size(), window, context, offset.first, offset.second, text.c_str());
 	xcb_flush(connection);
 }
 

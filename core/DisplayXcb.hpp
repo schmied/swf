@@ -17,6 +17,7 @@
 #ifndef SWT_CORE_DISPLAY_XCB
 #define SWT_CORE_DISPLAY_XCB
 
+#include <string>
 #include <utility>
 
 #include <xcb/xcb.h>
@@ -31,12 +32,14 @@ private:
 	xcb_connection_t *connection;
 	xcb_screen_t *screen;
 	xcb_window_t window;
+	xcb_font_t font;
 	xcb_gcontext_t context;
 
 public:
 	DisplayXcb(const std::pair<int,int>&);
 	~DisplayXcb();
 	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
+	void drawText(const std::pair<int,int>&, const std::basic_string<char>&) const override;
 	std::pair<int,int> getDimension() const override;
 
 };

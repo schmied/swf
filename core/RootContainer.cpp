@@ -16,8 +16,14 @@
 
 #include "RootContainer.hpp"
 
+
+#include <iostream>
+
+#include "Display.hpp"
+
 RootContainer::RootContainer(Display *d) : Container(nullptr) {
 	display = d;
+//	logs {};
 }
 
 Display* RootContainer::getDisplay() const {
@@ -26,9 +32,22 @@ Display* RootContainer::getDisplay() const {
 
 void RootContainer::draw() {
 	traverse(*this, Component::cbDraw, display);
+	if (logs.size() > 0) {
+		int pos = 0;
+		for (const auto log : logs) {
+			display->drawText({10, 10 + pos}, log);
+			pos++;
+		}
+	}
 }
 
 void RootContainer::onDraw(const Display &display) {
 //	display.drawBorder(offset, dimension);
+}
+
+void RootContainer::log(const std::basic_string<char> &s) {
+	logs.push_front(s);
+	if (logs.size() > 10)
+		logs.pop_back();
 }
 

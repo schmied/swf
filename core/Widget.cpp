@@ -24,5 +24,6 @@
 
 void Widget::onDraw(const Display &display) {
 	display.drawBorder(offset, dimension);
+	display.drawText(offset, "uga");
 }
 

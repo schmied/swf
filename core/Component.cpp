@@ -40,10 +40,8 @@ Container* Component::getParent() const {
 }
 
 RootContainer* Component::rootContainer() {
-	if (parent == nullptr)
-		return (RootContainer*) this;
-	auto current = parent;
-	while (current != nullptr)
+	auto current = this;
+	while (current->parent != nullptr)
 		current = current->parent;
 	return (RootContainer*) current;
 }
@@ -113,6 +111,7 @@ void Component::cbDraw(Component &c, void *userData) {
 		c.dimension.first = width;
 		c.dimension.second = 10;
 	}
+	c.rootContainer()->log("bla");
 //	std::cout << "cb layout " << c.offset.first << " " << c.offset.second << " " << c.dimension.first << " " << c.dimension.second << std::endl;
 	
 	c.onDraw(*display);
