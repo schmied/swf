@@ -28,13 +28,11 @@ private:
 	Component *componentActive;
 	Component *componentFocus;
 
-//	void onDraw(const Display&) override;
+	void onDraw(const Display&) override;
 
 protected:
-//	void onDraw(const Display&) override;
 
 public:
-	void onDraw(const Display&) override;
 	RootContainer(Display*);
 	Display* getDisplay() const;
 	void draw();

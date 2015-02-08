@@ -23,7 +23,6 @@
 #include "RootContainer.hpp"
 
 void Widget::onDraw(const Display &display) {
-	std::cout << " widget " << rootContainer() << std::endl;
 	display.drawBorder(offset, dimension);
 }
 

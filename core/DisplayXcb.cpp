@@ -83,7 +83,6 @@ void DisplayXcb::drawBorder(const std::pair<int,int> &offset, const std::pair<in
 	rectBorder.y = offset.second;
 	rectBorder.width = dimension.first;
 	rectBorder.height = dimension.second;
-	std::cout << "xdb draw border" << rectBorder.x << " " << rectBorder.y << " " << rectBorder.width << " " << rectBorder.height << std::endl;
 	xcb_poly_rectangle(connection, window, context, 1, &rectBorder);
 	xcb_flush(connection);
 
@@ -96,8 +95,6 @@ void DisplayXcb::drawBorder(const std::pair<int,int> &offset, const std::pair<in
 }
 
 std::pair<int,int> DisplayXcb::getDimension() const {
-//	return { screen->width_in_pixels, screen->height_in_pixels };
-	std::cout << " get dim " << std::endl;
 	xcb_get_geometry_cookie_t cookie = xcb_get_geometry(connection, window);
 	xcb_get_geometry_reply_t *geometry = xcb_get_geometry_reply(connection, cookie, NULL);
 	const std::pair<int,int> dimension = { geometry->width, geometry->height };

@@ -22,13 +22,11 @@
 class Widget : public Component {
 
 private:
-//	void onDraw(const Display&) override;
+	void onDraw(const Display&) override;
 
 protected:
-//	void onDraw(const Display&) override;
 
 public:
-	void onDraw(const Display&) override;
 	Widget(Container *p) : Component(p) {};
 
 };

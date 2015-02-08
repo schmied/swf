@@ -29,7 +29,6 @@ Component::Component(Container* p) {
 		init(nullptr);
 	else
 		p->addComponent(this);
-	std::cout << " init " << parent << std::endl;
 }
 
 void Component::init(Container *p) {
@@ -99,7 +98,7 @@ void Component::cbDraw(Component &c, void *userData) {
 	const Display *display = (Display*) userData;
 	const auto parent = c.parent;
 	if (parent == nullptr) {
-		std::cout << " parent null " << std::endl;
+//		std::cout << " parent null " << std::endl;
 		const RootContainer &rc = (RootContainer&) c;
 		if (rc.getDisplay() == nullptr) {
 			// XXX log
@@ -109,14 +108,12 @@ void Component::cbDraw(Component &c, void *userData) {
 		c.offset = { 0, 0 };
 		c.dimension = display->getDimension();
 	} else {
-		std::cout << " parent container " << std::endl;
-		std::cout << "cb layout pos " << c.containerPosition() << std::endl;
 		const int width = parent->dimension.first / parent->getContents().size();
 		c.offset.first = parent->offset.first + c.containerPosition() * width;
 		c.dimension.first = width;
 		c.dimension.second = 10;
 	}
-	std::cout << "cb layout " << c.offset.first << " " << c.offset.second << " " << c.dimension.first << " " << c.dimension.second << std::endl;
+//	std::cout << "cb layout " << c.offset.first << " " << c.offset.second << " " << c.dimension.first << " " << c.dimension.second << std::endl;
 	
 	c.onDraw(*display);
 }

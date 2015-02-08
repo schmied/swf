@@ -30,13 +30,11 @@ private:
 	Container *parent;
 	int containerPosition() const;
 
-//	virtual void onDraw(const Display&) = 0;
+	virtual void onDraw(const Display&) = 0;
 
 protected:
 	std::pair<int,int> offset;
 	std::pair<int,int> dimension;
-
-//	virtual void onDraw(const Display&) = 0;
 
 	Container* getParent() const;
 	RootContainer* rootContainer();
@@ -49,7 +47,6 @@ protected:
 	static void cbDraw(Component&, void*);
 
 public:
-	virtual void onDraw(const Display&) = 0;
 	Component(Container*);
 	void init(Container*);
 	virtual std::vector<Component*> getContents() const;

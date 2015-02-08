@@ -42,12 +42,11 @@ DisplayCurses::~DisplayCurses() {
 }
 
 void DisplayCurses::drawBorder(const std::pair<int,int> &offset, const std::pair<int,int> &dimension) const {
-	mvaddstr(offset.first, offset.second, "blaaaaaa");
+	mvaddstr(offset.second, offset.first, "blaaaaaa");
 	refresh();
 }
 
 std::pair<int,int> DisplayCurses::getDimension() const {
-	std::cout << " curses get dimension!!! " << std::endl;
 	int x, y;
 
 	getmaxyx(window, y, x);

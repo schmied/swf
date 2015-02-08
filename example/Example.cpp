@@ -30,12 +30,13 @@
 
 int main(int argc, char **argv) {
 
-//	DisplayXcb display {{100, 100}};
-	DisplayCurses display {};
+	DisplayXcb display {{100, 100}};
+//	DisplayCurses display {};
 
 	RootContainer root { &display };
 	Widget widget1 { &root };
 	Widget widget2 { &root };
+	Widget widget3 { &root };
 
 	for (;;) {
 		root.draw();
