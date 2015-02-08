@@ -33,10 +33,12 @@ Display* RootContainer::getDisplay() const {
 void RootContainer::draw() {
 	traverse(*this, Component::cbDraw, display);
 	if (logs.size() > 0) {
-		int pos = 0;
+		const int fontHeight = display->fontDimension().second;
+		const int xOffset = display->fontDimension().first;
+		int yOffset = display->screenDimension().second - (1 + logs.size()) * fontHeight;
 		for (const auto log : logs) {
-			display->drawText({10, 10 + pos}, log);
-			pos++;
+			display->drawText({xOffset, yOffset}, log);
+			yOffset += fontHeight;
 		}
 	}
 }

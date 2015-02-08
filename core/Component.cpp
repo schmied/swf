@@ -92,6 +92,7 @@ void Component::traverseChildren(const Component &c, void (*cb)(const Component&
 	}
 }
 
+
 void Component::cbDraw(Component &c, void *userData) {
 	const Display *display = (Display*) userData;
 	const auto parent = c.parent;
@@ -104,16 +105,13 @@ void Component::cbDraw(Component &c, void *userData) {
 			return;
 		}
 		c.offset = { 0, 0 };
-		c.dimension = display->getDimension();
+		c.dimension = display->screenDimension();
 	} else {
 		const int width = parent->dimension.first / parent->getContents().size();
 		c.offset.first = parent->offset.first + c.containerPosition() * width;
 		c.dimension.first = width;
-		c.dimension.second = 10;
+		c.dimension.second = display->fontDimension().second;
 	}
 	c.rootContainer()->log("bla");
-//	std::cout << "cb layout " << c.offset.first << " " << c.offset.second << " " << c.dimension.first << " " << c.dimension.second << std::endl;
-	
 	c.onDraw(*display);
 }
-

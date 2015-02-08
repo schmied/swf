@@ -49,9 +49,16 @@ void DisplayCurses::drawText(const std::pair<int,int> &offset, const std::basic_
 	refresh();
 }
 
-std::pair<int,int> DisplayCurses::getDimension() const {
+std::pair<int,int> DisplayCurses::screenDimension() const {
 	int x, y;
 
 	getmaxyx(window, y, x);
 	return { x, y };
 }
+
+static const std::pair<int,int> fontDim { 1, 1 };
+
+std::pair<int,int> DisplayCurses::fontDimension() const {
+	return fontDim;
+}
+
