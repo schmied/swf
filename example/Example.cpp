@@ -30,23 +30,15 @@
 
 int main(int argc, char **argv) {
 
-	//Context context {};
-	DisplayXcb display {{100, 100}};
-//	DisplayCurses display {};
-	//context.setDisplay(&display);
-	//Component component {};
-	//context.setComponentRoot(&component);
-	RootContainer root {};
+//	DisplayXcb display {{100, 100}};
+	DisplayCurses display {};
+
+	RootContainer root { &display };
 	Widget widget1 { &root };
 	Widget widget2 { &root };
 
-	//root.addComponent(&widget);
-	display.setRootContainer(&root);
-
-//	Component c {};
-
 	for (;;) {
-		display.draw();
+		root.draw();
 
 		sleep(1);
 	}

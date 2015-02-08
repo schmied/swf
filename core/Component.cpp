@@ -14,34 +14,39 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include "Component.hpp"
+
+
 #include <iostream>
 #include <vector>
 
-#include "Component.hpp"
-
 #include "Container.hpp"
 #include "Display.hpp"
-
-//#include "RootContainer.hpp"
+#include "RootContainer.hpp"
 
 Component::Component(Container* p) {
 	if (p == nullptr) // root container?
-		init(nullptr, nullptr);
+		init(nullptr);
 	else
 		p->addComponent(this);
+	std::cout << " init " << parent << std::endl;
 }
 
-void Component::init(Container *p, Display *d) {
+void Component::init(Container *p) {
 	parent = p;
-	display = d;
 }
 
 Container* Component::getParent() const {
 	return parent;
 }
 
-Display* Component::getDisplay() const {
-	return display;
+RootContainer* Component::rootContainer() {
+	if (parent == nullptr)
+		return (RootContainer*) this;
+	auto current = parent;
+	while (current != nullptr)
+		current = current->parent;
+	return (RootContainer*) current;
 }
 
 int Component::containerPosition() const {
@@ -90,25 +95,21 @@ void Component::traverseChildren(const Component &c, void (*cb)(const Component&
 	}
 }
 
-void Component::cbDisplayRegister(Component &c, void *userData) {
-	c.display = static_cast<Display*>(userData);
-}
-
-void Component::cbDisplayUnregister(Component &c, void *userData) {
-	c.display = nullptr;
-}
-
-void Component::cbDraw(const Component &c, void *userData) {
-	c.onDraw();
-}
-
-void Component::cbLayout(Component &c, void *userData) {
+void Component::cbDraw(Component &c, void *userData) {
+	const Display *display = (Display*) userData;
 	const auto parent = c.parent;
 	if (parent == nullptr) {
-		// XXX log if no display connected
+		std::cout << " parent null " << std::endl;
+		const RootContainer &rc = (RootContainer&) c;
+		if (rc.getDisplay() == nullptr) {
+			// XXX log
+			std::cout << " display is null " << std::endl;
+			return;
+		}
 		c.offset = { 0, 0 };
-		c.dimension = c.display->getDimension();
+		c.dimension = display->getDimension();
 	} else {
+		std::cout << " parent container " << std::endl;
 		std::cout << "cb layout pos " << c.containerPosition() << std::endl;
 		const int width = parent->dimension.first / parent->getContents().size();
 		c.offset.first = parent->offset.first + c.containerPosition() * width;
@@ -117,32 +118,6 @@ void Component::cbLayout(Component &c, void *userData) {
 	}
 	std::cout << "cb layout " << c.offset.first << " " << c.offset.second << " " << c.dimension.first << " " << c.dimension.second << std::endl;
 	
+	c.onDraw(*display);
 }
-
-/*
-const RootContainer* Component::getRootContainer() const {
-	if (parent == nullptr)
-		return nullptr;
-	const Component *c = this;
-	while (c->parent != nullptr)
-		c = c->parent;
-	return static_cast<const RootContainer*>(c);
-}
-
-unsigned short Component::getDimHeight() const {
-	return dimHeight;
-}
-
-unsigned short Component::getDimWidth() const {
-	return dimWidth;
-}
-
-unsigned short Component::getDimX() const {
-	return dimX;
-}
-
-unsigned short Component::getDimY() const {
-	return dimY;
-}
-*/
 

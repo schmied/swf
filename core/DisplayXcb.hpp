@@ -23,6 +23,8 @@
 
 #include "Display.hpp"
 
+class RootContainer;
+
 class DisplayXcb : public Display {
 
 private:
@@ -35,7 +37,7 @@ public:
 	DisplayXcb(const std::pair<int,int>&);
 	~DisplayXcb();
 	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
-	virtual std::pair<int,int> getDimension() const;
+	std::pair<int,int> getDimension() const override;
 
 };
 

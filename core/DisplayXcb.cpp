@@ -22,6 +22,7 @@
 #include "DisplayXcb.hpp"
 
 #include "Component.hpp"
+#include "RootContainer.hpp"
 
 xcb_rectangle_t rectBorder;
 
@@ -92,11 +93,11 @@ void DisplayXcb::drawBorder(const std::pair<int,int> &offset, const std::pair<in
 	rectBorder.height = 20;
 	xcb_poly_rectangle(connection, window, context, 1, &rectBorder);
 	xcb_flush(connection);
-
 }
 
 std::pair<int,int> DisplayXcb::getDimension() const {
 //	return { screen->width_in_pixels, screen->height_in_pixels };
+	std::cout << " get dim " << std::endl;
 	xcb_get_geometry_cookie_t cookie = xcb_get_geometry(connection, window);
 	xcb_get_geometry_reply_t *geometry = xcb_get_geometry_reply(connection, cookie, NULL);
 	const std::pair<int,int> dimension = { geometry->width, geometry->height };

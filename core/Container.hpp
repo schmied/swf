@@ -31,11 +31,14 @@ private:
 //	int layout_columns;
 //	int layout_rows;
 
+//	void onDraw(const Display&) override;
+
 protected:
 //	std::vector<Component*> getContents() const override;
-	void onDraw() const override;
+//	void onDraw(const Display&) override;
 
 public:
+	void onDraw(const Display&) override;
 	Container(Container *p);
 	std::vector<Component*> getContents() const override;
 	void addComponent(Component*);

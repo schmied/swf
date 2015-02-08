@@ -24,17 +24,20 @@ class Display;
 class RootContainer : public Container {
 
 private:
+	Display *display;		/* connected to a display? */
 	Component *componentActive;
 	Component *componentFocus;
 
+//	void onDraw(const Display&) override;
+
 protected:
+//	void onDraw(const Display&) override;
 
 public:
-	RootContainer();
-	void traverseDraw() const;
-	void traverseLayout();
-	void traverseDisplayRegister(Display*);
-	void traverseDisplayUnregister();
+	void onDraw(const Display&) override;
+	RootContainer(Display*);
+	Display* getDisplay() const;
+	void draw();
 
 };
 

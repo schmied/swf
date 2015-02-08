@@ -14,25 +14,27 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <curses.h>
-
 #include "DisplayCurses.hpp"
+
+
+#include <iostream>
+
+#include <curses.h>
 
 #include "Component.hpp"
 
-//DisplayCurses::DisplayCurses(const int w, const int h) : Display(w, h) {
 DisplayCurses::DisplayCurses() {
 	window = initscr();
-        cbreak();
-        noecho();
-        nonl();
-        intrflush(window, FALSE);
-        keypad(window, TRUE);
-        meta(window, TRUE);
-        raw();
-        scrollok(window, FALSE);
-        erase();
-        refresh();
+	cbreak();
+	noecho();
+	nonl();
+	intrflush(window, FALSE);
+	keypad(window, TRUE);
+	meta(window, TRUE);
+	raw();
+	scrollok(window, FALSE);
+	erase();
+	refresh();
 }
 
 DisplayCurses::~DisplayCurses() {
@@ -45,6 +47,7 @@ void DisplayCurses::drawBorder(const std::pair<int,int> &offset, const std::pair
 }
 
 std::pair<int,int> DisplayCurses::getDimension() const {
+	std::cout << " curses get dimension!!! " << std::endl;
 	int x, y;
 
 	getmaxyx(window, y, x);

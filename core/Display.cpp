@@ -17,39 +17,3 @@
 #include "Display.hpp"
 
 
-#include "RootContainer.hpp"
-
-Display::Display() {
-	rootContainer = nullptr;
-//	dimension = { 0, 0 };
-}
-
-/*
-Display::Display(const std::pair<int,int> &d) {
-	rootContainer = nullptr;
-	dimension = d;
-}
-*/
-
-/*
-std::pair<int,int> Display::getDimension() const {
-	return dimension;
-}
-*/
-
-void Display::setRootContainer(RootContainer *c) {
-	// unregister display of current tree
-	if (rootContainer != nullptr)
-		rootContainer->traverseDisplayUnregister();
-	rootContainer = c;
-	if (rootContainer != nullptr)
-		rootContainer->traverseDisplayRegister(this);
-}
-
-void Display::draw() {
-	if (rootContainer == nullptr)
-		return;
-	rootContainer->traverseLayout();
-	rootContainer->traverseDraw();
-}
-

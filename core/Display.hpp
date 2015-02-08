@@ -24,16 +24,10 @@ class RootContainer;
 class Display {
 
 private:
-	RootContainer *rootContainer;
-//	std::pair<int,int> dimension;
 
 protected:
 
 public:
-	Display();
-//	Display(const std::pair<int,int>&);
-	void setRootContainer(RootContainer*);
-	void draw();
 	virtual void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const = 0;
 	virtual std::pair<int,int> getDimension() const = 0;
 

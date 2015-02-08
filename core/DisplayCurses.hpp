@@ -22,6 +22,7 @@
 #include "Display.hpp"
 
 class Component;
+class RootContainer;
 
 class DisplayCurses : public Display {
 
@@ -32,7 +33,7 @@ public:
 	DisplayCurses();
 	~DisplayCurses();
 	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
-	virtual std::pair<int,int> getDimension() const;
+	std::pair<int,int> getDimension() const override;
 
 };
 

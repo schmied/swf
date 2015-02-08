@@ -19,6 +19,7 @@
 #include "Container.hpp"
 
 #include "Display.hpp"
+#include "RootContainer.hpp"
 
 Container::Container() : Component(nullptr) {
 };
@@ -27,7 +28,7 @@ Container::Container(Container *p) : Component(p) {
 };
 
 void Container::addComponent(Component *c) {
-	c->init(this, getDisplay());
+	c->init(this);
 	contents.push_back(c);
 }
 
@@ -35,10 +36,7 @@ std::vector<Component*> Container::getContents() const {
 	return contents;
 }
 
-void Container::onDraw() const {
-	const Display *d = getDisplay();
-	if (d == nullptr)
-		return;
-	d->drawBorder(offset, dimension);
+void Container::onDraw(const Display &display) {
+	display.drawBorder(offset, dimension);
 }
 

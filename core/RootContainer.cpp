@@ -16,22 +16,19 @@
 
 #include "RootContainer.hpp"
 
-RootContainer::RootContainer() : Container(nullptr) {
+RootContainer::RootContainer(Display *d) : Container(nullptr) {
+	display = d;
 }
 
-void RootContainer::traverseDraw() const {
-	traverse(*this, Component::cbDraw, nullptr);
+Display* RootContainer::getDisplay() const {
+	return display;
 }
 
-void RootContainer::traverseLayout() {
-	traverse(*this, Component::cbLayout, nullptr);
+void RootContainer::draw() {
+	traverse(*this, Component::cbDraw, display);
 }
 
-void RootContainer::traverseDisplayRegister(Display *d) {
-	traverse(*this, Component::cbDisplayRegister, d);
-}
-
-void RootContainer::traverseDisplayUnregister() {
-	traverse(*this, Component::cbDisplayUnregister, nullptr);
+void RootContainer::onDraw(const Display &display) {
+//	display.drawBorder(offset, dimension);
 }
 
