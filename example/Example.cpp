@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, 2016, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -31,25 +31,25 @@
 int main(int argc, char **argv) {
 
 	//Context context {};
-	//DisplayXcb display {100, 100};
-	DisplayCurses display {};
+	DisplayXcb display {{100, 100}};
+//	DisplayCurses display {};
 	//context.setDisplay(&display);
 	//Component component {};
 	//context.setComponentRoot(&component);
 	RootContainer root {};
-	Widget widget { &root };
+	Widget widget1 { &root };
+	Widget widget2 { &root };
 
 	//root.addComponent(&widget);
 	display.setRootContainer(&root);
 
 //	Component c {};
 
-//	for (;;) {
-//		sleep(1);
-
+	for (;;) {
 		display.draw();
 
-//	}
+		sleep(1);
+	}
 
 	sleep(3);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Michael Schmiedgen
+ * Copyright (c) 2014, 2015, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -21,6 +21,10 @@ RootContainer::RootContainer() : Container(nullptr) {
 
 void RootContainer::traverseDraw() const {
 	traverse(*this, Component::cbDraw, nullptr);
+}
+
+void RootContainer::traverseLayout() {
+	traverse(*this, Component::cbLayout, nullptr);
 }
 
 void RootContainer::traverseDisplayRegister(Display *d) {

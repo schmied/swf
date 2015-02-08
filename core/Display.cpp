@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, 2015, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -16,27 +16,26 @@
 
 #include "Display.hpp"
 
+
 #include "RootContainer.hpp"
 
 Display::Display() {
 	rootContainer = nullptr;
-	width = 0;
-	height = 0;
+//	dimension = { 0, 0 };
 }
 
-Display::Display(const int w, const int h) {
+/*
+Display::Display(const std::pair<int,int> &d) {
 	rootContainer = nullptr;
-	width = w;
-	height = h;
+	dimension = d;
 }
+*/
 
-int Display::getHeight() const {
-	return height;
+/*
+std::pair<int,int> Display::getDimension() const {
+	return dimension;
 }
-
-int Display::getWidth() const {
-	return width;
-}
+*/
 
 void Display::setRootContainer(RootContainer *c) {
 	// unregister display of current tree
@@ -50,6 +49,7 @@ void Display::setRootContainer(RootContainer *c) {
 void Display::draw() {
 	if (rootContainer == nullptr)
 		return;
+	rootContainer->traverseLayout();
 	rootContainer->traverseDraw();
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Michael Schmiedgen
+ * Copyright (c) 2014, 2015, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -21,18 +21,23 @@
 
 #include "Component.hpp"
 
+//enum layout_t { INLINE, 
+
 class Container : public Component {
 
 private:
 	Container();
 	std::vector<Component*> contents {};
+//	int layout_columns;
+//	int layout_rows;
 
 protected:
-	std::vector<Component*> getContents() const override;
+//	std::vector<Component*> getContents() const override;
 	void onDraw() const override;
 
 public:
 	Container(Container *p);
+	std::vector<Component*> getContents() const override;
 	void addComponent(Component*);
 
 };

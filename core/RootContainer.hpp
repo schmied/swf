@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Michael Schmiedgen
+ * Copyright (c) 2014, 2015, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -32,6 +32,7 @@ protected:
 public:
 	RootContainer();
 	void traverseDraw() const;
+	void traverseLayout();
 	void traverseDisplayRegister(Display*);
 	void traverseDisplayUnregister();
 

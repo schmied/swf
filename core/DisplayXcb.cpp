@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, 2015, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -15,6 +15,7 @@
  */
 
 #include <iostream>
+#include <utility>
 
 #include <xcb/xcb.h>
 
@@ -24,7 +25,7 @@
 
 xcb_rectangle_t rectBorder;
 
-DisplayXcb::DisplayXcb(int w, int h) : Display(w, h) {
+DisplayXcb::DisplayXcb(const std::pair<int,int> &dimension) {
 
 	int n;
 	connection = xcb_connect(NULL, &n);
@@ -54,16 +55,16 @@ DisplayXcb::DisplayXcb(int w, int h) : Display(w, h) {
 	const uint32_t valueListWindow[] { screen->white_pixel,
 	    XCB_EVENT_MASK_EXPOSURE };
 	xcb_create_window(connection, XCB_COPY_FROM_PARENT, window,
-	    screen->root, 0, 0, getWidth(), getHeight(), 0,
+	    screen->root, 0, 0, dimension.first, dimension.second, 0,
 	    XCB_WINDOW_CLASS_INPUT_OUTPUT, screen->root_visual,
 	    XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK, valueListWindow);
 
 	xcb_map_window(connection, window);
 	xcb_flush(connection);
 
-	gContext = xcb_generate_id(connection);
+	context = xcb_generate_id(connection);
 	const uint32_t valueListGContext[] { screen->black_pixel, 0 };
-	xcb_create_gc(connection, gContext, screen->root, XCB_GC_FOREGROUND |
+	xcb_create_gc(connection, context, screen->root, XCB_GC_FOREGROUND |
 	    XCB_GC_GRAPHICS_EXPOSURES, valueListGContext);
 
 	xcb_map_window(connection, window);
@@ -76,12 +77,30 @@ DisplayXcb::~DisplayXcb() {
 	std::cout << "displayxcb terminated." << std::endl;
 }
 
-void DisplayXcb::drawBorder(const int x, const int y, const int w, const int h) const {
-	rectBorder.x = x;
-	rectBorder.y = y;
-	rectBorder.width = w;
-	rectBorder.height = h;
-	xcb_poly_rectangle(connection, window, gContext, 1, &rectBorder);
+void DisplayXcb::drawBorder(const std::pair<int,int> &offset, const std::pair<int,int> &dimension) const {
+	rectBorder.x = offset.first;
+	rectBorder.y = offset.second;
+	rectBorder.width = dimension.first;
+	rectBorder.height = dimension.second;
+	std::cout << "xdb draw border" << rectBorder.x << " " << rectBorder.y << " " << rectBorder.width << " " << rectBorder.height << std::endl;
+	xcb_poly_rectangle(connection, window, context, 1, &rectBorder);
 	xcb_flush(connection);
+
+	rectBorder.x = 10;
+	rectBorder.y = 10;
+	rectBorder.width = 20;
+	rectBorder.height = 20;
+	xcb_poly_rectangle(connection, window, context, 1, &rectBorder);
+	xcb_flush(connection);
+
+}
+
+std::pair<int,int> DisplayXcb::getDimension() const {
+//	return { screen->width_in_pixels, screen->height_in_pixels };
+	xcb_get_geometry_cookie_t cookie = xcb_get_geometry(connection, window);
+	xcb_get_geometry_reply_t *geometry = xcb_get_geometry_reply(connection, cookie, NULL);
+	const std::pair<int,int> dimension = { geometry->width, geometry->height };
+	free(geometry);
+	return dimension;
 }
 

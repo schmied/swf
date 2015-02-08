@@ -2,7 +2,7 @@
 CC		= clang
 CFLAGS		= -Wall
 CPP		= clang++
-CPPFLAGS	= -Wall -O2 -std=c++11 -stdlib=libc++
+CPPFLAGS	= -Wall -Wextra -O2 -std=c++11 -stdlib=libc++
 INCLUDEDIRS	= -I/usr/local/include
 
 all: swfexample

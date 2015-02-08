@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, 2015, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -17,25 +17,28 @@
 #ifndef SWT_CORE_COMPONENT
 #define SWT_CORE_COMPONENT
 
+#include <utility>
 #include <vector>
 
 class Container;
 class Display;
-class RootContainer;
+//class RootContainer;
 
 class Component {
 
 private:
 	Container *parent;
 	Display *display;	/* connected to a display? */
+	int containerPosition() const;
 
 protected:
+	std::pair<int,int> offset;
+	std::pair<int,int> dimension;
+
 	Container* getParent() const;
 	Display* getDisplay() const;
-	int dimX, dimY, dimWidth, dimHeight;
-
+	
 	/* component traversing */
-	virtual std::vector<Component*> getContents() const;
 	static void traverse(Component&, void (*)(Component&, void*), void*);
 	static void traverse(const Component&, void (*)(const Component&, void*), void*);
 	static void traverseChildren(const Component&, void (*)(Component&, void*), void*);
@@ -43,11 +46,13 @@ protected:
 	static void cbDisplayRegister(Component&, void*);
 	static void cbDisplayUnregister(Component&, void*);
 	static void cbDraw(const Component&, void*);
+	static void cbLayout(Component&, void*);
 	virtual void onDraw() const = 0;
 
 public:
 	Component(Container*);
 	void init(Container*, Display*);
+	virtual std::vector<Component*> getContents() const;
 	bool isStateActive() const;
 	bool isStateFocus() const;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Michael Schmiedgen
+ * Copyright (c) 2014, 2015, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -39,6 +39,6 @@ void Container::onDraw() const {
 	const Display *d = getDisplay();
 	if (d == nullptr)
 		return;
-	d->drawBorder(dimX, dimY, dimWidth, dimHeight);
+	d->drawBorder(offset, dimension);
 }
 

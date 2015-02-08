@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, 2015, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,11 +14,13 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <iostream>
 #include <vector>
 
 #include "Component.hpp"
 
 #include "Container.hpp"
+#include "Display.hpp"
 
 //#include "RootContainer.hpp"
 
@@ -40,6 +42,13 @@ Container* Component::getParent() const {
 
 Display* Component::getDisplay() const {
 	return display;
+}
+
+int Component::containerPosition() const {
+	if (parent == nullptr)
+		return 0;
+	const auto contents = parent->getContents();
+	return std::distance(contents.begin(), std::find(contents.begin(), contents.end(), this));
 }
 
 bool Component::isStateActive() const {
@@ -67,14 +76,14 @@ void Component::traverse(const Component &c, void (*cb)(const Component&, void*)
 }
 
 void Component::traverseChildren(const Component &c, void (*cb)(Component&, void*), void *userData) {
-	for (auto current : c.getContents()) {
+	for (const auto current : c.getContents()) {
 		cb(*current, userData);
 		traverseChildren(*current, cb, userData);
 	}
 }
 
 void Component::traverseChildren(const Component &c, void (*cb)(const Component&, void*), void *userData) {
-	for (auto current : c.getContents()) {
+	for (const auto current : c.getContents()) {
 		const Component &cc = static_cast<const Component&>(*current);
 		cb(cc, userData);
 		traverseChildren(cc, cb, userData);
@@ -91,6 +100,23 @@ void Component::cbDisplayUnregister(Component &c, void *userData) {
 
 void Component::cbDraw(const Component &c, void *userData) {
 	c.onDraw();
+}
+
+void Component::cbLayout(Component &c, void *userData) {
+	const auto parent = c.parent;
+	if (parent == nullptr) {
+		// XXX log if no display connected
+		c.offset = { 0, 0 };
+		c.dimension = c.display->getDimension();
+	} else {
+		std::cout << "cb layout pos " << c.containerPosition() << std::endl;
+		const int width = parent->dimension.first / parent->getContents().size();
+		c.offset.first = parent->offset.first + c.containerPosition() * width;
+		c.dimension.first = width;
+		c.dimension.second = 10;
+	}
+	std::cout << "cb layout " << c.offset.first << " " << c.offset.second << " " << c.dimension.first << " " << c.dimension.second << std::endl;
+	
 }
 
 /*

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, 2015, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -17,24 +17,25 @@
 #ifndef SWT_CORE_DISPLAY
 #define SWT_CORE_DISPLAY
 
+#include <utility>
+
 class RootContainer;
 
 class Display {
 
 private:
 	RootContainer *rootContainer;
-	int width, height;
+//	std::pair<int,int> dimension;
 
 protected:
 
 public:
 	Display();
-	Display(const int, const int);
-	int getWidth() const;
-	int getHeight() const;
+//	Display(const std::pair<int,int>&);
 	void setRootContainer(RootContainer*);
 	void draw();
-	virtual void drawBorder(const int, const int, const int, const int) const = 0;
+	virtual void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const = 0;
+	virtual std::pair<int,int> getDimension() const = 0;
 
 };
 
