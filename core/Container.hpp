@@ -27,19 +27,20 @@ class Container : public Component {
 
 private:
 	Container();
-	std::vector<Component*> contents {};
+
+	std::vector<Component*> components {};
 //	int layout_columns;
 //	int layout_rows;
 
-	void onDraw(const Display&) override;
+	void addToContents(Component*) override;
+	void onDraw(const Display&) const override;
 
 protected:
-//	std::vector<Component*> getContents() const override;
 
 public:
 	Container(Container *p);
-	std::vector<Component*> getContents() const override;
-	void addComponent(Component*);
+
+	std::vector<Component*> contents() const override;
 
 };
 

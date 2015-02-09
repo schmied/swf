@@ -24,34 +24,41 @@ class Container;
 class Display;
 class RootContainer;
 
+
 class Component {
 
 private:
 	Container *parent;
+
 	int containerPosition() const;
 
-	virtual void onDraw(const Display&) = 0;
+	virtual void addToContents(Component*) = 0;
+	virtual void onDraw(const Display&) const = 0;
 
 protected:
+	// XXX put this in separate structure
 	std::pair<int,int> offset;
 	std::pair<int,int> dimension;
 
 	Container* getParent() const;
+
 	RootContainer* rootContainer();
-	
+
+	static void cbDraw(Component&, void*);
+
 	/* component traversing */
 	static void traverse(Component&, void (*)(Component&, void*), void*);
 	static void traverse(const Component&, void (*)(const Component&, void*), void*);
 	static void traverseChildren(const Component&, void (*)(Component&, void*), void*);
 	static void traverseChildren(const Component&, void (*)(const Component&, void*), void*);
-	static void cbDraw(Component&, void*);
 
 public:
 	Component(Container*);
-	void init(Container*);
-	virtual std::vector<Component*> getContents() const;
+
 	bool isStateActive() const;
 	bool isStateFocus() const;
+
+	virtual std::vector<Component*> contents() const = 0;
 
 };
 

@@ -24,16 +24,38 @@
 #include "Display.hpp"
 #include "RootContainer.hpp"
 
+
+
+/*
+ * constructor
+ */
+
 Component::Component(Container* p) {
-	if (p == nullptr) // root container?
-		init(nullptr);
-	else
-		p->addComponent(this);
+	if (p == nullptr) {
+		parent = nullptr;
+	} else {
+		((Component*) p)->addToContents(this);
+		parent = p;
+	}
 }
 
-void Component::init(Container *p) {
-	parent = p;
+
+/*
+ * private
+ */
+
+// returns position index of component in parent container
+int Component::containerPosition() const {
+	if (parent == nullptr)
+		return 0;
+	const auto contents = parent->contents();
+	return std::distance(contents.begin(), std::find(contents.begin(), contents.end(), this));
 }
+
+
+/*
+ * protected
+ */
 
 Container* Component::getParent() const {
 	return parent;
@@ -46,26 +68,30 @@ RootContainer* Component::rootContainer() {
 	return (RootContainer*) current;
 }
 
-int Component::containerPosition() const {
-	if (parent == nullptr)
-		return 0;
-	const auto contents = parent->getContents();
-	return std::distance(contents.begin(), std::find(contents.begin(), contents.end(), this));
+void Component::cbDraw(Component &c, void *userData) {
+	const Display *display = (Display*) userData;
+	const auto parent = c.parent;
+	if (parent == nullptr) {
+		const RootContainer &rc = (RootContainer&) c;
+		if (rc.getDisplay() == nullptr) {
+			c.rootContainer()->log("display is null");
+			return;
+		}
+		c.offset = { 0, 0 };
+		c.dimension = display->screenDimension();
+	} else {
+		const int width = parent->dimension.first / parent->contents().size();
+		c.offset.first = parent->offset.first + c.containerPosition() * width;
+		c.dimension.first = width;
+		c.dimension.second = display->fontDimension().second;
+	}
+	c.rootContainer()->log("bla");
+	c.onDraw(*display);
 }
 
-bool Component::isStateActive() const {
-	return false;
-}
-
-bool Component::isStateFocus() const {
-	return false;
-}
-
-static const std::vector<Component*> emptyVector {};
-
-std::vector<Component*> Component::getContents() const {
-	return emptyVector;
-}
+/*
+ * protected: component traversing
+ */
 
 void Component::traverse(Component &c, void (*cb)(Component&, void*), void *userData) {
 	cb(c, userData);
@@ -78,40 +104,29 @@ void Component::traverse(const Component &c, void (*cb)(const Component&, void*)
 }
 
 void Component::traverseChildren(const Component &c, void (*cb)(Component&, void*), void *userData) {
-	for (const auto current : c.getContents()) {
+	for (const auto current : c.contents()) {
 		cb(*current, userData);
 		traverseChildren(*current, cb, userData);
 	}
 }
 
 void Component::traverseChildren(const Component &c, void (*cb)(const Component&, void*), void *userData) {
-	for (const auto current : c.getContents()) {
+	for (const auto current : c.contents()) {
 		const Component &cc = static_cast<const Component&>(*current);
 		cb(cc, userData);
 		traverseChildren(cc, cb, userData);
 	}
 }
 
+/*
+ * public
+ */
 
-void Component::cbDraw(Component &c, void *userData) {
-	const Display *display = (Display*) userData;
-	const auto parent = c.parent;
-	if (parent == nullptr) {
-//		std::cout << " parent null " << std::endl;
-		const RootContainer &rc = (RootContainer&) c;
-		if (rc.getDisplay() == nullptr) {
-			// XXX log
-			std::cout << " display is null " << std::endl;
-			return;
-		}
-		c.offset = { 0, 0 };
-		c.dimension = display->screenDimension();
-	} else {
-		const int width = parent->dimension.first / parent->getContents().size();
-		c.offset.first = parent->offset.first + c.containerPosition() * width;
-		c.dimension.first = width;
-		c.dimension.second = display->fontDimension().second;
-	}
-	c.rootContainer()->log("bla");
-	c.onDraw(*display);
+bool Component::isStateActive() const {
+	return false;
 }
+
+bool Component::isStateFocus() const {
+	return false;
+}
+

@@ -32,9 +32,13 @@ Display* RootContainer::getDisplay() const {
 
 void RootContainer::draw() {
 	traverse(*this, Component::cbDraw, display);
+
+	// draw log
 	if (logs.size() > 0) {
 		const int fontHeight = display->fontDimension().second;
+		// 1 char left padding to screen
 		const int xOffset = display->fontDimension().first;
+		// 1 char bottom padding to screen
 		int yOffset = display->screenDimension().second - (1 + logs.size()) * fontHeight;
 		for (const auto log : logs) {
 			display->drawText({xOffset, yOffset}, log);
@@ -43,7 +47,7 @@ void RootContainer::draw() {
 	}
 }
 
-void RootContainer::onDraw(const Display &display) {
+void RootContainer::onDraw(const Display &display) const {
 //	display.drawBorder(offset, dimension);
 }
 

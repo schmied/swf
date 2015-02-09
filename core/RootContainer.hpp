@@ -33,13 +33,15 @@ private:
 	
 	std::deque<const std::basic_string<char>> logs; // = {};
 
-	void onDraw(const Display&) override;
+	void onDraw(const Display&) const override;
 
 protected:
 
 public:
 	RootContainer(Display*);
+
 	Display* getDisplay() const;
+
 	void draw();
 	void log(const std::basic_string<char>&);
 

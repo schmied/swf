@@ -22,8 +22,32 @@
 #include "Display.hpp"
 #include "RootContainer.hpp"
 
-void Widget::onDraw(const Display &display) {
+
+// empty vector for contents()
+static const std::vector<Component*> noContents {};
+
+
+/*
+ * private
+ */
+
+void Widget::addToContents(Component *c) {
+	rootContainer()->log("cannot add contents");
+}
+
+void Widget::onDraw(const Display &display) const {
 	display.drawBorder(offset, dimension);
 	display.drawText(offset, "uga");
 }
+
+
+/*
+ * public
+ */
+
+// no contents by default
+std::vector<Component*> Widget::contents() const {
+	return noContents;
+}
+
 

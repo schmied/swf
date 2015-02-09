@@ -22,12 +22,15 @@
 class Widget : public Component {
 
 private:
-	void onDraw(const Display&) override;
+	void addToContents(Component*) override;
+	void onDraw(const Display&) const override;
 
 protected:
 
 public:
 	Widget(Container *p) : Component(p) {};
+
+	std::vector<Component*> contents() const override;
 
 };
 

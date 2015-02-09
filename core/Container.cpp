@@ -21,22 +21,36 @@
 #include "Display.hpp"
 #include "RootContainer.hpp"
 
+
+/*
+ * constructor, destructor
+ */
+
 Container::Container() : Component(nullptr) {
 };
 
 Container::Container(Container *p) : Component(p) {
 };
 
-void Container::addComponent(Component *c) {
-	c->init(this);
-	contents.push_back(c);
+
+/*
+ * private
+ */
+
+void Container::addToContents(Component *c) {
+	components.push_back(c);
 }
 
-std::vector<Component*> Container::getContents() const {
-	return contents;
+
+/*
+ * public
+ */
+
+std::vector<Component*> Container::contents() const {
+	return components;
 }
 
-void Container::onDraw(const Display &display) {
+void Container::onDraw(const Display &display) const {
 	display.drawBorder(offset, dimension);
 }
 
