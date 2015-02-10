@@ -24,7 +24,7 @@
 #include "Component.hpp"
 #include "RootContainer.hpp"
 
-xcb_rectangle_t rectBorder;
+static xcb_rectangle_t rectBorder;
 
 DisplayXcb::DisplayXcb(const std::pair<int,int> &dimension) {
 

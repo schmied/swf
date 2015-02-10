@@ -25,13 +25,15 @@
 //#include "../core/Component.hpp"
 #include "../core/DisplayCurses.hpp"
 #include "../core/DisplayXcb.hpp"
+#include "../core/DisplaySdl.hpp"
 #include "../core/RootContainer.hpp"
 #include "../core/Widget.hpp"
 
 int main(int argc, char **argv) {
 
-	DisplayXcb display {{100, 100}};
+//	DisplayXcb display {{100, 100}};
 //	DisplayCurses display {};
+	DisplaySdl display {};
 
 	RootContainer root { &display };
 	Widget widget1 { &root };

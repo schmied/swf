@@ -37,7 +37,7 @@ void Widget::addToContents(Component *c) {
 
 void Widget::onDraw(const Display &display) const {
 	display.drawBorder(offset, dimension);
-	display.drawText(offset, "uga");
+	display.drawText(offset, "1234abcd");
 }
 
 
