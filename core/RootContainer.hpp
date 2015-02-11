@@ -31,7 +31,7 @@ private:
 	Component *componentActive;
 	Component *componentFocus;
 	
-	std::deque<const std::basic_string<char>> logs; // = {};
+	std::deque<const std::basic_string<char>*> logs; // = {};
 
 	void onDraw(const Display&) const override;
 
@@ -43,7 +43,8 @@ public:
 	Display* getDisplay() const;
 
 	void draw();
-	void log(const std::basic_string<char>&);
+//	void log(const std::basic_string<char>&);
+	void log(const char*, ...);
 
 };
 

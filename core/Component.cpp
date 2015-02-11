@@ -84,7 +84,6 @@ void Component::cbDraw(Component &c, void *userData) {
 		c.dimension.first = width;
 		c.dimension.second = display->fontDimension().second;
 	}
-	c.rootContainer()->log("blaXäößÜX");
 	c.onDraw(*display);
 }
 
