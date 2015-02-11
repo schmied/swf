@@ -42,7 +42,7 @@ SDL_Event* poll_event(RootContainer *root) {
 		return NULL;
 	}
 	root->log(">>-- %d", event.type);
-	std::cout << (int) event.type << std::endl;
+//	std::cout << (int) event.type << std::endl;
 	switch (event.type) {
 	case SDL_KEYDOWN:
 		switch (event.key.keysym.sym) {

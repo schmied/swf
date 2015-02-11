@@ -56,16 +56,13 @@ void RootContainer::onDraw(const Display &display) const {
 const static std::size_t bufSize = 1000;
 char buf[bufSize];
 
-//void RootContainer::log(const std::basic_string<char> &s) {
 void RootContainer::log(const char *format, ...) {
-//	std::basic_string<char> s = new std::basic_string();
 	std::basic_string<char> *s = new std::basic_string<char>("-");
 	va_list arg;
 	va_start(arg, format);
 	std::vsnprintf(buf, bufSize, format, arg);
 	s->append(buf);
 	va_end(arg);
-	//logs.push_front(buf);
 	logs.push_back(s);
 	if (logs.size() > 10)
 		logs.pop_front();

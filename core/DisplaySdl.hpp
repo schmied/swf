@@ -36,8 +36,8 @@ private:
 	static const int fontPanelLastChar = 0x7e; // last char: tilde
 	static const int fontPanelCharCount = fontPanelLastChar - fontPanelFirstChar;
 
-	static void drawPoint(SDL_Surface*, const std::pair<int,int>&, const Uint32);
-	static void drawGlyph(SDL_Surface*, const FT_GlyphSlot, std::pair<int,int>&, std::pair<int,int>&);
+	static void drawPoint(SDL_Surface*, const Uint16, const Uint16, const Uint32);
+	static void drawGlyph(SDL_Surface*, const FT_GlyphSlot, const Uint16, const Uint16);
 
 	struct SDL_Surface *screen;
 
@@ -52,6 +52,7 @@ public:
 	DisplaySdl();
 	~DisplaySdl();
 
+	void drawChar(const std::pair<int,int>&, const char) const;
 	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
 	void drawText(const std::pair<int,int>&, const std::basic_string<char>&) const override;
 
