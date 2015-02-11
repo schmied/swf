@@ -14,8 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef SWT_CORE_ROOT_CONTAINER
-#define SWT_CORE_ROOT_CONTAINER
+#ifndef SWF_CORE_ROOT_CONTAINER
+#define SWF_CORE_ROOT_CONTAINER
 
 #include <deque>
 #include <string>
@@ -48,5 +48,5 @@ public:
 
 };
 
-#endif // SWT_CORE_ROOT_CONTAINER
+#endif // SWF_CORE_ROOT_CONTAINER
 

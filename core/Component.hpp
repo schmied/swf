@@ -14,8 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef SWT_CORE_COMPONENT
-#define SWT_CORE_COMPONENT
+#ifndef SWF_CORE_COMPONENT
+#define SWF_CORE_COMPONENT
 
 #include <utility>
 #include <vector>
@@ -62,5 +62,5 @@ public:
 
 };
 
-#endif // SWT_CORE_COMPONENT
+#endif // SWF_CORE_COMPONENT
 

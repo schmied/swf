@@ -84,8 +84,8 @@ DisplaySdl::DisplaySdl() {
 		if (i == fontPanelCharCount - 1)
 			fontPanelOffsets[fontPanelCharCount-1] = lastXOffset;
 
-		if (i > 0)
-			std::cout << c << " " << fontPanelOffsets[i-1] << "   ";
+//		if (i > 0)
+//			std::cout << c << " " << fontPanelOffsets[i-1] << "   ";
 	}
 
 	// create font panel
@@ -116,7 +116,7 @@ DisplaySdl::DisplaySdl() {
 		drawGlyph(fontPanel, face->glyph, x, 0);
 		drawGlyph(screen, face->glyph, x, 500);
 	}
-//	SDL_UpdateRect(screen, 0, 0, 0, 0);
+	SDL_UpdateRect(screen, 0, 0, 0, 0);
 }
 
 DisplaySdl::~DisplaySdl() {
@@ -216,7 +216,7 @@ void DisplaySdl::drawText(const std::pair<int,int> &offset, const std::basic_str
 	screenRect.y = offset.second;
 	screenRect.h = fontPanel->h;
 	for (const auto c : text) {
-		if (false && fontPanelChar(c, &fontPanelRect)) {
+		if (fontPanelChar(c, &fontPanelRect)) {
 			screenRect.w = fontPanelRect.w;
 			screenRect.h = fontPanelRect.h;
 			if (SDL_BlitSurface(fontPanel, &fontPanelRect, screen, &screenRect) == -1) {

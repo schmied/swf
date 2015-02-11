@@ -14,8 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef SWT_CORE_CONTEXT
-#define SWT_CORE_CONTEXT
+#ifndef SWF_CORE_CONTEXT
+#define SWF_CORE_CONTEXT
 
 class Component;
 class Display;
@@ -34,5 +34,5 @@ public:
 	void setDisplay(const Display*);
 };
 
-#endif // SWT_CORE_CONTEXT
+#endif // SWF_CORE_CONTEXT
 

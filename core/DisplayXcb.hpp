@@ -14,8 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef SWT_CORE_DISPLAY_XCB
-#define SWT_CORE_DISPLAY_XCB
+#ifndef SWF_CORE_DISPLAY_XCB
+#define SWF_CORE_DISPLAY_XCB
 
 #include <string>
 #include <utility>
@@ -45,5 +45,5 @@ public:
 
 };
 
-#endif // SWT_CORE_DISPLAY_XCB
+#endif // SWF_CORE_DISPLAY_XCB
 

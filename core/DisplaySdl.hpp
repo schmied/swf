@@ -14,8 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef SWT_CORE_DISPLAY_SDL
-#define SWT_CORE_DISPLAY_SDL
+#ifndef SWF_CORE_DISPLAY_SDL
+#define SWF_CORE_DISPLAY_SDL
 
 #include <string>
 #include <utility>
@@ -61,5 +61,5 @@ public:
 
 };
 
-#endif // SWT_CORE_DISPLAY_SDL
+#endif // SWF_CORE_DISPLAY_SDL
 

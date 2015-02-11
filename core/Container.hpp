@@ -14,8 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef SWT_CORE_CONTAINER
-#define SWT_CORE_CONTAINER
+#ifndef SWF_CORE_CONTAINER
+#define SWF_CORE_CONTAINER
 
 #include <vector>
 
@@ -44,5 +44,5 @@ public:
 
 };
 
-#endif // SWT_CORE_CONTAINER
+#endif // SWF_CORE_CONTAINER
 

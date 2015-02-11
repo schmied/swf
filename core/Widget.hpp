@@ -14,8 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef SWT_CORE_WIDGET
-#define SWT_CORE_WIDGET
+#ifndef SWF_CORE_WIDGET
+#define SWF_CORE_WIDGET
 
 #include "Component.hpp"
 
@@ -34,5 +34,5 @@ public:
 
 };
 
-#endif // SWT_CORE_WIDGET
+#endif // SWF_CORE_WIDGET
 
