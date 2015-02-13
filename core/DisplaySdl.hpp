@@ -34,14 +34,17 @@ class DisplaySdl : public Display {
 private:
 	static const int fontPanelFirstChar = 0x20; // first char: space
 	static const int fontPanelLastChar = 0x7e; // last char: tilde
-	static const int fontPanelCharCount = fontPanelLastChar - fontPanelFirstChar;
+	static const int fontPanelCharCount = fontPanelLastChar - fontPanelFirstChar + 1;
 
-	static void drawPoint(SDL_Surface*, const Uint16, const Uint16, const Uint32);
-	static void drawGlyph(SDL_Surface*, const FT_GlyphSlot, const Uint16, const Uint16);
+	static void drawPoint(SDL_Surface*, const int, const int, const Uint32);
+	static void drawLine(SDL_Surface*, int, int, int, int, const Uint32);
+	static void drawGlyph(SDL_Surface*, const FT_GlyphSlot, const Uint16, const Uint16, const Uint32);
 
 	struct SDL_Surface *screen;
 
-	struct SDL_Surface *fontPanel; // caches often used chars
+	struct SDL_Surface *fontPanel; // caches often used chars for blitting
+	FT_Library fontLibrary;
+	FT_Face fontFace;
 	int fontPanelOffsets[fontPanelCharCount];
 	int fontHeight;
 	int fontWidthAvg;
@@ -52,7 +55,7 @@ public:
 	DisplaySdl();
 	~DisplaySdl();
 
-	void drawChar(const std::pair<int,int>&, const char) const;
+	const SDL_Event* handleEvent(const SDL_Event*) const;
 	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
 	void drawText(const std::pair<int,int>&, const std::basic_string<char>&) const override;
 
