@@ -14,6 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <cmath>
 #include <iostream>
 #include <utility>
 
@@ -42,22 +43,31 @@ DisplaySdl::DisplaySdl() {
 		std::cout << "init freetype error " << error << std::endl;
 		return;
 	}
-//	error = FT_New_Face(fontLibrary, "/usr/local/lib/X11/fonts/75dpi/term14.pcf.gz", 0, &fontFace);
-	error = FT_New_Face(fontLibrary, "/usr/local/lib/X11/fonts/75dpi/courR12.pcf.gz", 0, &fontFace);
+	error = FT_New_Face(fontLibrary, "/usr/local/lib/X11/fonts/75dpi/term14.pcf.gz", 0, &fontFace);
+//	error = FT_New_Face(fontLibrary, "/usr/local/lib/X11/fonts/75dpi/courR12.pcf.gz", 0, &fontFace);
+//	error = FT_New_Face(fontLibrary, "/usr/local/lib/X11/fonts/75dpi/helvR18.pcf.gz", 0, &fontFace);
 	if (error) {
 		// XXX log
 		std::cout << "new face error " << error << std::endl;
 		return;
 	}
-	std::printf("num_faces: %ld, num_fixed_sizes: %d\n",
-	    fontFace->num_faces, fontFace->num_fixed_sizes);
 
-//	fontHeight = 14;
-	fontHeight = 12;
-	error = FT_Set_Pixel_Sizes(fontFace, 0, fontHeight);
-	if (error) {
+	const FT_Int sizesCount = fontFace->num_fixed_sizes;
+	if (sizesCount > 0) {
+		const FT_Bitmap_Size *sizes = fontFace->available_sizes;
+		if (sizes == NULL) {
+			// XXX log
+			std::cout << "no bitmap sizes" << std::endl;
+			return;
+		}
+		for (int i = 0; i < sizesCount; i++) {
+			std::cout << i << ": size " << std::round(sizes[i].size / 64.0) << ", height " << sizes[i].height << std::endl;
+		}
+		fontHeight = sizes[0].height;
+		fontSize = std::round(sizes[0].size / 64.0);
+	} else {
 		// XXX log
-		std::cout << "set pixel size error " << error << std::endl;
+		std::cout << "bitmapless fonts not supported" << std::endl;
 		return;
 	}
 
@@ -70,9 +80,17 @@ DisplaySdl::DisplaySdl() {
 			// XXX log
 			std::cout << "load char error " << error << std::endl;
 		}
-		if (i > 0)
+		const FT_GlyphSlot glyph = fontFace->glyph;
+		if (i > 0) 
 			fontPanelOffsets[i-1] = lastXOffset;
-		lastXOffset += fontFace->glyph->bitmap.width;
+		switch (glyph->format) {
+		case FT_GLYPH_FORMAT_BITMAP:
+			lastXOffset += glyph->bitmap.width;
+			break;
+		default:
+			std::cout << "unknown glyph format" << std::endl;
+			return;
+		}
 		if (i == fontPanelCharCount - 1)
 			fontPanelOffsets[fontPanelCharCount-1] = lastXOffset;
 	}
@@ -91,6 +109,7 @@ DisplaySdl::DisplaySdl() {
 		std::cout << "set video mode error " << SDL_GetError() << std::endl;
 		return;
 	}
+	SDL_FillRect(screen, NULL, 0x00000000);
 
 	// create font panel
 	const SDL_PixelFormat *fmt = screen->format;
@@ -236,7 +255,6 @@ void DisplaySdl::drawLine(SDL_Surface *dst, int x0, int y0, int x1, int y1, cons
 				DRAW_LINE_YSTEP
 			}
 			break;
-
 		default:
 			// XXX log
 			break;
@@ -247,31 +265,31 @@ void DisplaySdl::drawLine(SDL_Surface *dst, int x0, int y0, int x1, int y1, cons
 }
 
 void DisplaySdl::drawGlyph(SDL_Surface *dst, const FT_GlyphSlot glyph, const Uint16 offsetX, const Uint16 offsetY,
-	    const Uint32 color) {
-	const FT_Bitmap bitmap = glyph->bitmap;	
+	    const Uint32 color) const {
+	const FT_Bitmap bitmap = glyph->bitmap;
 	const Uint16 width = bitmap.width;
+	const Uint16 height = bitmap.rows;
+	const int bearingY = height - std::round(glyph->metrics.horiBearingY / 64.0);
+	const Uint16 offsetPointY = offsetY;
+	const int heightDiff = -height + fontSize - 2;
 	SDL_LockSurface(dst);
-	for (Uint16 y = 0; y < bitmap.rows; y++) {
+	for (Uint16 y = 0; y < height; y++) {
 		int bufferIndex = y * bitmap.pitch;
 		Uint16 x = 0;
 		while (x < width) {
 			const unsigned char c = bitmap.buffer[bufferIndex];
 			const std::bitset<8> bits = { (const unsigned long long) c };
 			for (size_t i = 0; i < bits.size() && x < width; i++) {
-				if (bits[i]) {
-					drawPoint(dst, offsetX + width - x, offsetY + y, color);
-//					std::cout << "*";
-				} else {
-//					std::cout << " ";
-				}
+				if (bits[7-i])
+					drawPoint(dst, offsetX + x, offsetPointY + heightDiff + y + bearingY, color);
 				x++;
 			}
 			bufferIndex++;
 		}
-//		std::cout << "|" << std::endl;
 	}
+	drawPoint(dst, offsetX, offsetY, 0x00ff0000);
+	drawPoint(dst, offsetX, offsetY + fontHeight - 1, 0x00ff0000);
 	SDL_UnlockSurface(dst);
-
 }
 
 bool DisplaySdl::fontPanelChar(const char c, SDL_Rect *dimension) const {
@@ -294,7 +312,6 @@ bool DisplaySdl::fontPanelChar(const char c, SDL_Rect *dimension) const {
  */
 
 const SDL_Event* DisplaySdl::handleEvent(const SDL_Event *event) const {
-//	std::cout << (int) event->type << std::endl;
 	switch (event->type) {
 	case SDL_KEYDOWN:
 		switch (event->key.keysym.sym) {

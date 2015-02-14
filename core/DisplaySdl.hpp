@@ -33,12 +33,13 @@ class DisplaySdl : public Display {
 
 private:
 	static const int fontPanelFirstChar = 0x20; // first char: space
+//	static const int fontPanelLastChar = 0x50; // last char: tilde
 	static const int fontPanelLastChar = 0x7e; // last char: tilde
 	static const int fontPanelCharCount = fontPanelLastChar - fontPanelFirstChar + 1;
 
 	static void drawPoint(SDL_Surface*, const int, const int, const Uint32);
 	static void drawLine(SDL_Surface*, int, int, int, int, const Uint32);
-	static void drawGlyph(SDL_Surface*, const FT_GlyphSlot, const Uint16, const Uint16, const Uint32);
+	void drawGlyph(SDL_Surface*, const FT_GlyphSlot, const Uint16, const Uint16, const Uint32) const;
 
 	struct SDL_Surface *screen;
 
@@ -47,6 +48,7 @@ private:
 	FT_Face fontFace;
 	int fontPanelOffsets[fontPanelCharCount];
 	int fontHeight;
+	int fontSize;
 	int fontWidthAvg;
 
 	bool fontPanelChar(const char c, SDL_Rect*) const;
