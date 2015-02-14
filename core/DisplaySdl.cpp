@@ -268,20 +268,18 @@ void DisplaySdl::drawGlyph(SDL_Surface *dst, const FT_GlyphSlot glyph, const Uin
 	    const Uint32 color) const {
 	const FT_Bitmap bitmap = glyph->bitmap;
 	const Uint16 width = bitmap.width;
-	const Uint16 height = bitmap.rows;
-	const int bearingY = height - std::round(glyph->metrics.horiBearingY / 64.0);
-	const Uint16 offsetPointY = offsetY;
-	const int heightDiff = -height + fontSize - 2;
+	const Uint16 baseY = offsetY + fontSize - std::round(glyph->metrics.horiBearingY / 64.0) - 2;
+	unsigned char *buffer = bitmap.buffer;
 	SDL_LockSurface(dst);
-	for (Uint16 y = 0; y < height; y++) {
+	for (Uint16 y = 0; y < bitmap.rows; y++) {
 		int bufferIndex = y * bitmap.pitch;
 		Uint16 x = 0;
 		while (x < width) {
-			const unsigned char c = bitmap.buffer[bufferIndex];
+			const unsigned char c = buffer[bufferIndex];
 			const std::bitset<8> bits = { (const unsigned long long) c };
 			for (size_t i = 0; i < bits.size() && x < width; i++) {
 				if (bits[7-i])
-					drawPoint(dst, offsetX + x, offsetPointY + heightDiff + y + bearingY, color);
+					drawPoint(dst, offsetX + x, baseY + y, color);
 				x++;
 			}
 			bufferIndex++;
