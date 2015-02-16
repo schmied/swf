@@ -14,46 +14,56 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/*
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-//#include <time.h>
-*/
-#include <unistd.h>
 
 #include <iostream>
 
+#include <curses.h>
 #include <SDL/SDL.h>
 
 //#include "../core/Component.hpp"
+#include "../core/Container.hpp"
+#include "../core/Context.hpp"
 #include "../core/DisplayCurses.hpp"
 #include "../core/DisplayXcb.hpp"
 #include "../core/DisplaySdl.hpp"
-#include "../core/RootContainer.hpp"
 #include "../core/Widget.hpp"
+
+
+static const std::basic_string<char> LOG_FACILITY = "EXAMPLE";
 
 
 int main(int argc, char **argv) {
 
-//	DisplayXcb display {{100, 100}};
-//	DisplayCurses display {};
-	DisplaySdl display {};
+	Context context;
 
-	RootContainer root { &display };
+	Container root { &context };
 	Widget widget1 { &root };
 	Widget widget2 { &root };
 	Widget widget3 { &root };
 
-	SDL_Event event;
-
+/*
+	DisplayCurses display { &context };
 	for (;;) {
-		root.log("-------------------------->> ");
+	mvaddstr(0, 0, "bla\0");
+	refresh();
+		const int c = getch();
+		if (c == 27)
+			break;
+		display.handleEvent(c);
+		context.draw();
+		refresh();
+	}
+*/
+
+	DisplaySdl display { &context };
+	SDL_Event event;
+	for (;;) {
 		SDL_PollEvent(&event);
 		if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
 			break;
+		context.logInfo(LOG_FACILITY, "main", "%d", event.type);
 		display.handleEvent(&event);
-		root.draw();
+		context.draw();
 	}
 
 	return 0;

@@ -21,50 +21,22 @@
 
 #include "Display.hpp"
 
-RootContainer::RootContainer(Display *d) : Container(nullptr) {
-	display = d;
+RootContainer::RootContainer() : Container(nullptr) {
+//	display = d;
 //	logs {};
 }
 
+RootContainer::~RootContainer() {
+}
+
+/*
 Display* RootContainer::getDisplay() const {
 	return display;
 }
+*/
 
-void RootContainer::draw() {
-	traverse(*this, Component::cbDraw, display);
 
-	// draw log
-	if (logs.size() > 0) {
-		const int fontHeight = display->fontDimension().second;
-		// 1 char left padding to screen
-		const int xOffset = display->fontDimension().first;
-		// 1 char bottom padding to screen
-		int yOffset = display->screenDimension().second - (1 + logs.size()) * fontHeight;
-		for (const auto log : logs) {
-			display->drawText({xOffset, yOffset}, *log);
-			yOffset += fontHeight;
-		}
-	}
-}
-
-void RootContainer::onDraw(const Display &display) const {
+void RootContainer::onDraw(const Display &display) {
 //	display.drawBorder(offset, dimension);
-}
-
-#include <cstdarg>
-
-const static std::size_t bufSize = 1000;
-char buf[bufSize];
-
-void RootContainer::log(const char *format, ...) {
-	std::basic_string<char> *s = new std::basic_string<char>("-");
-	va_list arg;
-	va_start(arg, format);
-	std::vsnprintf(buf, bufSize, format, arg);
-	s->append(buf);
-	va_end(arg);
-	logs.push_back(s);
-	if (logs.size() > 10)
-		logs.pop_front();
 }
 

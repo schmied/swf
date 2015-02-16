@@ -22,7 +22,6 @@
 #include "Display.hpp"
 
 class Component;
-class RootContainer;
 
 class DisplayCurses : public Display {
 
@@ -30,8 +29,11 @@ private:
 	WINDOW *window;
 
 public:
-	DisplayCurses();
+	DisplayCurses(Context*);
 	~DisplayCurses();
+
+	int handleEvent(const int) const;
+
 	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
 	void drawText(const std::pair<int,int>&, const std::basic_string<char>&) const override;
 	std::pair<int,int> screenDimension() const override;

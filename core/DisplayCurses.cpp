@@ -16,14 +16,18 @@
 
 #include "DisplayCurses.hpp"
 
-
 #include <iostream>
 
 #include <curses.h>
 
 #include "Component.hpp"
 
-DisplayCurses::DisplayCurses() {
+
+/*
+ * constructor / destructor
+ */
+
+DisplayCurses::DisplayCurses(Context *c) : Display(c) {
 	window = initscr();
 	cbreak();
 	noecho();
@@ -41,6 +45,41 @@ DisplayCurses::~DisplayCurses() {
 	endwin();
 }
 
+
+/*
+ * public
+ */
+
+int DisplayCurses::handleEvent(const int c) const {
+	switch (c) {
+	case 8: // BS (backspace)
+		break;
+	case 10: // NL (newline)
+	case 13: // CR (carriage return)
+		break;
+	case 19: // control+s
+		break;
+	case 27: // ESC (escape)
+		break;
+	case 127: // DEL (delete)
+		break;
+	case KEY_DC:
+		break;
+	case KEY_LEFT: // cursor left
+		break;
+	case KEY_RIGHT: // cursor right
+		break;
+	case KEY_UP: // cursor up
+		break;
+	case KEY_DOWN: // cursor down
+		break;
+	default:
+		return 0;
+		break;
+	}
+	return 1;
+}
+
 void DisplayCurses::drawBorder(const std::pair<int,int> &offset, const std::pair<int,int> &dimension) const {
 }
 
@@ -51,7 +90,6 @@ void DisplayCurses::drawText(const std::pair<int,int> &offset, const std::basic_
 
 std::pair<int,int> DisplayCurses::screenDimension() const {
 	int x, y;
-
 	getmaxyx(window, y, x);
 	return { x, y };
 }

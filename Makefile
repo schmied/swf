@@ -2,7 +2,7 @@
 CC		= clang
 CFLAGS		= -Wall
 CPP		= clang++
-CPPFLAGS	= -Wall -Wextra -O2 -std=c++11 -stdlib=libc++
+CPPFLAGS	= -g -Wall -Wextra -O2 -std=c++11 -stdlib=libc++
 INCLUDEDIRS	= -I/usr/local/include -I/usr/local/include/freetype2
 
 all: swfexample
@@ -33,20 +33,20 @@ clean-example:
 CORESRCS	= \
 	core/Component.cpp \
 	core/Container.cpp \
+	core/Context.cpp \
 	core/DisplayCurses.cpp \
 	core/DisplaySdl.cpp \
 	core/DisplayXcb.cpp \
 	core/Display.cpp \
-	core/RootContainer.cpp \
 	core/Widget.cpp
 COREHDRS	= \
 	core/Component.hpp \
 	core/Container.hpp \
+	core/Context.hpp \
 	core/DisplayCurses.hpp \
 	core/DisplaySdl.hpp \
 	core/DisplayXcb.hpp \
 	core/Display.hpp \
-	core/RootContainer.hpp \
 	core/Widget.hpp
 
 libswfcore.a: $(CORESRCS:.cpp=.o)
@@ -55,5 +55,5 @@ libswfcore.a: $(CORESRCS:.cpp=.o)
 $(CORESRCS:.cpp=.o): $(COREHDRS)
 
 clean-core:
-	rm -f libswfcore.a $(CORESRCS:.cpp=.o)
+	rm -f *.core libswfcore.a $(CORESRCS:.cpp=.o)
 

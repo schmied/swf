@@ -24,27 +24,26 @@
 
 class Display;
 
-class RootContainer : public Container {
+class RootContainerXXX : public Container {
 
 private:
-	Display *display;		/* connected to a display? */
+//	Display *display;		/* connected to a display? */
 	Component *componentActive;
 	Component *componentFocus;
 	
-	std::deque<const std::basic_string<char>*> logs; // = {};
-
-	void onDraw(const Display&) const override;
+	void onDraw(const Display&) override;
 
 protected:
 
 public:
-	RootContainer(Display*);
+//	RootContainer(Display*);
+	RootContainerXXX();
+	~RootContainerXXX();
 
-	Display* getDisplay() const;
+//	Display* getDisplay() const;
 
-	void draw();
+
 //	void log(const std::basic_string<char>&);
-	void log(const char*, ...);
 
 };
 

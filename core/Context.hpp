@@ -17,21 +17,41 @@
 #ifndef SWF_CORE_CONTEXT
 #define SWF_CORE_CONTEXT
 
+#include <deque>
+
 class Component;
 class Display;
+class Container;
 
 class Context {
 
 private:
-	const Display *display;
-	Component *componentRoot;
+	Display *display;
+	Container *rootContainer;
 
-//	Context() { };
+	std::deque<const std::basic_string<char>*> logs; // = {};
+
+	void log(const int, const std::basic_string<char>&, const std::basic_string<char>&, const char*...);
+
+	static void onDraw(Component*, void*);
 
 public:
 	Context();
-	void setComponentRoot(Component*);
-	void setDisplay(const Display*);
+	~Context();
+
+	const Display* getDisplay();
+	void setDisplay(Display*);
+	const Container* getRootContainer();
+	void setRootContainer(Container*);
+
+	void draw();
+
+	void logDebug(const std::basic_string<char>&, const std::basic_string<char>&, const char*...);
+	void logDebug(const std::basic_string<char>&, const std::basic_string<char>&);
+	void logInfo(const std::basic_string<char>&, const std::basic_string<char>&, const char*...);
+	void logInfo(const std::basic_string<char>&, const std::basic_string<char>&);
+	void logWarn(const std::basic_string<char>&, const std::basic_string<char>&, const char*...);
+	void logWarn(const std::basic_string<char>&, const std::basic_string<char>&);
 };
 
 #endif // SWF_CORE_CONTEXT

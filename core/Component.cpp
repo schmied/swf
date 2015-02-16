@@ -21,21 +21,39 @@
 #include <vector>
 
 #include "Container.hpp"
+#include "Context.hpp"
 #include "Display.hpp"
-#include "RootContainer.hpp"
+
+
+static const std::basic_string<char> LOG_FACILITY = "COMPONENT";
 
 
 /*
  * constructor
  */
 
-Component::Component(Container* p) {
-	if (p == nullptr) {
-		parent = nullptr;
-	} else {
-		((Component*) p)->addToContents(this);
-		parent = p;
+Component::Component(Context* c) {
+//	std::printf("%s <init> context\n", LOG_FACILITY.c_str());
+	if (c == nullptr) {
+		std::printf("%s <init> no context\n", LOG_FACILITY.c_str());
+		return;
 	}
+	parent = nullptr;
+	context = c;
+	flushPositionCache();
+	context->setRootContainer((Container*) this);
+}
+
+Component::Component(Container* p) {
+//	std::printf("%s <init> container\n", LOG_FACILITY.c_str());
+	if (p == nullptr) {
+		std::printf("%s <init> no parent container\n", LOG_FACILITY.c_str());
+		return;
+	}
+	context = nullptr;
+	parent = p;
+	flushPositionCache();
+	((Component*) parent)->addToContents(this);
 }
 
 
@@ -43,12 +61,18 @@ Component::Component(Container* p) {
  * private
  */
 
+void Component::flushPositionCache() {
+	getContext()->logDebug(LOG_FACILITY, "flushPositionCache");
+	offset.first = -1;
+	dimension.first = -1;
+}
+
 // returns position index of component in parent container
-int Component::containerPosition() const {
+int Component::containerPositionIndex() const {
 	if (parent == nullptr)
 		return 0;
 	const auto contents = parent->contents();
-	return std::distance(contents.begin(), std::find(contents.begin(), contents.end(), this));
+	return std::distance(contents->begin(), std::find(contents->begin(), contents->end(), this));
 }
 
 
@@ -56,70 +80,91 @@ int Component::containerPosition() const {
  * protected
  */
 
+/*
 Container* Component::getParent() const {
 	return parent;
 }
+*/
 
-RootContainer* Component::rootContainer() {
-	auto current = this;
-	while (current->parent != nullptr)
-		current = current->parent;
-	return (RootContainer*) current;
+const Container* Component::getParent() const {
+	return parent;
 }
 
-void Component::cbDraw(Component &c, void *userData) {
-	const Display *display = (Display*) userData;
-	const auto parent = c.parent;
+Context* Component::getContext() {
+	if (context != nullptr)
+		return context;
 	if (parent == nullptr) {
-		const RootContainer &rc = (RootContainer&) c;
-		if (rc.getDisplay() == nullptr) {
-			c.rootContainer()->log("display is null");
-			return;
-		}
-		c.offset = { 0, 0 };
-		c.dimension = display->screenDimension();
+		std::printf("%s getContext() no context\n", LOG_FACILITY.c_str());
+		return nullptr;
+	}
+	context = parent->getContext();
+	if (context == nullptr) {
+		std::printf("%s getContext() no parent context\n", LOG_FACILITY.c_str());
+		return nullptr;
+	}
+	return context;
+}
+
+std::pair<int,int>* Component::getOffset() {
+	if (offset.first != -1)
+		return &offset;
+	if (parent == nullptr) {
+		offset.first = 0;
+		offset.second = 0;
 	} else {
-		const int width = parent->dimension.first / parent->contents().size();
-		c.offset.first = parent->offset.first + c.containerPosition() * width;
-		c.dimension.first = width;
-		c.dimension.second = display->fontDimension().second;
+		const std::pair<int,int> *parentOffset = parent->getOffset();
+		if (parentOffset == nullptr) {
+			getContext()->logWarn(LOG_FACILITY, "getOffset", "no parent offset");
+			return nullptr;
+		}
+		const std::pair<int,int> *parentDimension = parent->getDimension();
+		if (parentDimension == nullptr) {
+			getContext()->logWarn(LOG_FACILITY, "getOffset", "no parent dimension");
+			return nullptr;
+		}
+		const int width = parentDimension->first / parent->contents()->size();
+		offset.first = parentOffset->first + containerPositionIndex() * width;
+		offset.second = 0;
 	}
-	c.onDraw(*display);
+	getContext()->logDebug(LOG_FACILITY, "getOffset", "%d+%d", offset.first, offset.second);
+	return &offset;
 }
 
-
-/*
- * protected: component traversing
- */
-
-void Component::traverse(Component &c, void (*cb)(Component&, void*), void *userData) {
-	cb(c, userData);
-	traverseChildren(c, cb, userData);
-}
-
-void Component::traverse(const Component &c, void (*cb)(const Component&, void*), void *userData) {
-	cb(c, userData);
-	traverseChildren(c, cb, userData);
-}
-
-void Component::traverseChildren(const Component &c, void (*cb)(Component&, void*), void *userData) {
-	for (const auto current : c.contents()) {
-		cb(*current, userData);
-		traverseChildren(*current, cb, userData);
+std::pair<int,int>* Component::getDimension() {
+	if (dimension.first != -1)
+		return &dimension;
+	const Display *display = getContext()->getDisplay();
+	if (display == nullptr) {
+		getContext()->logWarn(LOG_FACILITY, "getDimension", "no display");
+		return nullptr;
 	}
+	if (parent == nullptr) {
+		dimension.first = display->screenDimension().first;
+		dimension.second = display->screenDimension().second;
+	} else {
+		const std::pair<int,int> *parentOffset = parent->getOffset();
+		if (parentOffset == nullptr) {
+			getContext()->logWarn(LOG_FACILITY, "getDimension", "no parent offset");
+			return nullptr;
+		}
+		const std::pair<int,int> *parentDimension = parent->getDimension();
+		if (parentDimension == nullptr) {
+			getContext()->logWarn(LOG_FACILITY, "getDimension", "no parent dimension");
+			return nullptr;
+		}
+		const int width = parentDimension->first / parent->contents()->size();
+		dimension.first = width;
+		dimension.second = display->fontDimension().second;
+	}
+	getContext()->logDebug(LOG_FACILITY, "getDimension", "%dx%d", dimension.first, dimension.second);
+	return &dimension;
 }
 
-void Component::traverseChildren(const Component &c, void (*cb)(const Component&, void*), void *userData) {
-	for (const auto current : c.contents()) {
-		const Component &cc = static_cast<const Component&>(*current);
-		cb(cc, userData);
-		traverseChildren(cc, cb, userData);
-	}
-}
 
 /*
  * public
  */
+
 
 bool Component::isStateActive() const {
 	return false;
@@ -128,4 +173,37 @@ bool Component::isStateActive() const {
 bool Component::isStateFocus() const {
 	return false;
 }
+
+
+/*
+ * component traversing
+ */
+
+void Component::traverse(Component *c, void (*cb)(Component*, void*), void *userData) {
+	cb(c, userData);
+	traverseChildren(c, cb, userData);
+}
+
+/*
+void Component::traverse(const Component *c, void (*cb)(const Component*, void*), void *userData) {
+	cb(c, userData);
+	traverseChildren(c, cb, userData);
+}
+*/
+
+void Component::traverseChildren(Component *c, void (*cb)(Component*, void*), void *userData) {
+	for (auto current : *c->contents()) {
+		cb(current, userData);
+		traverseChildren(current, cb, userData);
+	}
+}
+
+/*
+void Component::traverseChildren(const Component *c, void (*cb)(const Component*, void*), void *userData) {
+	for (const auto current : *c->contents()) {
+		cb(current, userData);
+		traverseChildren(current, cb, userData);
+	}
+}
+*/
 

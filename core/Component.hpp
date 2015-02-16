@@ -21,8 +21,8 @@
 #include <vector>
 
 class Container;
+class Context;
 class Display;
-class RootContainer;
 
 
 class Component {
@@ -30,36 +30,38 @@ class Component {
 private:
 	Container *parent;
 
-	int containerPosition() const;
+	Context *context; // cache to context
+	std::pair<int,int> offset; // cache to offset;
+	std::pair<int,int> dimension; // cache to dimension;
+
+	void flushPositionCache();
+
+	int containerPositionIndex() const;
 
 	virtual void addToContents(Component*) = 0;
-	virtual void onDraw(const Display&) const = 0;
 
 protected:
-	// XXX put this in separate structure
-	std::pair<int,int> offset;
-	std::pair<int,int> dimension;
-
-	Container* getParent() const;
-
-	RootContainer* rootContainer();
-
-	static void cbDraw(Component&, void*);
-
-	/* component traversing */
-	static void traverse(Component&, void (*)(Component&, void*), void*);
-	static void traverse(const Component&, void (*)(const Component&, void*), void*);
-	static void traverseChildren(const Component&, void (*)(Component&, void*), void*);
-	static void traverseChildren(const Component&, void (*)(const Component&, void*), void*);
+	inline const Container* getParent() const;
+	std::pair<int,int>* getOffset();
+	std::pair<int,int>* getDimension();
 
 public:
+	Component(Context*);
 	Component(Container*);
+
+	Context* getContext();
 
 	bool isStateActive() const;
 	bool isStateFocus() const;
 
-	virtual std::vector<Component*> contents() const = 0;
+	virtual std::vector<Component*>* contents() = 0;
+	virtual void onDraw(const Display*) = 0;
 
+	/* component traversing */
+	static void traverse(Component*, void (*)(Component*, void*), void*);
+//	static void traverse(const Component*, void (*)(const Component*, void*), void*);
+	static void traverseChildren(Component*, void (*)(Component*, void*), void*);
+//	static void traverseChildren(const Component*, void (*)(const Component*, void*), void*);
 };
 
 #endif // SWF_CORE_COMPONENT

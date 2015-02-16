@@ -17,3 +17,43 @@
 #include "Display.hpp"
 
 
+#include "Context.hpp"
+
+static const std::basic_string<char> LOG_FACILITY = "DISPLAY";
+
+
+/*
+ * constructor / destructor
+ */
+
+Display::Display(Context *c) {
+	if (c == nullptr) {
+		std::printf("%s: no context", LOG_FACILITY.c_str());
+		return;
+	}
+	context = c;
+	context->setDisplay(this);
+}
+
+Display::~Display() {
+}
+
+
+/*
+bool Display::initContext(Context *c) {
+	const Display *d = c->getDisplay();
+	if (d == nullptr || d != this) {
+		// XXX log context display is not this display
+		return false;
+	}
+	context = c;
+	return true;
+}
+*/
+
+Context* Display::getContext() const {
+	if (context == nullptr)
+		std::printf("%s|getContext|no context\n", LOG_FACILITY.c_str());
+	return context;
+}
+

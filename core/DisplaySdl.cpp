@@ -25,30 +25,33 @@
 #include "DisplaySdl.hpp"
 
 #include "Component.hpp"
-#include "RootContainer.hpp"
+#include "Context.hpp"
+
 
 // used in drawLine()
 #define DRAW_LINE_YSTEP err += dy; if (err << 1 >= dx) { y += ystep; err -= dx; }
+
+static const std::basic_string<char> LOG_FACILITY = "DISPLAY_SDL";
 
 
 /*
  * constructor
  */
 
-DisplaySdl::DisplaySdl() {
+DisplaySdl::DisplaySdl(Context *c) : Display(c) {
 
 	int error = FT_Init_FreeType(&fontLibrary);
 	if (error) {
-		// XXX log
-		std::cout << "init freetype error " << error << std::endl;
+		getContext()->logWarn(LOG_FACILITY, "<init>", "freetype init error: %d", error);
 		return;
 	}
+
+//	error = FT_New_Face(fontLibrary, "/usr/local/lib/X11/fonts/75dpi/courR14.pcf.gz", 0, &fontFace);
 	error = FT_New_Face(fontLibrary, "/usr/local/lib/X11/fonts/75dpi/term14.pcf.gz", 0, &fontFace);
 //	error = FT_New_Face(fontLibrary, "/usr/local/lib/X11/fonts/75dpi/courR12.pcf.gz", 0, &fontFace);
 //	error = FT_New_Face(fontLibrary, "/usr/local/lib/X11/fonts/75dpi/helvR18.pcf.gz", 0, &fontFace);
 	if (error) {
-		// XXX log
-		std::cout << "new face error " << error << std::endl;
+		getContext()->logWarn(LOG_FACILITY, "<init>", "freetype new face error: %d", error);
 		return;
 	}
 
@@ -56,18 +59,13 @@ DisplaySdl::DisplaySdl() {
 	if (sizesCount > 0) {
 		const FT_Bitmap_Size *sizes = fontFace->available_sizes;
 		if (sizes == NULL) {
-			// XXX log
-			std::cout << "no bitmap sizes" << std::endl;
+			getContext()->logWarn(LOG_FACILITY, "<init>", "freetype no bitmap sizes");
 			return;
 		}
-		for (int i = 0; i < sizesCount; i++) {
-			std::cout << i << ": size " << std::round(sizes[i].size / 64.0) << ", height " << sizes[i].height << std::endl;
-		}
 		fontHeight = sizes[0].height;
-		fontSize = std::round(sizes[0].size / 64.0);
+		fontSize = std::lround(sizes[0].size / 64.0);
 	} else {
-		// XXX log
-		std::cout << "bitmapless fonts not supported" << std::endl;
+		getContext()->logWarn(LOG_FACILITY, "<init>", "bitmapless fonts not supported (yet)");
 		return;
 	}
 
@@ -77,18 +75,18 @@ DisplaySdl::DisplaySdl() {
 		const char c = fontPanelFirstChar + (char) i;
 		error = FT_Load_Char(fontFace, c, FT_LOAD_RENDER);
 		if (error) {
-			// XXX log
-			std::cout << "load char error " << error << std::endl;
+			getContext()->logWarn(LOG_FACILITY, "<init>", "freetype load char error: %d", error);
+			continue;
 		}
 		const FT_GlyphSlot glyph = fontFace->glyph;
 		if (i > 0) 
 			fontPanelOffsets[i-1] = lastXOffset;
 		switch (glyph->format) {
 		case FT_GLYPH_FORMAT_BITMAP:
-			lastXOffset += glyph->bitmap.width;
+			lastXOffset += std::lround(glyph->metrics.horiAdvance / 64.00);
 			break;
 		default:
-			std::cout << "unknown glyph format" << std::endl;
+			getContext()->logWarn(LOG_FACILITY, "<init>", "freetype unknown glyph format");
 			return;
 		}
 		if (i == fontPanelCharCount - 1)
@@ -99,14 +97,13 @@ DisplaySdl::DisplaySdl() {
 
 	// create screen
 	if (SDL_Init(SDL_INIT_VIDEO) == -1) {
-		// XXX log SDL_GetError()
+		getContext()->logWarn(LOG_FACILITY, "<init>", "sdl init error: %s", SDL_GetError());
 		return;
 	}
-//	screen = SDL_SetVideoMode(0, 0, 0, SDL_ANYFORMAT);
-	screen = SDL_SetVideoMode(1024, 768, 0, SDL_ANYFORMAT);
+	screen = SDL_SetVideoMode(0, 0, 0, SDL_ANYFORMAT);
+//	screen = SDL_SetVideoMode(1024, 768, 0, SDL_ANYFORMAT);
 	if (screen == NULL) {
-		// XXX log SDL_GetError()
-		std::cout << "set video mode error " << SDL_GetError() << std::endl;
+		getContext()->logWarn(LOG_FACILITY, "<init>", "sdl set video mode error: %s", SDL_GetError());
 		return;
 	}
 	SDL_FillRect(screen, NULL, 0x00000000);
@@ -116,19 +113,17 @@ DisplaySdl::DisplaySdl() {
 	fontPanel = SDL_CreateRGBSurface(screen->flags, fontPanelWidth, fontHeight, fmt->BitsPerPixel,
 	    fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 	if (fontPanel == NULL) {
-		// XXX log SDL_GetError()
-		std::cout << "create font surface error" << SDL_GetError() << std::endl;
+		getContext()->logWarn(LOG_FACILITY, "<init>", "sdl create rgb surface error: %s", SDL_GetError());
 		return;
 	}
-	SDL_FillRect(fontPanel, NULL, 0x00666600);
 
 	// populate font panel
 	for (int i = 0; i < fontPanelCharCount; i++) {
 		const char c = fontPanelFirstChar + i;
 		error = FT_Load_Char(fontFace, c, FT_LOAD_RENDER);
 		if (error) {
-			// XXX log
-			std::cout << "load char error " << error << std::endl;
+			getContext()->logWarn(LOG_FACILITY, "<init>", "freetype load char error: %d", error);
+			continue;
 		}
 		int x = 0;
 		if (i > 0)
@@ -144,15 +139,13 @@ DisplaySdl::~DisplaySdl() {
 	SDL_Quit();
 	int error = FT_Done_Face(fontFace);
 	if (error) {
-		// XXX log
-		std::cout << "done face " << error << std::endl;
+		getContext()->logWarn(LOG_FACILITY, "<free>", "freetype done face error: %d", error);
 	}
 	error = FT_Done_FreeType(fontLibrary);
 	if (error) {
-		// XXX log
-		std::cout << "done free type " << error << std::endl;
+		getContext()->logWarn(LOG_FACILITY, "<free>", "freetype done freetype error: %d", error);
 	}
-	std::cout << "displaysdl terminated." << std::endl;
+	getContext()->logInfo(LOG_FACILITY, "<free>");
 }
 
 
@@ -160,8 +153,8 @@ DisplaySdl::~DisplaySdl() {
  * private
  */
 
-void DisplaySdl::drawPoint(SDL_Surface *dst, const int x, const int y, const Uint32 color) {
-	const int bpp = dst->format->BytesPerPixel;
+inline void DisplaySdl::drawPoint(SDL_Surface *dst, const int x, const int y, const Uint32 color) {
+	int bpp = dst->format->BytesPerPixel;
 	void *pos = (Uint8*) dst->pixels + (y * dst->pitch + x * bpp);
 	switch (bpp) {
 	case 1:
@@ -202,27 +195,27 @@ void DisplaySdl::drawLine(SDL_Surface *dst, int x0, int y0, int x1, int y1, cons
 	const int dx = x1 - x0;
 	const int dy = abs(y1 - y0);
 	const int bpp = dst->format->BytesPerPixel;
-	int x, y = y0, err = 0;
+	int y = y0, err = 0;
 	void *pos;
 	SDL_LockSurface(dst);
 	if (steep) {
 		switch (bpp) {
 		case 1:
-			for (x = x0; x <= x1; x++) {
+			for (int x = x0; x <= x1; x++) {
 				pos = (Uint8*) dst->pixels + (dst->pitch * x + y * bpp);
 				*(Uint8*) pos = color;
 				DRAW_LINE_YSTEP
 			}
 			break;
 		case 2:
-			for (x = x0; x <= x1; x++) {
+			for (int x = x0; x <= x1; x++) {
 				pos = (Uint8*) dst->pixels + (dst->pitch * x + y * bpp);
 				*(Uint16*) pos = color;
 				DRAW_LINE_YSTEP
 			}
 			break;
 		case 4:
-			for (x = x0; x <= x1; x++) {
+			for (int x = x0; x <= x1; x++) {
 				pos = (Uint8*) dst->pixels + (dst->pitch * x + y * bpp);
 				*(Uint32*) pos = color;
 				DRAW_LINE_YSTEP
@@ -235,21 +228,21 @@ void DisplaySdl::drawLine(SDL_Surface *dst, int x0, int y0, int x1, int y1, cons
 	} else {
 		switch (bpp) {
 		case 1:
-			for (x = x0; x <= x1; x++) {
+			for (int x = x0; x <= x1; x++) {
 				pos = (Uint8*) dst->pixels + (dst->pitch * y + x * bpp);
 				*(Uint8*) pos = color;
 				DRAW_LINE_YSTEP
 			}
 			break;
 		case 2:
-			for (x = x0; x <= x1; x++) {
+			for (int x = x0; x <= x1; x++) {
 				pos = (Uint8*) dst->pixels + (dst->pitch * y + x * bpp);
 				*(Uint16*) pos = color;
 				DRAW_LINE_YSTEP
 			}
 			break;
 		case 4:
-			for (x = x0; x <= x1; x++) {
+			for (int x = x0; x <= x1; x++) {
 				pos = (Uint8*) dst->pixels + (dst->pitch * y + x * bpp);
 				*(Uint32*) pos = color;
 				DRAW_LINE_YSTEP
@@ -264,14 +257,16 @@ void DisplaySdl::drawLine(SDL_Surface *dst, int x0, int y0, int x1, int y1, cons
 
 }
 
-void DisplaySdl::drawGlyph(SDL_Surface *dst, const FT_GlyphSlot glyph, const Uint16 offsetX, const Uint16 offsetY,
+void DisplaySdl::drawGlyph(SDL_Surface *dst, const FT_GlyphSlot glyph, const int offsetX, const int offsetY,
 	    const Uint32 color) const {
 	const FT_Bitmap bitmap = glyph->bitmap;
-	const Uint16 width = bitmap.width;
-	const Uint16 baseY = offsetY + fontSize - std::round(glyph->metrics.horiBearingY / 64.0) - 2;
+	const int width = bitmap.width;
+	const int height = bitmap.rows;
+	const int baseX = offsetX + std::lround(glyph->metrics.horiBearingX / 64.0);
+	const int baseY = offsetY + fontSize - std::lround(glyph->metrics.horiBearingY / 64.0) - 2;
 	unsigned char *buffer = bitmap.buffer;
 	SDL_LockSurface(dst);
-	for (Uint16 y = 0; y < bitmap.rows; y++) {
+	for (int y = 0; y < height; y++) {
 		int bufferIndex = y * bitmap.pitch;
 		Uint16 x = 0;
 		while (x < width) {
@@ -279,18 +274,19 @@ void DisplaySdl::drawGlyph(SDL_Surface *dst, const FT_GlyphSlot glyph, const Uin
 			const std::bitset<8> bits = { (const unsigned long long) c };
 			for (size_t i = 0; i < bits.size() && x < width; i++) {
 				if (bits[7-i])
-					drawPoint(dst, offsetX + x, baseY + y, color);
+					drawPoint(dst, baseX + x, baseY + y, color);
 				x++;
 			}
 			bufferIndex++;
 		}
 	}
-	drawPoint(dst, offsetX, offsetY, 0x00ff0000);
-	drawPoint(dst, offsetX, offsetY + fontHeight - 1, 0x00ff0000);
+//	drawPoint(dst, offsetX, offsetY, 0x00ff0000);
+//	drawPoint(dst, offsetX, offsetY + fontHeight - 1, 0x00ff0000);
 	SDL_UnlockSurface(dst);
 }
 
-bool DisplaySdl::fontPanelChar(const char c, SDL_Rect *dimension) const {
+// look up char in font panel cache
+bool DisplaySdl::fontPanelChar(const int c, SDL_Rect *dimension) const {
 	if (c < fontPanelFirstChar || c > fontPanelLastChar)
 		return false;
 	const int idx = c - fontPanelFirstChar;
@@ -309,7 +305,7 @@ bool DisplaySdl::fontPanelChar(const char c, SDL_Rect *dimension) const {
  * public
  */
 
-const SDL_Event* DisplaySdl::handleEvent(const SDL_Event *event) const {
+int DisplaySdl::handleEvent(const SDL_Event *event) const {
 	switch (event->type) {
 	case SDL_KEYDOWN:
 		switch (event->key.keysym.sym) {
@@ -322,21 +318,20 @@ const SDL_Event* DisplaySdl::handleEvent(const SDL_Event *event) const {
 		case SDLK_DOWN:
 			break;
 		default:
-			return NULL;
+			return 0;
 			break;
 		}
 		break;
 
 	default:
-		return NULL;
+		return 0;
 		break;
 	}
-	return event;
-
+	return 1;
 }
 
 void DisplaySdl::drawBorder(const std::pair<int,int> &offset, const std::pair<int,int> &dimension) const {
-
+	getContext()->logDebug(LOG_FACILITY, "drawBorder", "%d+%d %dx%d", offset.first, offset.second, dimension.first, dimension.second);
 	const Uint32 color = SDL_MapRGB(screen->format, 0xff, 0x00, 0x00);
 
 	// line method
@@ -365,6 +360,8 @@ void DisplaySdl::drawBorder(const std::pair<int,int> &offset, const std::pair<in
 }
 
 void DisplaySdl::drawText(const std::pair<int,int> &offset, const std::basic_string<char> &text) const {
+	std::printf(">>>>>>>>> %d+%d %s\n", offset.first, offset.second, text.c_str());
+	getContext()->logDebug(LOG_FACILITY, "drawText", "%d+%d '%s'", offset.first, offset.second, text.c_str());
 	SDL_Rect screenRect, fontPanelRect;
 	screenRect.x = offset.first;
 	screenRect.y = offset.second;
@@ -373,15 +370,13 @@ void DisplaySdl::drawText(const std::pair<int,int> &offset, const std::basic_str
 		if (fontPanelChar(c, &fontPanelRect)) {
 			screenRect.w = fontPanelRect.w;
 			screenRect.h = fontPanelRect.h;
-			if (SDL_BlitSurface(fontPanel, &fontPanelRect, screen, &screenRect) == -1) {
-				// XXX log
-				std::cout << "blit surface error " << SDL_GetError() << std::endl;
-			}
+			if (SDL_BlitSurface(fontPanel, &fontPanelRect, screen, &screenRect) == -1)
+				getContext()->logWarn(LOG_FACILITY, "drawText", "sdl blit surface error: %s", SDL_GetError());
 		} else {
 			int error = FT_Load_Char(fontFace, c, FT_LOAD_RENDER);
 			if (error) {
-				// XXX log
-				std::cout << "load char error " << error << std::endl;
+				getContext()->logWarn(LOG_FACILITY, "drawText", "freetype load char error: %d", error);
+				continue;
 			}
 			screenRect.w = fontFace->glyph->bitmap.width;
 			screenRect.h = fontFace->height;
@@ -391,9 +386,6 @@ void DisplaySdl::drawText(const std::pair<int,int> &offset, const std::basic_str
 		screenRect.x += screenRect.w;
 	}
 	SDL_UpdateRect(screen, offset.first, offset.second, screenRect.x, screenRect.h);
-
-	drawLine(screen, 100, 100, 200, 300, 0x00ffff00);
-	SDL_UpdateRect(screen, 100, 100, 100, 200);
 }
 
 std::pair<int,int> DisplaySdl::screenDimension() const {

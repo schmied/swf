@@ -24,7 +24,6 @@
 
 #include "Display.hpp"
 
-class RootContainer;
 
 class DisplayXcb : public Display {
 
@@ -36,13 +35,13 @@ private:
 	xcb_gcontext_t context;
 
 public:
-	DisplayXcb(const std::pair<int,int>&);
+	DisplayXcb(Context*, const std::pair<int,int>&);
 	~DisplayXcb();
+
 	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
 	void drawText(const std::pair<int,int>&, const std::basic_string<char>&) const override;
 	std::pair<int,int> screenDimension() const override;
 	std::pair<int,int> fontDimension() const override;
-
 };
 
 #endif // SWF_CORE_DISPLAY_XCB

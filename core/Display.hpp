@@ -20,20 +20,27 @@
 #include <string>
 #include <utility>
 
-class RootContainer;
+class Context;
 
 class Display {
 
 private:
+	Context *context;
 
 protected:
 
 public:
+	Display(Context*);
+	~Display();
+
+//	bool initContext(Context*);
+
+	Context* getContext() const;
+
 	virtual void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const = 0;
 	virtual void drawText(const std::pair<int,int>&, const std::basic_string<char>&) const = 0;
 	virtual std::pair<int,int> screenDimension() const = 0;
 	virtual std::pair<int,int> fontDimension() const = 0;
-
 };
 
 #endif // SWF_CORE_DISPLAY

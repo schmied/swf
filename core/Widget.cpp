@@ -19,12 +19,27 @@
 
 #include <iostream>
 
+#include "Context.hpp"
 #include "Display.hpp"
-#include "RootContainer.hpp"
 
+
+static const std::basic_string<char> LOG_FACILITY = "WIDGET";
 
 // empty vector for contents()
-static const std::vector<Component*> noContents {};
+static std::vector<Component*> noContents {};
+
+
+/*
+ * constructor / destructor
+ */
+
+Widget::Widget(Container *c) : Component(c) {
+	getContext()->logDebug(LOG_FACILITY, "<init>");
+}
+
+Widget::~Widget() {
+	getContext()->logInfo(LOG_FACILITY, "<free>");
+}
 
 
 /*
@@ -32,12 +47,14 @@ static const std::vector<Component*> noContents {};
  */
 
 void Widget::addToContents(Component *c) {
-	rootContainer()->log("cannot add contents");
+	getContext()->logWarn(LOG_FACILITY, "addToContents", "cannot add contents to a widget");
 }
 
-void Widget::onDraw(const Display &display) const {
-	display.drawBorder(offset, dimension);
-	display.drawText(offset, "1234abcdqgp");
+void Widget::onDraw(const Display *display) {
+	std::pair<int,int> *offset = getOffset();
+	std::pair<int,int> *dimension = getDimension();
+	display->drawBorder(*offset, *dimension);
+	display->drawText(*offset, "blaa");
 }
 
 
@@ -46,8 +63,7 @@ void Widget::onDraw(const Display &display) const {
  */
 
 // no contents by default
-std::vector<Component*> Widget::contents() const {
-	return noContents;
+std::vector<Component*>* Widget::contents() {
+	return &noContents;
 }
-
 

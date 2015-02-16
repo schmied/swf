@@ -22,11 +22,11 @@
 #include "DisplayXcb.hpp"
 
 #include "Component.hpp"
-#include "RootContainer.hpp"
+
 
 static xcb_rectangle_t rectBorder;
 
-DisplayXcb::DisplayXcb(const std::pair<int,int> &dimension) {
+DisplayXcb::DisplayXcb(Context *c, const std::pair<int,int> &dimension) : Display(c) {
 
 	int n;
 	connection = xcb_connect(NULL, &n);

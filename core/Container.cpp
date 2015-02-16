@@ -17,19 +17,25 @@
 #include <vector>
 
 #include "Container.hpp"
+#include "Context.hpp"
 
 #include "Display.hpp"
-#include "RootContainer.hpp"
+
+
+static const std::basic_string<char> LOG_FACILITY = "CONTAINER";
 
 
 /*
  * constructor, destructor
  */
 
-Container::Container() : Component(nullptr) {
+Container::Container(Context *p) : Component(p) {
 };
 
-Container::Container(Container *p) : Component(p) {
+Container::Container(Container *c) : Component(c) {
+};
+
+Container::~Container() {
 };
 
 
@@ -38,7 +44,9 @@ Container::Container(Container *p) : Component(p) {
  */
 
 void Container::addToContents(Component *c) {
+	getContext()->logDebug(LOG_FACILITY, "addToContents", "old size %d", contents()->size());
 	components.push_back(c);
+	getContext()->logDebug(LOG_FACILITY, "addToContents", "new size %d", contents()->size());
 }
 
 
@@ -46,11 +54,13 @@ void Container::addToContents(Component *c) {
  * public
  */
 
-std::vector<Component*> Container::contents() const {
-	return components;
+std::vector<Component*>* Container::contents() {
+	return &components;
 }
 
-void Container::onDraw(const Display &display) const {
-	display.drawBorder(offset, dimension);
+void Container::onDraw(const Display *display) {
+//	std::pair<int,int> *offset = getOffset();
+//	std::pair<int,int> *dimension = getDimension();
+//	display->drawBorder(*offset, *dimension);
 }
 

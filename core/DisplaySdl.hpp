@@ -24,10 +24,8 @@
 #include <freetype2/freetype.h>
 #include <SDL/SDL.h>
 
-
 #include "Display.hpp"
 
-class RootContainer;
 
 class DisplaySdl : public Display {
 
@@ -37,9 +35,9 @@ private:
 	static const int fontPanelLastChar = 0x7e; // last char: tilde
 	static const int fontPanelCharCount = fontPanelLastChar - fontPanelFirstChar + 1;
 
-	static void drawPoint(SDL_Surface*, const int, const int, const Uint32);
+	inline static void drawPoint(SDL_Surface*, const int, const int, const Uint32);
 	static void drawLine(SDL_Surface*, int, int, int, int, const Uint32);
-	void drawGlyph(SDL_Surface*, const FT_GlyphSlot, const Uint16, const Uint16, const Uint32) const;
+	void drawGlyph(SDL_Surface*, const FT_GlyphSlot, const int, const int, const Uint32) const;
 
 	struct SDL_Surface *screen;
 
@@ -51,13 +49,14 @@ private:
 	int fontSize;
 	int fontWidthAvg;
 
-	bool fontPanelChar(const char c, SDL_Rect*) const;
+	bool fontPanelChar(const int c, SDL_Rect*) const;
 
 public:
-	DisplaySdl();
+	DisplaySdl(Context*);
 	~DisplaySdl();
 
-	const SDL_Event* handleEvent(const SDL_Event*) const;
+	int handleEvent(const SDL_Event*) const;
+
 	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
 	void drawText(const std::pair<int,int>&, const std::basic_string<char>&) const override;
 
