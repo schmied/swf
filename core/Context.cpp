@@ -51,13 +51,13 @@ char buf[bufSize];
 
 void Context::log(const int level, const std::basic_string<char> &facility, const std::basic_string<char> &functionName, const char *format...) {
 	std::basic_string<char> *s = new std::basic_string<char>();
-	std::memset(buf, 0, bufSize);
+//	std::memset(buf, 0, bufSize);
 	std::snprintf(buf, bufSize, "%d", level);
 	s->append(buf);
-	std::memset(buf, 0, bufSize);
+//	std::memset(buf, 0, bufSize);
 	std::snprintf(buf, bufSize, " %-16.16s", facility.c_str());
 	s->append(buf);
-	std::memset(buf, 0, bufSize);
+//	std::memset(buf, 0, bufSize);
 	std::snprintf(buf, bufSize, " %-24.24s", functionName.c_str());
 	s->append(buf);
 
@@ -68,7 +68,6 @@ void Context::log(const int level, const std::basic_string<char> &facility, cons
 		s->append(buf);
 		va_end(arg);
 	}
-
 
 	std::printf("%s\n", s->c_str());
 	std::fflush(stdout);

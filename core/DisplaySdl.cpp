@@ -331,6 +331,7 @@ int DisplaySdl::handleEvent(const SDL_Event *event) const {
 }
 
 void DisplaySdl::drawBorder(const std::pair<int,int> &offset, const std::pair<int,int> &dimension) const {
+	std::printf("## drawBorder %d+%d %dx%d\n", offset.first, offset.second, dimension.first, dimension.second);
 	getContext()->logDebug(LOG_FACILITY, "drawBorder", "%d+%d %dx%d", offset.first, offset.second, dimension.first, dimension.second);
 	const Uint32 color = SDL_MapRGB(screen->format, 0xff, 0x00, 0x00);
 
@@ -360,8 +361,8 @@ void DisplaySdl::drawBorder(const std::pair<int,int> &offset, const std::pair<in
 }
 
 void DisplaySdl::drawText(const std::pair<int,int> &offset, const std::basic_string<char> &text) const {
-	std::printf(">>>>>>>>> %d+%d %s\n", offset.first, offset.second, text.c_str());
-	getContext()->logDebug(LOG_FACILITY, "drawText", "%d+%d '%s'", offset.first, offset.second, text.c_str());
+//	std::printf("## drawText %d+%d %s\n", offset.first, offset.second, text.c_str());
+//	getContext()->logDebug(LOG_FACILITY, "drawText", "%d+%d '%s'", offset.first, offset.second, text.c_str());
 	SDL_Rect screenRect, fontPanelRect;
 	screenRect.x = offset.first;
 	screenRect.y = offset.second;
