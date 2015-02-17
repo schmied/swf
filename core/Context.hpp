@@ -18,10 +18,13 @@
 #define SWF_CORE_CONTEXT
 
 #include <deque>
+#include <string>
 
 class Component;
 class Display;
 class Container;
+
+//enum LogLevel { LOG_DEBUG, LOG_INFO, LOG_WARN };
 
 class Context {
 
@@ -29,13 +32,13 @@ private:
 	Display *display;
 	Container *rootContainer;
 
-	std::deque<const std::basic_string<char>*> logs; // = {};
-
-	void log(const int, const std::basic_string<char>&, const std::basic_string<char>&, const char*...);
+	std::deque<std::basic_string<char>*> logs; // = {};
 
 	static void onDraw(Component*, void*);
 
 public:
+	enum LogLevel { LOG_DEBUG, LOG_INFO, LOG_WARN };
+
 	Context();
 	~Context();
 
@@ -46,12 +49,7 @@ public:
 
 	void draw();
 
-	void logDebug(const std::basic_string<char>&, const std::basic_string<char>&, const char*...);
-	void logDebug(const std::basic_string<char>&, const std::basic_string<char>&);
-	void logInfo(const std::basic_string<char>&, const std::basic_string<char>&, const char*...);
-	void logInfo(const std::basic_string<char>&, const std::basic_string<char>&);
-	void logWarn(const std::basic_string<char>&, const std::basic_string<char>&, const char*...);
-	void logWarn(const std::basic_string<char>&, const std::basic_string<char>&);
+	void log(const int, const std::basic_string<char>&, const std::basic_string<char>&, const char*...);
 };
 
 #endif // SWF_CORE_CONTEXT

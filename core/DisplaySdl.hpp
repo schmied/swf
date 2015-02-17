@@ -31,7 +31,6 @@ class DisplaySdl : public Display {
 
 private:
 	static const int fontPanelFirstChar = 0x20; // first char: space
-//	static const int fontPanelLastChar = 0x50; // last char: tilde
 	static const int fontPanelLastChar = 0x7e; // last char: tilde
 	static const int fontPanelCharCount = fontPanelLastChar - fontPanelFirstChar + 1;
 

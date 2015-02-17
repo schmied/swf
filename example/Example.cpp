@@ -61,11 +61,9 @@ int main(int argc, char **argv) {
 		SDL_PollEvent(&event);
 		if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
 			break;
-		context.logInfo(LOG_FACILITY, "main", "%d", event.type);
 		display.handleEvent(&event);
 		context.draw();
 	}
-
 	return 0;
 }
 

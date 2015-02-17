@@ -34,11 +34,11 @@ static std::vector<Component*> noContents {};
  */
 
 Widget::Widget(Container *c) : Component(c) {
-	getContext()->logDebug(LOG_FACILITY, "<init>");
+	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "<init>", nullptr);
 }
 
 Widget::~Widget() {
-	getContext()->logInfo(LOG_FACILITY, "<free>");
+	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", nullptr);
 }
 
 
@@ -47,7 +47,7 @@ Widget::~Widget() {
  */
 
 void Widget::addToContents(Component *c) {
-	getContext()->logWarn(LOG_FACILITY, "addToContents", "cannot add contents to a widget");
+	getContext()->log(Context::LOG_WARN, LOG_FACILITY, "addToContents", "cannot add contents to a widget");
 }
 
 void Widget::onDraw(const Display *display) {

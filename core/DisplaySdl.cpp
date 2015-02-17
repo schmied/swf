@@ -42,7 +42,7 @@ DisplaySdl::DisplaySdl(Context *c) : Display(c) {
 
 	int error = FT_Init_FreeType(&fontLibrary);
 	if (error) {
-		getContext()->logWarn(LOG_FACILITY, "<init>", "freetype init error: %d", error);
+		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "freetype init error: %d", error);
 		return;
 	}
 
@@ -51,7 +51,7 @@ DisplaySdl::DisplaySdl(Context *c) : Display(c) {
 //	error = FT_New_Face(fontLibrary, "/usr/local/lib/X11/fonts/75dpi/courR12.pcf.gz", 0, &fontFace);
 //	error = FT_New_Face(fontLibrary, "/usr/local/lib/X11/fonts/75dpi/helvR18.pcf.gz", 0, &fontFace);
 	if (error) {
-		getContext()->logWarn(LOG_FACILITY, "<init>", "freetype new face error: %d", error);
+		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "freetype new face error: %d", error);
 		return;
 	}
 
@@ -59,13 +59,13 @@ DisplaySdl::DisplaySdl(Context *c) : Display(c) {
 	if (sizesCount > 0) {
 		const FT_Bitmap_Size *sizes = fontFace->available_sizes;
 		if (sizes == NULL) {
-			getContext()->logWarn(LOG_FACILITY, "<init>", "freetype no bitmap sizes");
+			getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "freetype no bitmap sizes");
 			return;
 		}
 		fontHeight = sizes[0].height;
 		fontSize = std::lround(sizes[0].size / 64.0);
 	} else {
-		getContext()->logWarn(LOG_FACILITY, "<init>", "bitmapless fonts not supported (yet)");
+		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "bitmapless fonts not supported (yet)");
 		return;
 	}
 
@@ -75,7 +75,7 @@ DisplaySdl::DisplaySdl(Context *c) : Display(c) {
 		const char c = fontPanelFirstChar + (char) i;
 		error = FT_Load_Char(fontFace, c, FT_LOAD_RENDER);
 		if (error) {
-			getContext()->logWarn(LOG_FACILITY, "<init>", "freetype load char error: %d", error);
+			getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "freetype load char error: %d", error);
 			continue;
 		}
 		const FT_GlyphSlot glyph = fontFace->glyph;
@@ -86,7 +86,7 @@ DisplaySdl::DisplaySdl(Context *c) : Display(c) {
 			lastXOffset += std::lround(glyph->metrics.horiAdvance / 64.00);
 			break;
 		default:
-			getContext()->logWarn(LOG_FACILITY, "<init>", "freetype unknown glyph format");
+			getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "freetype unknown glyph format");
 			return;
 		}
 		if (i == fontPanelCharCount - 1)
@@ -97,13 +97,13 @@ DisplaySdl::DisplaySdl(Context *c) : Display(c) {
 
 	// create screen
 	if (SDL_Init(SDL_INIT_VIDEO) == -1) {
-		getContext()->logWarn(LOG_FACILITY, "<init>", "sdl init error: %s", SDL_GetError());
+		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "sdl init error: %s", SDL_GetError());
 		return;
 	}
 	screen = SDL_SetVideoMode(0, 0, 0, SDL_ANYFORMAT);
 //	screen = SDL_SetVideoMode(1024, 768, 0, SDL_ANYFORMAT);
 	if (screen == NULL) {
-		getContext()->logWarn(LOG_FACILITY, "<init>", "sdl set video mode error: %s", SDL_GetError());
+		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "sdl set video mode error: %s", SDL_GetError());
 		return;
 	}
 	SDL_FillRect(screen, NULL, 0x00000000);
@@ -113,7 +113,7 @@ DisplaySdl::DisplaySdl(Context *c) : Display(c) {
 	fontPanel = SDL_CreateRGBSurface(screen->flags, fontPanelWidth, fontHeight, fmt->BitsPerPixel,
 	    fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 	if (fontPanel == NULL) {
-		getContext()->logWarn(LOG_FACILITY, "<init>", "sdl create rgb surface error: %s", SDL_GetError());
+		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "sdl create rgb surface error: %s", SDL_GetError());
 		return;
 	}
 
@@ -122,7 +122,7 @@ DisplaySdl::DisplaySdl(Context *c) : Display(c) {
 		const char c = fontPanelFirstChar + i;
 		error = FT_Load_Char(fontFace, c, FT_LOAD_RENDER);
 		if (error) {
-			getContext()->logWarn(LOG_FACILITY, "<init>", "freetype load char error: %d", error);
+			getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "freetype load char error: %d", error);
 			continue;
 		}
 		int x = 0;
@@ -139,13 +139,13 @@ DisplaySdl::~DisplaySdl() {
 	SDL_Quit();
 	int error = FT_Done_Face(fontFace);
 	if (error) {
-		getContext()->logWarn(LOG_FACILITY, "<free>", "freetype done face error: %d", error);
+		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<free>", "freetype done face error: %d", error);
 	}
 	error = FT_Done_FreeType(fontLibrary);
 	if (error) {
-		getContext()->logWarn(LOG_FACILITY, "<free>", "freetype done freetype error: %d", error);
+		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<free>", "freetype done freetype error: %d", error);
 	}
-	getContext()->logInfo(LOG_FACILITY, "<free>");
+	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", nullptr);
 }
 
 
@@ -327,12 +327,12 @@ int DisplaySdl::handleEvent(const SDL_Event *event) const {
 		return 0;
 		break;
 	}
+	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "%d", event->type);
 	return 1;
 }
 
 void DisplaySdl::drawBorder(const std::pair<int,int> &offset, const std::pair<int,int> &dimension) const {
-	std::printf("## drawBorder %d+%d %dx%d\n", offset.first, offset.second, dimension.first, dimension.second);
-	getContext()->logDebug(LOG_FACILITY, "drawBorder", "%d+%d %dx%d", offset.first, offset.second, dimension.first, dimension.second);
+//	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "drawBorder", "%d+%d %dx%d", offset.first, offset.second, dimension.first, dimension.second);
 	const Uint32 color = SDL_MapRGB(screen->format, 0xff, 0x00, 0x00);
 
 	// line method
@@ -361,8 +361,7 @@ void DisplaySdl::drawBorder(const std::pair<int,int> &offset, const std::pair<in
 }
 
 void DisplaySdl::drawText(const std::pair<int,int> &offset, const std::basic_string<char> &text) const {
-//	std::printf("## drawText %d+%d %s\n", offset.first, offset.second, text.c_str());
-//	getContext()->logDebug(LOG_FACILITY, "drawText", "%d+%d '%s'", offset.first, offset.second, text.c_str());
+//	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "drawText", "%d+%d '%s'", offset.first, offset.second, text.c_str());
 	SDL_Rect screenRect, fontPanelRect;
 	screenRect.x = offset.first;
 	screenRect.y = offset.second;
@@ -372,11 +371,11 @@ void DisplaySdl::drawText(const std::pair<int,int> &offset, const std::basic_str
 			screenRect.w = fontPanelRect.w;
 			screenRect.h = fontPanelRect.h;
 			if (SDL_BlitSurface(fontPanel, &fontPanelRect, screen, &screenRect) == -1)
-				getContext()->logWarn(LOG_FACILITY, "drawText", "sdl blit surface error: %s", SDL_GetError());
+				getContext()->log(Context::LOG_WARN, LOG_FACILITY, "drawText", "sdl blit surface error: %s", SDL_GetError());
 		} else {
 			int error = FT_Load_Char(fontFace, c, FT_LOAD_RENDER);
 			if (error) {
-				getContext()->logWarn(LOG_FACILITY, "drawText", "freetype load char error: %d", error);
+				getContext()->log(Context::LOG_WARN, LOG_FACILITY, "drawText", "freetype load char error: %d", error);
 				continue;
 			}
 			screenRect.w = fontFace->glyph->bitmap.width;

@@ -44,9 +44,8 @@ Container::~Container() {
  */
 
 void Container::addToContents(Component *c) {
-	getContext()->logDebug(LOG_FACILITY, "addToContents", "old size %d", contents()->size());
 	components.push_back(c);
-	getContext()->logDebug(LOG_FACILITY, "addToContents", "new size %d", contents()->size());
+	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "addToContents", "new size %ld", contents()->size());
 }
 
 
