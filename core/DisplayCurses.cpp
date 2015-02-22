@@ -21,6 +21,10 @@
 #include <curses.h>
 
 #include "Component.hpp"
+#include "Context.hpp"
+
+
+static const std::basic_string<char> LOG_FACILITY = "DISPLAY_CURSES";
 
 
 /*
@@ -29,6 +33,7 @@
 
 DisplayCurses::DisplayCurses(Context *c) : Display(c) {
 	window = initscr();
+	nodelay(window, TRUE); // do not block on getch()
 	cbreak();
 	noecho();
 	nonl();
@@ -50,7 +55,7 @@ DisplayCurses::~DisplayCurses() {
  * public
  */
 
-int DisplayCurses::handleEvent(const int c) const {
+bool DisplayCurses::handleEvent(const int c) const {
 	switch (c) {
 	case 8: // BS (backspace)
 		break;
@@ -74,10 +79,11 @@ int DisplayCurses::handleEvent(const int c) const {
 	case KEY_DOWN: // cursor down
 		break;
 	default:
-		return 0;
+		return false;
 		break;
 	}
-	return 1;
+	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "char %d", c);
+	return true;
 }
 
 void DisplayCurses::drawBorder(const std::pair<int,int> &offset, const std::pair<int,int> &dimension) const {

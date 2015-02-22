@@ -32,7 +32,7 @@ public:
 	DisplayCurses(Context*);
 	~DisplayCurses();
 
-	int handleEvent(const int) const;
+	bool handleEvent(const int) const;
 
 	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
 	void drawText(const std::pair<int,int>&, const std::pair<int,int>&, const std::basic_string<char>&) const override;

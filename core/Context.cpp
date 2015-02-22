@@ -111,7 +111,7 @@ void Context::draw() {
 		const std::pair<int,int> fontDimension = display->fontDimension();
 		const std::pair<int,int> screenDimension = display->screenDimension();
 		char buf[100];
-		std::snprintf(buf, 100, "%6dcycl %3dms %3dfps", frameStat.second, frameStat.first, 1000 / frameStat.first);
+		std::snprintf(buf, 100, "%7dcycl %3dms %3dfps", frameStat.second, frameStat.first, 1000 / frameStat.first);
 		const int width = std::strlen(buf) * fontDimension.first;
 		const std::pair<int,int> statOffset { screenDimension.first - width - fontDimension.first,
 		    screenDimension.second - 2 * fontDimension.second };
