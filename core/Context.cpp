@@ -53,7 +53,6 @@ void Context::onDraw(Component *c, void *userData) {
 		std::printf("%s onDraw() no display\n", LOG_FACILITY.c_str());
 		return;
 	}
-//	display->getContext()->logDebug(LOG_FACILITY, "onDraw");
 	c->onDraw(display);
 }
 
@@ -87,20 +86,37 @@ void Context::setRootContainer(Container *r) {
 }
 
 void Context::draw() {
-//	logDebug(LOG_FACILITY, "draw");
 	Component::traverse((Component*) rootContainer, Context::onDraw, display);
 
 	// draw log
 	if (logs.size() > 0) {
-		const int fontHeight = display->fontDimension().second;
+		const std::pair<int,int> fontDimension = display->fontDimension();
+		const std::pair<int,int> screenDimension = display->screenDimension();
+		const std::pair<int,int> logDimension { screenDimension.first / 2, fontDimension.second };
+		std::pair<int,int> logOffset;
 		// 1 char left padding to screen
-		const int xOffset = display->fontDimension().first;
+		logOffset.first = 1 * fontDimension.first;
 		// 1 char bottom padding to screen
-		int yOffset = display->screenDimension().second - (1 + logs.size()) * fontHeight;
+		logOffset.second = screenDimension.second - (1 + logs.size()) * fontDimension.second;
 		for (const auto log : logs) {
-			display->drawText({xOffset, yOffset}, *log);
-			yOffset += fontHeight;
+			display->drawBorder(logOffset, logDimension);
+			display->drawText(logOffset, logDimension, *log);
+			logOffset.second += fontDimension.second;
 		}
+	}
+
+	// draw frame stats
+	const std::pair<int,int> frameStat = display->getFrameStat();
+	if (frameStat.first > 0 && frameStat.second > 0) {
+		const std::pair<int,int> fontDimension = display->fontDimension();
+		const std::pair<int,int> screenDimension = display->screenDimension();
+		char buf[100];
+		std::snprintf(buf, 100, "%6dcycl %3dms %3dfps", frameStat.second, frameStat.first, 1000 / frameStat.first);
+		const int width = std::strlen(buf) * fontDimension.first;
+		const std::pair<int,int> statOffset { screenDimension.first - width - fontDimension.first,
+		    screenDimension.second - 2 * fontDimension.second };
+		const std::pair<int,int> statDimension { width, fontDimension.second };
+		display->drawText(statOffset, statDimension, buf);
 	}
 }
 
@@ -137,8 +153,6 @@ void Context::log(const int level, const std::basic_string<char> &facility, cons
 		s->append(buf);
 		va_end(arg);
 	}
-
-	std::printf("%s\n", s->c_str());
 
 	logs.push_back(s);
 }

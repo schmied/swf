@@ -27,18 +27,26 @@ class Display {
 private:
 	Context *context;
 
+	// frame statistics
+	long ticksPrevious; // need to remember for elapsed ticks calculation
+	int cyclesPerFrame; // number of event loop cycles
+	int cyclesPerFrameCounter;
+	int frameMillis; // duration of a frame
+
 protected:
 
 public:
 	Display(Context*);
 	~Display();
 
-//	bool initContext(Context*);
-
 	Context* getContext() const;
+	std::pair<int,int> getFrameStat() const;
+
+	bool isTicksElapsed(const long, const long);
+	void resetTicks(const long);
 
 	virtual void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const = 0;
-	virtual void drawText(const std::pair<int,int>&, const std::basic_string<char>&) const = 0;
+	virtual void drawText(const std::pair<int,int>&, const std::pair<int,int>&, const std::basic_string<char>&) const = 0;
 	virtual std::pair<int,int> screenDimension() const = 0;
 	virtual std::pair<int,int> fontDimension() const = 0;
 };

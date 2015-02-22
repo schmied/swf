@@ -32,6 +32,7 @@ clean-example:
 ################################### core
 
 CORESRCS	= \
+	core/Button.cpp \
 	core/Component.cpp \
 	core/Container.cpp \
 	core/Context.cpp \
@@ -41,6 +42,7 @@ CORESRCS	= \
 	core/Display.cpp \
 	core/Widget.cpp
 COREHDRS	= \
+	core/Button.hpp \
 	core/Component.hpp \
 	core/Container.hpp \
 	core/Context.hpp \

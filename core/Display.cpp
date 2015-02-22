@@ -28,11 +28,15 @@ static const std::basic_string<char> LOG_FACILITY = "DISPLAY";
 
 Display::Display(Context *c) {
 	if (c == nullptr) {
-		std::printf("%s: no context", LOG_FACILITY.c_str());
+		std::printf("%s <init> no context\n", LOG_FACILITY.c_str());
 		return;
 	}
 	context = c;
 	context->setDisplay(this);
+
+	ticksPrevious = 0;
+	frameMillis = 0;
+	cyclesPerFrame = 0;
 }
 
 Display::~Display() {
@@ -40,20 +44,32 @@ Display::~Display() {
 
 
 /*
-bool Display::initContext(Context *c) {
-	const Display *d = c->getDisplay();
-	if (d == nullptr || d != this) {
-		// XXX log context display is not this display
-		return false;
-	}
-	context = c;
-	return true;
-}
-*/
+ * public
+ */
 
 Context* Display::getContext() const {
 	if (context == nullptr)
-		std::printf("%s|getContext|no context\n", LOG_FACILITY.c_str());
+		std::printf("%s getContext() no context\n", LOG_FACILITY.c_str());
 	return context;
+}
+
+std::pair<int,int> Display::getFrameStat() const {
+	return { frameMillis, cyclesPerFrame };
+}
+
+bool Display::isTicksElapsed(const long ticksCurrent, const long targetFps) {
+	cyclesPerFrameCounter++;
+	// over 2/3 of target millis is elapsed
+	if (ticksCurrent - ticksPrevious > 2000 / (3 * targetFps))
+		return true;
+	return false;
+}
+
+void Display::resetTicks(const long ticksCurrent) {
+	if (ticksPrevious)
+		frameMillis = (int) (ticksCurrent - ticksPrevious);
+	ticksPrevious = ticksCurrent;
+	cyclesPerFrame = cyclesPerFrameCounter;
+	cyclesPerFrameCounter = 0;
 }
 

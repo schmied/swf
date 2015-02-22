@@ -17,8 +17,6 @@
 #include "Widget.hpp"
 
 
-#include <iostream>
-
 #include "Context.hpp"
 #include "Display.hpp"
 
@@ -54,7 +52,7 @@ void Widget::onDraw(const Display *display) {
 	std::pair<int,int> *offset = getOffset();
 	std::pair<int,int> *dimension = getDimension();
 	display->drawBorder(*offset, *dimension);
-	display->drawText(*offset, "blaa");
+//	display->drawText(*offset, *dimension, "blaa");
 }
 
 

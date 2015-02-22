@@ -83,9 +83,10 @@ int DisplayCurses::handleEvent(const int c) const {
 void DisplayCurses::drawBorder(const std::pair<int,int> &offset, const std::pair<int,int> &dimension) const {
 }
 
-void DisplayCurses::drawText(const std::pair<int,int> &offset, const std::basic_string<char> &text) const {
+void DisplayCurses::drawText(const std::pair<int,int> &offset, const std::pair<int,int> &dimension,
+	    const std::basic_string<char> &text) const {
 	mvaddstr(offset.second, offset.first, text.c_str());
-	refresh();
+//	refresh();
 }
 
 std::pair<int,int> DisplayCurses::screenDimension() const {

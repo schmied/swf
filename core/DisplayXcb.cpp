@@ -94,7 +94,8 @@ void DisplayXcb::drawBorder(const std::pair<int,int> &offset, const std::pair<in
 	xcb_flush(connection);
 }
 
-void DisplayXcb::drawText(const std::pair<int,int> &offset, const std::basic_string<char> &text) const {
+void DisplayXcb::drawText(const std::pair<int,int> &offset, const std::pair<int,int> &dimension,
+	    const std::basic_string<char> &text) const {
 	xcb_image_text_8(connection, text.size(), window, context, offset.first + 1, offset.second + 12, text.c_str());
 	xcb_flush(connection);
 }
