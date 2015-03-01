@@ -32,13 +32,15 @@ private:
 	xcb_screen_t *screen;
 	xcb_window_t window;
 	xcb_font_t font;
-	xcb_gcontext_t context;
+	xcb_gcontext_t gcontext;
+	xcb_gcontext_t gcontextInverse;		// for background fill
 
 	// event handling
 	void* eventPoll() override;
 	void* eventWait() override;
 	void gameEventSleep() const override;
 	long gameEventTicks() const override;
+	void eventFree(void*) override;
 
 public:
 	DisplayXcb(Context*, xcb_connection_t*, xcb_screen_t*, const xcb_window_t, const xcb_font_t);
@@ -46,6 +48,10 @@ public:
 
 	// getter
 	xcb_connection_t* getConnection() const;
+	xcb_screen_t* getScreen() const;
+	xcb_window_t getWindow() const;
+	xcb_gcontext_t getGContext() const;
+	xcb_gcontext_t getGContextInverse() const;
 
 	// drawing
 	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;

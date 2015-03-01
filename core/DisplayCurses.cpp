@@ -115,36 +115,36 @@ std::pair<int,int> DisplayCurses::fontDimension() const {
 
 bool DisplayCurses::handleEvent(void *event) const {
 	if (event == nullptr)
-		return false;
+		return true;
 	const int c = *(const int*) event;
+//	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "char %d", c);
 	switch (c) {
-	case 8: // BS (backspace)
+	case 8:			// BS (backspace)
 		break;
-	case 10: // NL (newline)
-	case 13: // CR (carriage return)
+	case 10:		// NL (newline)
+	case 13:		// CR (carriage return)
 		break;
-	case 19: // control+s
+	case 19:		// control+s
 		break;
-	case 27: // ESC (escape)
-		break;
-	case 127: // DEL (delete)
+//	case 27:		// ESC (escape)
+//		break;
+	case 127:		// DEL (delete)
 		break;
 	case KEY_DC:
 		break;
-	case KEY_LEFT: // cursor left
+	case KEY_LEFT:		// cursor left
 		break;
-	case KEY_RIGHT: // cursor right
+	case KEY_RIGHT:		// cursor right
 		break;
-	case KEY_UP: // cursor up
+	case KEY_UP:		// cursor up
 		break;
-	case KEY_DOWN: // cursor down
+	case KEY_DOWN:		// cursor down
 		break;
 	default:
-		return false;
+		return true;
 		break;
 	}
-	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "char %d", c);
-	return true;
+	return false;
 }
 
 

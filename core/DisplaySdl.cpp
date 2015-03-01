@@ -120,7 +120,6 @@ DisplaySdl::DisplaySdl(Context *c, SDL_Surface *scr) : Display(c) {
 		drawGlyph(fontPanel, fontFace->glyph, x, 0, SDL_MapRGB(fontPanel->format, 0xff, 0xff, 0xff));
 		drawGlyph(screen, fontFace->glyph, x, 200, SDL_MapRGB(fontPanel->format, 255, 255, 0));
 	}
-	SDL_UpdateRect(screen, 0, 0, 0, 0);
 }
 
 DisplaySdl::~DisplaySdl() {
@@ -337,6 +336,15 @@ long DisplaySdl::gameEventTicks() const {
 
 
 /*
+ * getter
+ */
+
+SDL_Surface* DisplaySdl::getScreen() const {
+	return screen;
+}
+
+
+/*
  * drawing
  */
 
@@ -353,10 +361,10 @@ void DisplaySdl::drawBorder(const std::pair<int,int> &offset, const std::pair<in
 	drawLine(screen, x0, y1, x1, y1, color);
 	drawLine(screen, x0, y0, x0, y1, color);
 	drawLine(screen, x1, y0, x1, y1, color);
-	SDL_UpdateRect(screen, x0, y0, dimension.first, 1);
-	SDL_UpdateRect(screen, x0, y1, dimension.first, 1);
-	SDL_UpdateRect(screen, x0, y0, 1, dimension.second);
-	SDL_UpdateRect(screen, x1, y0, 1, dimension.second);
+//	SDL_UpdateRect(screen, x0, y0, dimension.first, 1);
+//	SDL_UpdateRect(screen, x0, y1, dimension.first, 1);
+//	SDL_UpdateRect(screen, x0, y0, 1, dimension.second);
+//	SDL_UpdateRect(screen, x1, y0, 1, dimension.second);
 
 /*
 	// rect method
@@ -406,7 +414,7 @@ void DisplaySdl::drawText(const std::pair<int,int> &offset, const std::pair<int,
 	if (SDL_FillRect(screen, &screenRect, 0x00000000) == -1)
 		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "drawText", "sdl fill rect error: %s", SDL_GetError());
 
-	SDL_UpdateRect(screen, offset.first, offset.second, dimension.first, dimension.second);
+//	SDL_UpdateRect(screen, offset.first, offset.second, dimension.first, dimension.second);
 }
 
 std::pair<int,int> DisplaySdl::screenDimension() const {
@@ -424,13 +432,12 @@ std::pair<int,int> DisplaySdl::fontDimension() const {
 
 bool DisplaySdl::handleEvent(void *event) const {
 	if (event == nullptr)
-		return false;
+		return true;
 	const SDL_Event *e = (const SDL_Event*) event;
 	switch (e->type) {
 	case SDL_KEYDOWN:
+//		getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "typ %d sym %d", e->type, e->key.keysym.sym);
 		switch (e->key.keysym.sym) {
-		case SDLK_ESCAPE:
-			break;
 		case SDLK_RETURN:
 			break;
 		case SDLK_UP:
@@ -438,16 +445,15 @@ bool DisplaySdl::handleEvent(void *event) const {
 		case SDLK_DOWN:
 			break;
 		default:
-			return false;
+			return true;
 			break;
 		}
-		getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "typ %d sym %d", e->type, e->key.keysym.sym);
 		break;
 	default:
-		return false;
+		return true;
 		break;
 	}
-	return true;
+	return false;
 }
 
 

@@ -28,8 +28,6 @@
 
 static const std::basic_string<char> LOG_FACILITY = "DISPLAY_SDL";
 
-static xcb_rectangle_t rectBorder;
-
 
 /*
  * ******************************************************** constructor / destructor
@@ -42,12 +40,17 @@ DisplayXcb::DisplayXcb(Context *c, xcb_connection_t* cn, xcb_screen_t *scr, cons
 	window = win;
 	font = fn;
 
-	context = xcb_generate_id(connection);
+	gcontext = xcb_generate_id(connection);
 //	const uint32_t valueListGContext[] { screen->black_pixel, screen->white_pixel, font, 0 };
 	const uint32_t valueListGContext[] { screen->black_pixel, screen->white_pixel, 0 };
-	xcb_create_gc(connection, context, screen->root, XCB_GC_FOREGROUND | XCB_GC_BACKGROUND
+	xcb_create_gc(connection, gcontext, screen->root, XCB_GC_FOREGROUND | XCB_GC_BACKGROUND
 	    | XCB_GC_GRAPHICS_EXPOSURES, valueListGContext);
 //	    | XCB_GC_FONT | XCB_GC_GRAPHICS_EXPOSURES, valueListGContext);
+
+	gcontextInverse = xcb_generate_id(connection);
+	const uint32_t valueListGContextInverse[] { screen->white_pixel, screen->black_pixel, 0 };
+	xcb_create_gc(connection, gcontextInverse, screen->root, XCB_GC_FOREGROUND | XCB_GC_BACKGROUND
+	    | XCB_GC_GRAPHICS_EXPOSURES, valueListGContextInverse);
 
 }
 
@@ -91,6 +94,10 @@ long DisplayXcb::gameEventTicks() const {
 	return 1000L * ts.tv_sec + ts.tv_nsec / 1000L / 1000L;
 }
 
+void DisplayXcb::eventFree(void *event) {
+	free(event);
+}
+
 
 /*
  * ******************************************************** public
@@ -105,24 +112,42 @@ xcb_connection_t* DisplayXcb::getConnection() const {
 	return connection;
 }
 
+xcb_screen_t* DisplayXcb::getScreen() const {
+	return screen;
+}
+
+xcb_window_t DisplayXcb::getWindow() const {
+	return window;
+}
+
+xcb_gcontext_t DisplayXcb::getGContext() const {
+	return gcontext;
+}
+
+xcb_gcontext_t DisplayXcb::getGContextInverse() const {
+	return gcontextInverse;
+}
+
 
 /*
  * drawing
  */
+
+static xcb_rectangle_t rectBorder;
 
 void DisplayXcb::drawBorder(const std::pair<int,int> &offset, const std::pair<int,int> &dimension) const {
 	rectBorder.x = offset.first;
 	rectBorder.y = offset.second;
 	rectBorder.width = dimension.first;
 	rectBorder.height = dimension.second;
-	xcb_poly_rectangle(connection, window, context, 1, &rectBorder);
-	xcb_flush(connection);
+	xcb_poly_rectangle(connection, window, gcontext, 1, &rectBorder);
+//	xcb_flush(connection);
 }
 
 void DisplayXcb::drawText(const std::pair<int,int> &offset, const std::pair<int,int> &dimension,
 	    const std::basic_string<char> &text) const {
-	xcb_image_text_8(connection, text.size(), window, context, offset.first + 1, offset.second + 12, text.c_str());
-	xcb_flush(connection);
+	xcb_image_text_8(connection, text.size(), window, gcontext, offset.first + 1, offset.second + 12, text.c_str());
+//	xcb_flush(connection);
 }
 
 std::pair<int,int> DisplayXcb::screenDimension() const {
@@ -144,7 +169,7 @@ std::pair<int,int> DisplayXcb::fontDimension() const {
 
 bool DisplayXcb::handleEvent(void *event) const {
 	if (event == nullptr)
-		return false;
+		return true;
 	const xcb_generic_event_t *e = (const xcb_generic_event_t*) event;
 	switch (e->response_type & ~0x80) {
 	case XCB_EXPOSE: {
@@ -160,19 +185,19 @@ bool DisplayXcb::handleEvent(void *event) const {
 	case XCB_KEY_PRESS: {
 		xcb_key_press_event_t *kpe = (xcb_key_press_event_t*) event;
 		xcb_keysym_t sym = keysym(kpe->detail);
+//		getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "key press %c %d", sym, sym);
 		switch (sym) {
 		default:
-			return false;
+			return true;
 			break;
 		}
-		getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "key press %c %d", sym, sym);
 		break;
 	}
 	default:
-		return false;
+		return true;
 		break;
 	}
-	return true;
+	return false;
 }
 
 
@@ -225,7 +250,7 @@ xcb_window_t DisplayXcb::initWindow(xcb_connection_t *cn, xcb_screen_t *scr, con
 	std::pair<int,int> off { 0, 0 };
 	if (offset != nullptr)
 		off = *offset;
-	std::pair<int,int> dim = { scr->white_pixel, scr->height_in_pixels };
+	std::pair<int,int> dim = { scr->width_in_pixels, scr->height_in_pixels };
 	if (dimension != nullptr)
 		dim = *dimension;
 	if (off.first >= scr->width_in_pixels - 1)
@@ -246,7 +271,7 @@ xcb_window_t DisplayXcb::initWindow(xcb_connection_t *cn, xcb_screen_t *scr, con
 	    XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK, valueListWindow);
 
 	xcb_map_window(cn, win);
-	xcb_flush(cn);
+//	xcb_flush(cn);
 	return win;
 }
 

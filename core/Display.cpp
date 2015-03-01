@@ -70,6 +70,15 @@ void Display::fpsResetTicks(const long ticksCurrent) {
 
 
 /*
+ * event handling
+ */
+
+// override e.g. to implement freeing allocated events, defaults to do nothing
+void Display::eventFree(void *event) {
+}
+
+
+/*
  * ******************************************************** public
  */
 
@@ -89,12 +98,13 @@ std::pair<int,int> Display::getFpsStat() const {
 	return { fpsFrameMillis, fpsCyclesPerFrame };
 }
 
+
 /*
  * event handling
  */
 
-void* Display::gameEventLoop(const int targetFps, const bool isSleepy, bool (*isQuitEvent)(void*, void*), void (*onEvent)(void*, void*),
-	    void* userData) {
+void* Display::gameEventLoop(const int targetFps, const bool isSleepy, bool (*onEvent)(const bool, void*, void*),
+	   void (*onRender)(void*), void (*onDraw)(const bool, void*), void* userData) {
 	void *e;
 	for (;;) {
 		const long ticks = gameEventTicks();
@@ -102,19 +112,25 @@ void* Display::gameEventLoop(const int targetFps, const bool isSleepy, bool (*is
 		if (isElapsed) {
 			fpsResetTicks(ticks);
 			e = eventPoll();
+			bool leave = false;
 			if (e != nullptr) {
-				if (isQuitEvent(e, userData))
-					return e;
-				if (!handleEvent(e))
-					onEvent(e, userData);
+				if (onEvent(false, e, userData)) {
+					if (handleEvent(e)) {
+						if (!onEvent(true, e, userData))
+							leave = true;
+					}
+				}
 			}
+			eventFree(e);
+			if (leave)
+				return e;
 		}
-		if (isElapsed || isSleepy) {
-			// <-- user calc stuff here
-		} 
+		if (isElapsed || !isSleepy)
+			onRender(userData);
 		if (isElapsed) {
-			// <-- user draw stuff here
+			onDraw(false, userData);
 			getContext()->draw();
+			onDraw(true, userData);
 		}
 		if (!isElapsed && isSleepy) 
 			gameEventSleep();

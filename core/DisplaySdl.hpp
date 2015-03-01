@@ -61,6 +61,9 @@ public:
 	DisplaySdl(Context*, SDL_Surface*);
 	~DisplaySdl();
 
+	// getter
+	SDL_Surface* getScreen() const;
+
 	// drawing
 	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
 	void drawText(const std::pair<int,int>&, const std::pair<int,int>&, const std::basic_string<char>&) const override;

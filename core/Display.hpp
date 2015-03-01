@@ -40,6 +40,7 @@ private:
 	virtual void* eventWait() = 0;
 	virtual void gameEventSleep() const = 0;		// gives cpu voluntary
 	virtual long gameEventTicks() const = 0;		// must return ticks in milliseconds
+	virtual void eventFree(void*);				// some stupid apis allocate events and leave to the user
 
 protected:
 
@@ -59,7 +60,7 @@ public:
 
 	// event handling
 	virtual bool handleEvent(void*) const = 0;
-	void* gameEventLoop(const int, const bool, bool (*)(void*, void*), void (*)(void*, void*), void*);
+	void* gameEventLoop(const int, const bool, bool (*)(const bool, void*, void*), void (*)(void*), void (*)(const bool, void*), void*);
 	void* applicationEventLoop(bool (*)(void*, void*), void (*)(void*, void*), void*);
 };
 
