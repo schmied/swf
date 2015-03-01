@@ -27,11 +27,19 @@ class Display {
 private:
 	Context *context;
 
-	// frame statistics
-	long ticksPrevious; // need to remember for elapsed ticks calculation
-	int cyclesPerFrame; // number of event loop cycles
-	int cyclesPerFrameCounter;
-	int frameMillis; // duration of a frame
+	// fps statistics
+	long fpsTicksPrevious;				// need to remember for elapsed ticks calculation
+	int fpsCyclesPerFrame;				// number of event loop cycles per frame
+	int fpsCyclesPerFrameCounter;
+	int fpsFrameMillis;				// duration of a frame
+	bool fpsIsTicksElapsed(const long, const long);
+	void fpsResetTicks(const long);
+
+	// event handling
+	virtual void* eventPoll() = 0;
+	virtual void* eventWait() = 0;
+	virtual void gameEventSleep() const = 0;		// gives cpu voluntary
+	virtual long gameEventTicks() const = 0;		// must return ticks in milliseconds
 
 protected:
 
@@ -39,16 +47,20 @@ public:
 	Display(Context*);
 	~Display();
 
+	// getter
 	Context* getContext() const;
-	std::pair<int,int> getFrameStat() const;
+	std::pair<int,int> getFpsStat() const;
 
-	bool isTicksElapsed(const long, const long);
-	void resetTicks(const long);
-
+	// drawing
 	virtual void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const = 0;
 	virtual void drawText(const std::pair<int,int>&, const std::pair<int,int>&, const std::basic_string<char>&) const = 0;
 	virtual std::pair<int,int> screenDimension() const = 0;
 	virtual std::pair<int,int> fontDimension() const = 0;
+
+	// event handling
+	virtual bool handleEvent(void*) const = 0;
+	void* gameEventLoop(const int, const bool, bool (*)(void*, void*), void (*)(void*, void*), void*);
+	void* applicationEventLoop(bool (*)(void*, void*), void (*)(void*, void*), void*);
 };
 
 #endif // SWF_CORE_DISPLAY

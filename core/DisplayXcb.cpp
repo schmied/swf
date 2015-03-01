@@ -18,54 +18,30 @@
 #include <utility>
 
 #include <xcb/xcb.h>
+#include <xcb/xcb_keysyms.h>
 
 #include "DisplayXcb.hpp"
 
 #include "Component.hpp"
+#include "Context.hpp"
 
+
+static const std::basic_string<char> LOG_FACILITY = "DISPLAY_SDL";
 
 static xcb_rectangle_t rectBorder;
 
-DisplayXcb::DisplayXcb(Context *c, const std::pair<int,int> &dimension) : Display(c) {
 
-	int n;
-	connection = xcb_connect(NULL, &n);
-	if (connection == NULL) {
-		// log
-		return;
-	}
-	screen = NULL;
-	xcb_screen_iterator_t i = xcb_setup_roots_iterator(xcb_get_setup(
-	    connection));
-	for (; i.rem; n--, xcb_screen_next(&i)) {
-		std::cout << "Looking for screen #" << n << '.' << std::endl;
-		if (n == 0) {
-			screen = i.data;
-			break;
-		}
-	}
-	if (screen == NULL) {
-		// log
-		return;
-	}
+/*
+ * ******************************************************** constructor / destructor
+ */
 
-	std::cout << "Found screen with " << screen->width_in_pixels << 'x' <<
-	    screen->height_in_pixels << '.' << std::endl;
+DisplayXcb::DisplayXcb(Context *c, xcb_connection_t* cn, xcb_screen_t *scr, const xcb_window_t win, const xcb_font_t fn) : Display(c) {
 
-	window = xcb_generate_id(connection);
-	const uint32_t valueListWindow[] { screen->white_pixel,
-	    XCB_EVENT_MASK_EXPOSURE };
-	xcb_create_window(connection, XCB_COPY_FROM_PARENT, window,
-	    screen->root, 0, 0, dimension.first, dimension.second, 0,
-	    XCB_WINDOW_CLASS_INPUT_OUTPUT, screen->root_visual,
-	    XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK, valueListWindow);
+	connection = cn;
+	screen = scr;
+	window = win;
+	font = fn;
 
-	xcb_map_window(connection, window);
-	xcb_flush(connection);
-
-	font = xcb_generate_id(connection);
-	xcb_open_font(connection, font, 9, "Helvetica");
-	
 	context = xcb_generate_id(connection);
 //	const uint32_t valueListGContext[] { screen->black_pixel, screen->white_pixel, font, 0 };
 	const uint32_t valueListGContext[] { screen->black_pixel, screen->white_pixel, 0 };
@@ -73,17 +49,66 @@ DisplayXcb::DisplayXcb(Context *c, const std::pair<int,int> &dimension) : Displa
 	    | XCB_GC_GRAPHICS_EXPOSURES, valueListGContext);
 //	    | XCB_GC_FONT | XCB_GC_GRAPHICS_EXPOSURES, valueListGContext);
 
-//	xcb_close_font(connection, font);
-
-	xcb_map_window(connection, window);
-	xcb_flush(connection);
 }
 
 DisplayXcb::~DisplayXcb() {
-	if (connection != NULL)
+	if (connection != nullptr) {
+		xcb_close_font(connection, font);
 		xcb_disconnect(connection);
-	std::cout << "displayxcb terminated." << std::endl;
+	}
+	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", nullptr);
 }
+
+
+/*
+ * ******************************************************** private
+ */
+
+
+/*
+ * event handling
+ */
+
+void* DisplayXcb::eventPoll() {
+	return xcb_poll_for_event(connection);
+}
+
+void* DisplayXcb::eventWait() {
+	return xcb_poll_for_event(connection);
+}
+
+void DisplayXcb::gameEventSleep() const {
+	timespec ts;
+	ts.tv_sec = 0;
+	ts.tv_nsec = 1000 * 1000;
+	nanosleep(&ts, NULL);
+}
+
+long DisplayXcb::gameEventTicks() const {
+	timespec ts;
+	if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0)
+		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "fpsTicks", "clock gettime error");
+	return 1000L * ts.tv_sec + ts.tv_nsec / 1000L / 1000L;
+}
+
+
+/*
+ * ******************************************************** public
+ */
+
+
+/*
+ * getter
+ */
+
+xcb_connection_t* DisplayXcb::getConnection() const {
+	return connection;
+}
+
+
+/*
+ * drawing
+ */
 
 void DisplayXcb::drawBorder(const std::pair<int,int> &offset, const std::pair<int,int> &dimension) const {
 	rectBorder.x = offset.first;
@@ -110,5 +135,124 @@ std::pair<int,int> DisplayXcb::screenDimension() const {
 
 std::pair<int,int> DisplayXcb::fontDimension() const {
 	return { 10, 14 };
+}
+
+
+/*
+ * event handling
+ */
+
+bool DisplayXcb::handleEvent(void *event) const {
+	if (event == nullptr)
+		return false;
+	const xcb_generic_event_t *e = (const xcb_generic_event_t*) event;
+	switch (e->response_type & ~0x80) {
+	case XCB_EXPOSE: {
+		xcb_expose_event_t *ee = (xcb_expose_event_t *) event;
+		getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "expose");
+		break;
+	}
+	case XCB_BUTTON_PRESS: {
+		xcb_button_press_event_t *bpe = (xcb_button_press_event_t*) event;
+		getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "button press %dx%d", bpe->event_x, bpe->event_y);
+		break;
+	}
+	case XCB_KEY_PRESS: {
+		xcb_key_press_event_t *kpe = (xcb_key_press_event_t*) event;
+		xcb_keysym_t sym = keysym(kpe->detail);
+		switch (sym) {
+		default:
+			return false;
+			break;
+		}
+		getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "key press %c %d", sym, sym);
+		break;
+	}
+	default:
+		return false;
+		break;
+	}
+	return true;
+}
+
+
+/*
+ * xcb helper
+ */
+
+xcb_keysym_t DisplayXcb::keysym(xcb_keycode_t code) const {
+	xcb_key_symbols_t *symbols = xcb_key_symbols_alloc(connection);
+//	xcb_keysym_t sym = xcb_key_press_lookup_keysym(symbols, kpe, kpe->state);
+	xcb_keysym_t sym = xcb_key_symbols_get_keysym(symbols, code, 0);
+	xcb_key_symbols_free(symbols);
+	return sym;
+}
+
+xcb_connection_t* DisplayXcb::initConnection() {
+	int n;
+	xcb_connection_t *cn = xcb_connect(NULL, &n);
+	if (cn == NULL) {
+		// log
+		return nullptr;
+	}
+	const int err = xcb_connection_has_error(cn);
+	if (err > 0) {
+		std::printf("%s initConnection() xcb connect error %d\n", LOG_FACILITY.c_str(), err);
+		return nullptr;
+	}
+	return cn;
+}
+
+xcb_screen_t* DisplayXcb::initScreen(xcb_connection_t *cn) {
+	xcb_screen_t *scr = NULL;
+	xcb_screen_iterator_t it = xcb_setup_roots_iterator(xcb_get_setup(cn));
+	for (; it.rem; xcb_screen_next(&it)) {
+		scr = it.data;
+		if (scr != NULL)
+			break;
+	}
+	if (scr == NULL) {
+		std::printf("%s initScreen() no screen found\n", LOG_FACILITY.c_str());
+		return nullptr;
+	}
+	std::printf("%s initScreen() screen found %dx%d\n", LOG_FACILITY.c_str(), scr->width_in_pixels, scr->height_in_pixels);
+	return scr;
+}
+
+xcb_window_t DisplayXcb::initWindow(xcb_connection_t *cn, xcb_screen_t *scr, const std::pair<int,int> *offset,
+	    const std::pair<int,int> *dimension) {
+
+	std::pair<int,int> off { 0, 0 };
+	if (offset != nullptr)
+		off = *offset;
+	std::pair<int,int> dim = { scr->white_pixel, scr->height_in_pixels };
+	if (dimension != nullptr)
+		dim = *dimension;
+	if (off.first >= scr->width_in_pixels - 1)
+		off.first = 0;
+	if (off.second >= scr->height_in_pixels - 1)
+		off.second = 0;
+	if (off.first + dim.first > scr->width_in_pixels)
+		dim.first = scr->width_in_pixels - off.first;
+	if (off.second + dim.second > scr->width_in_pixels)
+		dim.first = scr->width_in_pixels - off.first;
+
+	xcb_window_t win = xcb_generate_id(cn);
+	const uint32_t valueListWindow[] { scr->white_pixel,
+	    XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_KEY_PRESS };
+	xcb_create_window(cn, XCB_COPY_FROM_PARENT, win,
+	    scr->root, off.first, off.second, dim.first, dim.second, 0,
+	    XCB_WINDOW_CLASS_INPUT_OUTPUT, scr->root_visual,
+	    XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK, valueListWindow);
+
+	xcb_map_window(cn, win);
+	xcb_flush(cn);
+	return win;
+}
+
+xcb_font_t DisplayXcb::initFont(xcb_connection_t *cn) {
+	xcb_font_t fn = xcb_generate_id(cn);
+	xcb_open_font(cn, fn, 9, "Helvetica");
+	return fn;
 }
 

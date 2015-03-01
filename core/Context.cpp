@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, 2015, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,7 +14,6 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-//#include <cstddef>
 #include <cstdarg>
 #include <string>
 
@@ -27,7 +26,7 @@
 static const std::basic_string<char> LOG_FACILITY = "CONTEXT";
 
 /*
- * constructor / destructor
+ * ******************************************************** constructor / destructor
  */
 
 Context::Context() {	
@@ -44,7 +43,12 @@ Context::~Context() {
 
 
 /*
- * private
+ * ******************************************************** private
+ */
+
+
+/*
+ * drawing
  */
 
 void Context::onDraw(Component *c, void *userData) {
@@ -58,7 +62,12 @@ void Context::onDraw(Component *c, void *userData) {
 
 
 /*
- * public
+ * ******************************************************** public
+ */
+
+
+/*
+ * getter / setter
  */
 
 const Display* Context::getDisplay() {
@@ -85,38 +94,50 @@ void Context::setRootContainer(Container *r) {
 		log(LOG_WARN, LOG_FACILITY, "setRootContainer", "no root container");
 }
 
+
+/*
+ * drawing
+ */
+
 void Context::draw() {
 	Component::traverse((Component*) rootContainer, Context::onDraw, display);
 
 	// draw log
 	if (logs.size() > 0) {
-		const std::pair<int,int> fontDimension = display->fontDimension();
-		const std::pair<int,int> screenDimension = display->screenDimension();
-		const std::pair<int,int> logDimension { screenDimension.first / 2, fontDimension.second };
-		std::pair<int,int> logOffset;
-		// 1 char left padding to screen
-		logOffset.first = 1 * fontDimension.first;
-		// 1 char bottom padding to screen
-		logOffset.second = screenDimension.second - (1 + logs.size()) * fontDimension.second;
-		for (const auto log : logs) {
-			display->drawBorder(logOffset, logDimension);
-			display->drawText(logOffset, logDimension, *log);
-			logOffset.second += fontDimension.second;
+		if (display != nullptr) {
+			const std::pair<int,int> fontDimension = display->fontDimension();
+			const std::pair<int,int> screenDimension = display->screenDimension();
+			const std::pair<int,int> logDimension { screenDimension.first / 2, fontDimension.second };
+			std::pair<int,int> logOffset;
+			// 1 char left padding to screen
+			logOffset.first = 1 * fontDimension.first;
+			// 1 char bottom padding to screen
+			logOffset.second = screenDimension.second - (1 + logs.size()) * fontDimension.second;
+			for (const auto log : logs) {
+				display->drawBorder(logOffset, logDimension);
+				display->drawText(logOffset, logDimension, *log);
+				logOffset.second += fontDimension.second;
+			}
+		} else {
+			for (const auto log : logs)
+				std::printf("%s\n", log->c_str());
 		}
 	}
 
-	// draw frame stats
-	const std::pair<int,int> frameStat = display->getFrameStat();
-	if (frameStat.first > 0 && frameStat.second > 0) {
-		const std::pair<int,int> fontDimension = display->fontDimension();
-		const std::pair<int,int> screenDimension = display->screenDimension();
-		char buf[100];
-		std::snprintf(buf, 100, "%7dcycl %3dms %3dfps", frameStat.second, frameStat.first, 1000 / frameStat.first);
-		const int width = std::strlen(buf) * fontDimension.first;
-		const std::pair<int,int> statOffset { screenDimension.first - width - fontDimension.first,
-		    screenDimension.second - 2 * fontDimension.second };
-		const std::pair<int,int> statDimension { width, fontDimension.second };
-		display->drawText(statOffset, statDimension, buf);
+	// draw fps stats
+	if (display != nullptr) {
+		const std::pair<int,int> frameStat = display->getFpsStat();
+		if (frameStat.first > 0 && frameStat.second > 0) {
+			const std::pair<int,int> fontDimension = display->fontDimension();
+			const std::pair<int,int> screenDimension = display->screenDimension();
+			char buf[100];
+			std::snprintf(buf, 100, "%7dcycl %3dms %3dfps", frameStat.second, frameStat.first, 1000 / frameStat.first);
+			const int width = std::strlen(buf) * fontDimension.first;
+			const std::pair<int,int> statOffset { screenDimension.first - width - fontDimension.first,
+			    screenDimension.second - 2 * fontDimension.second };
+			const std::pair<int,int> statDimension { width, fontDimension.second };
+			display->drawText(statOffset, statDimension, buf);
+		}
 	}
 }
 

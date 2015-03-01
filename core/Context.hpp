@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, 2015, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -32,8 +32,9 @@ private:
 	Display *display;
 	Container *rootContainer;
 
-	std::deque<std::basic_string<char>*> logs; // = {};
+	std::deque<std::basic_string<char>*> logs;
 
+	// drawing
 	static void onDraw(Component*, void*);
 
 public:
@@ -42,13 +43,16 @@ public:
 	Context();
 	~Context();
 
+	// getter / setter
 	const Display* getDisplay();
 	void setDisplay(Display*);
 	const Container* getRootContainer();
 	void setRootContainer(Container*);
 
+	// drawing
 	void draw();
 
+	// logging
 	void log(const int, const std::basic_string<char>&, const std::basic_string<char>&, const char*...);
 };
 

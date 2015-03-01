@@ -28,16 +28,28 @@ class DisplayCurses : public Display {
 private:
 	WINDOW *window;
 
+	// event handling
+	int currentEvent;
+	void* eventPoll() override;
+	void* eventWait() override;
+	void gameEventSleep() const override;
+	long gameEventTicks() const override;
+
 public:
-	DisplayCurses(Context*);
+	DisplayCurses(Context*, WINDOW*);
 	~DisplayCurses();
 
-	bool handleEvent(const int) const;
-
+	// drawing
 	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
 	void drawText(const std::pair<int,int>&, const std::pair<int,int>&, const std::basic_string<char>&) const override;
 	std::pair<int,int> screenDimension() const override;
 	std::pair<int,int> fontDimension() const override;
+
+	// event handling
+	bool handleEvent(void*) const override;
+
+	// curses helper
+	static WINDOW* initWindow();
 
 };
 

@@ -34,14 +34,35 @@ private:
 	xcb_font_t font;
 	xcb_gcontext_t context;
 
+	// event handling
+	void* eventPoll() override;
+	void* eventWait() override;
+	void gameEventSleep() const override;
+	long gameEventTicks() const override;
+
 public:
-	DisplayXcb(Context*, const std::pair<int,int>&);
+	DisplayXcb(Context*, xcb_connection_t*, xcb_screen_t*, const xcb_window_t, const xcb_font_t);
 	~DisplayXcb();
 
+	// getter
+	xcb_connection_t* getConnection() const;
+
+	// drawing
 	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
 	void drawText(const std::pair<int,int>&, const std::pair<int,int>&, const std::basic_string<char>&) const override;
 	std::pair<int,int> screenDimension() const override;
 	std::pair<int,int> fontDimension() const override;
+
+	// event handling
+	bool handleEvent(void*) const override;
+
+	// xcb helper
+	xcb_keysym_t keysym(xcb_keycode_t) const;
+	static xcb_connection_t* initConnection();
+	static xcb_screen_t* initScreen(xcb_connection_t*);
+	static xcb_window_t initWindow(xcb_connection_t*, xcb_screen_t*, const std::pair<int,int>*, const std::pair<int,int>*);
+	static xcb_font_t initFont(xcb_connection_t*);
+
 };
 
 #endif // SWF_CORE_DISPLAY_XCB

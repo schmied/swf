@@ -35,10 +35,12 @@ static const std::basic_string<char> LOG_FACILITY = "DISPLAY_SDL";
 
 
 /*
- * constructor
+ * ******************************************************** constructor
  */
 
-DisplaySdl::DisplaySdl(Context *c) : Display(c) {
+DisplaySdl::DisplaySdl(Context *c, SDL_Surface *scr) : Display(c) {
+
+	screen = scr;
 
 	int error = FT_Init_FreeType(&fontLibrary);
 	if (error) {
@@ -95,19 +97,6 @@ DisplaySdl::DisplaySdl(Context *c) : Display(c) {
 	const int fontPanelWidth = fontPanelOffsets[fontPanelCharCount-1];
 	fontWidthAvg = fontPanelWidth / fontPanelCharCount;
 
-	// create screen
-	if (SDL_Init(SDL_INIT_VIDEO) == -1) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "sdl init error: %s", SDL_GetError());
-		return;
-	}
-	screen = SDL_SetVideoMode(0, 0, 0, SDL_ANYFORMAT);
-//	screen = SDL_SetVideoMode(1024, 768, 0, SDL_ANYFORMAT);
-	if (screen == NULL) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "sdl set video mode error: %s", SDL_GetError());
-		return;
-	}
-	SDL_FillRect(screen, NULL, 0x00000000);
-
 	// create font panel
 	const SDL_PixelFormat *fmt = screen->format;
 	fontPanel = SDL_CreateRGBSurface(screen->flags, fontPanelWidth, fontHeight, fmt->BitsPerPixel,
@@ -150,7 +139,31 @@ DisplaySdl::~DisplaySdl() {
 
 
 /*
- * private
+ * ******************************************************** private
+ */
+
+
+/*
+ * font panel
+ */
+
+bool DisplaySdl::fontPanelChar(const int c, SDL_Rect *dimension) const {
+	if (c < fontPanelFirstChar || c > fontPanelLastChar)
+		return false;
+	const int idx = c - fontPanelFirstChar;
+	if (idx == 0)
+		dimension->x = 0;
+	else
+		dimension->x = fontPanelOffsets[idx-1];
+	dimension->y = 0;
+	dimension->w = fontPanelOffsets[idx] - dimension->x;
+	dimension->h = fontPanel->h;
+	return true;
+}
+
+
+/*
+ * drawing
  */
 
 inline void DisplaySdl::drawPoint(SDL_Surface *dst, const int x, const int y, const Uint32 color) {
@@ -171,7 +184,6 @@ inline void DisplaySdl::drawPoint(SDL_Surface *dst, const int x, const int y, co
 		break;
 	}
 }
-
 void DisplaySdl::drawLine(SDL_Surface *dst, int x0, int y0, int x1, int y1, const Uint32 color) {
 	const bool steep = std::abs(y1 - y0) > std::abs(x1 - x0);
 	int tmp;
@@ -254,7 +266,6 @@ void DisplaySdl::drawLine(SDL_Surface *dst, int x0, int y0, int x1, int y1, cons
 		}
 	}
 	SDL_UnlockSurface(dst);
-
 }
 
 void DisplaySdl::drawGlyph(SDL_Surface *dst, const FT_GlyphSlot glyph, const int offsetX, const int offsetY,
@@ -290,50 +301,44 @@ void DisplaySdl::drawGlyph(SDL_Surface *dst, const FT_GlyphSlot glyph, const int
 	SDL_UnlockSurface(dst);
 }
 
-// look up char in font panel cache
-bool DisplaySdl::fontPanelChar(const int c, SDL_Rect *dimension) const {
-	if (c < fontPanelFirstChar || c > fontPanelLastChar)
-		return false;
-	const int idx = c - fontPanelFirstChar;
-	if (idx == 0)
-		dimension->x = 0;
-	else
-		dimension->x = fontPanelOffsets[idx-1];
-	dimension->y = 0;
-	dimension->w = fontPanelOffsets[idx] - dimension->x;
-	dimension->h = fontPanel->h;
-	return true;
+
+/*
+ * event handling
+ */
+
+void* DisplaySdl::eventPoll() {
+	const int i = SDL_PollEvent(&currentEvent);
+	if (!i)
+		return nullptr;
+	return &currentEvent;
+}
+
+void* DisplaySdl::eventWait() {
+	const int i = SDL_WaitEvent(&currentEvent);
+	if (!i) {
+		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "eventWait", "sdl wait event error");
+		return nullptr;
+	}
+	return &currentEvent;
+}
+
+void DisplaySdl::gameEventSleep() const {
+	SDL_Delay(1);	
+}
+
+long DisplaySdl::gameEventTicks() const {
+	return SDL_GetTicks();
 }
 
 
 /*
- * public
+ * ******************************************************** public
  */
 
-bool DisplaySdl::handleEvent(const SDL_Event *event) const {
-	switch (event->type) {
-	case SDL_KEYDOWN:
-		switch (event->key.keysym.sym) {
-		case SDLK_ESCAPE:
-			break;
-		case SDLK_RETURN:
-			break;
-		case SDLK_UP:
-			break;
-		case SDLK_DOWN:
-			break;
-		default:
-			return false;
-			break;
-		}
-		getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "typ %d sym %d", event->type, event->key.keysym.sym);
-		break;
-	default:
-		return false;
-		break;
-	}
-	return true;
-}
+
+/*
+ * drawing
+ */
 
 void DisplaySdl::drawBorder(const std::pair<int,int> &offset, const std::pair<int,int> &dimension) const {
 //	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "drawBorder", "%d+%d %dx%d", offset.first, offset.second, dimension.first, dimension.second);
@@ -384,7 +389,7 @@ void DisplaySdl::drawText(const std::pair<int,int> &offset, const std::pair<int,
 			if (SDL_BlitSurface(fontPanel, &fontPanelRect, screen, &screenRect) == -1)
 				getContext()->log(Context::LOG_WARN, LOG_FACILITY, "drawText", "sdl blit surface error: %s", SDL_GetError());
 		} else {
-			int error = FT_Load_Char(fontFace, c, FT_LOAD_RENDER);
+			const int error = FT_Load_Char(fontFace, c, FT_LOAD_RENDER);
 			if (error) {
 				getContext()->log(Context::LOG_WARN, LOG_FACILITY, "drawText", "freetype load char error: %d", error);
 				continue;
@@ -410,5 +415,59 @@ std::pair<int,int> DisplaySdl::screenDimension() const {
 
 std::pair<int,int> DisplaySdl::fontDimension() const {
 	return { fontWidthAvg, fontHeight };
+}
+
+
+/*
+ * event handling
+ */
+
+bool DisplaySdl::handleEvent(void *event) const {
+	if (event == nullptr)
+		return false;
+	const SDL_Event *e = (const SDL_Event*) event;
+	switch (e->type) {
+	case SDL_KEYDOWN:
+		switch (e->key.keysym.sym) {
+		case SDLK_ESCAPE:
+			break;
+		case SDLK_RETURN:
+			break;
+		case SDLK_UP:
+			break;
+		case SDLK_DOWN:
+			break;
+		default:
+			return false;
+			break;
+		}
+		getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "typ %d sym %d", e->type, e->key.keysym.sym);
+		break;
+	default:
+		return false;
+		break;
+	}
+	return true;
+}
+
+
+/*
+ * sdl helper
+ */
+
+SDL_Surface* DisplaySdl::initScreen() {
+	// create screen
+	if (SDL_Init(SDL_INIT_VIDEO) == -1) {
+		std::printf("%s initScreen() sdl init error: %s\n", LOG_FACILITY.c_str(), SDL_GetError());
+		return nullptr;
+	}
+	SDL_Surface *scr = SDL_SetVideoMode(0, 0, 0, SDL_ANYFORMAT);
+//	screen = SDL_SetVideoMode(1024, 768, 0, SDL_ANYFORMAT);
+	if (scr == NULL) {
+		std::printf("%s initScreen() sdl set videomode error: %s\n", LOG_FACILITY.c_str(), SDL_GetError());
+		return nullptr;
+	}
+	SDL_FillRect(scr, NULL, 0x00000000);
+	return scr;
 }
 

@@ -30,37 +30,48 @@
 class DisplaySdl : public Display {
 
 private:
-	static const int fontPanelFirstChar = 0x20; // first char: space
-	static const int fontPanelLastChar = 0x7e; // last char: tilde
-	static const int fontPanelCharCount = fontPanelLastChar - fontPanelFirstChar + 1;
-
-	inline static void drawPoint(SDL_Surface*, const int, const int, const Uint32);
-	static void drawLine(SDL_Surface*, int, int, int, int, const Uint32);
-	void drawGlyph(SDL_Surface*, const FT_GlyphSlot, const int, const int, const Uint32) const;
-
 	struct SDL_Surface *screen;
 
-	struct SDL_Surface *fontPanel; // caches often used chars for blitting
+	// font panel, caches often used chars for blitting
+	static const int fontPanelFirstChar = 0x20;		// first char: space
+	static const int fontPanelLastChar = 0x7e;		// last char: tilde
+	static const int fontPanelCharCount = fontPanelLastChar - fontPanelFirstChar + 1;
+	struct SDL_Surface *fontPanel;
 	FT_Library fontLibrary;
 	FT_Face fontFace;
 	int fontPanelOffsets[fontPanelCharCount];
 	int fontHeight;
 	int fontSize;
 	int fontWidthAvg;
+	bool fontPanelChar(const int c, SDL_Rect*) const;	// lookup char in font panel cache
 
-	bool fontPanelChar(const int c, SDL_Rect*) const;
+	// drawing
+	inline static void drawPoint(SDL_Surface*, const int, const int, const Uint32);
+	static void drawLine(SDL_Surface*, int, int, int, int, const Uint32);
+	void drawGlyph(SDL_Surface*, const FT_GlyphSlot, const int, const int, const Uint32) const;
+
+	// event handling
+	SDL_Event currentEvent;
+	void* eventPoll() override;
+	void* eventWait() override;
+	void gameEventSleep() const override;
+	long gameEventTicks() const override;
 
 public:
-	DisplaySdl(Context*);
+	DisplaySdl(Context*, SDL_Surface*);
 	~DisplaySdl();
 
-	bool handleEvent(const SDL_Event*) const;
-
+	// drawing
 	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
 	void drawText(const std::pair<int,int>&, const std::pair<int,int>&, const std::basic_string<char>&) const override;
-
 	std::pair<int,int> screenDimension() const override;
 	std::pair<int,int> fontDimension() const override;
+
+	// event handling
+	bool handleEvent(void*) const override;
+
+	// sdl helper
+	static SDL_Surface* initScreen(); 
 
 };
 

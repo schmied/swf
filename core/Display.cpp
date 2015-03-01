@@ -23,7 +23,7 @@ static const std::basic_string<char> LOG_FACILITY = "DISPLAY";
 
 
 /*
- * constructor / destructor
+ * ******************************************************** constructor / destructor
  */
 
 Display::Display(Context *c) {
@@ -34,9 +34,9 @@ Display::Display(Context *c) {
 	context = c;
 	context->setDisplay(this);
 
-	ticksPrevious = 0;
-	frameMillis = 0;
-	cyclesPerFrame = 0;
+	fpsTicksPrevious = 0;
+	fpsFrameMillis = 0;
+	fpsCyclesPerFrame = 0;
 }
 
 Display::~Display() {
@@ -44,7 +44,38 @@ Display::~Display() {
 
 
 /*
- * public
+ * ******************************************************** private
+ */
+
+
+/*
+ * fps statistics
+ */
+
+bool Display::fpsIsTicksElapsed(const long ticksCurrent, const long targetFps) {
+	fpsCyclesPerFrameCounter++;
+	// over 2/3 of target millis is elapsed
+	if (ticksCurrent - fpsTicksPrevious > 2000 / (3 * targetFps))
+		return true;
+	return false;
+}
+
+void Display::fpsResetTicks(const long ticksCurrent) {
+	if (fpsTicksPrevious)
+		fpsFrameMillis = (int) (ticksCurrent - fpsTicksPrevious);
+	fpsTicksPrevious = ticksCurrent;
+	fpsCyclesPerFrame = fpsCyclesPerFrameCounter;
+	fpsCyclesPerFrameCounter = 0;
+}
+
+
+/*
+ * ******************************************************** public
+ */
+
+
+/*
+ * getter
  */
 
 Context* Display::getContext() const {
@@ -53,23 +84,54 @@ Context* Display::getContext() const {
 	return context;
 }
 
-std::pair<int,int> Display::getFrameStat() const {
-	return { frameMillis, cyclesPerFrame };
+
+std::pair<int,int> Display::getFpsStat() const {
+	return { fpsFrameMillis, fpsCyclesPerFrame };
 }
 
-bool Display::isTicksElapsed(const long ticksCurrent, const long targetFps) {
-	cyclesPerFrameCounter++;
-	// over 2/3 of target millis is elapsed
-	if (ticksCurrent - ticksPrevious > 2000 / (3 * targetFps))
-		return true;
-	return false;
+/*
+ * event handling
+ */
+
+void* Display::gameEventLoop(const int targetFps, const bool isSleepy, bool (*isQuitEvent)(void*, void*), void (*onEvent)(void*, void*),
+	    void* userData) {
+	void *e;
+	for (;;) {
+		const long ticks = gameEventTicks();
+		const bool isElapsed = fpsIsTicksElapsed(ticks, targetFps);
+		if (isElapsed) {
+			fpsResetTicks(ticks);
+			e = eventPoll();
+			if (e != nullptr) {
+				if (isQuitEvent(e, userData))
+					return e;
+				if (!handleEvent(e))
+					onEvent(e, userData);
+			}
+		}
+		if (isElapsed || isSleepy) {
+			// <-- user calc stuff here
+		} 
+		if (isElapsed) {
+			// <-- user draw stuff here
+			getContext()->draw();
+		}
+		if (!isElapsed && isSleepy) 
+			gameEventSleep();
+	}
 }
 
-void Display::resetTicks(const long ticksCurrent) {
-	if (ticksPrevious)
-		frameMillis = (int) (ticksCurrent - ticksPrevious);
-	ticksPrevious = ticksCurrent;
-	cyclesPerFrame = cyclesPerFrameCounter;
-	cyclesPerFrameCounter = 0;
+void* Display::applicationEventLoop(bool (*isQuitEvent)(void*, void*), void (*onEvent)(void*, void*), void* userData) {
+	void *e;
+	for (;;) {
+		e = eventWait();
+		if (e == nullptr)
+			continue;
+		if (isQuitEvent(e, userData))
+			return e;
+		if (!handleEvent(e))
+			onEvent(e, userData);
+		getContext()->draw();
+	}
 }
 

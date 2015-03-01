@@ -18,7 +18,11 @@
 #include <iostream>
 
 #include <curses.h>
+
 #include <SDL/SDL.h>
+
+#include <xcb/xcb.h>
+#include <xcb/xcb_keysyms.h>
 
 //#include "../core/Component.hpp"
 #include "../core/Button.hpp"
@@ -32,41 +36,147 @@
 
 static const std::basic_string<char> LOG_FACILITY = "EXAMPLE";
 
-static bool isMaximumSpeed = false;
+static bool isGameMode = false;
+static bool isGameModeMaxSpeed = false;
 
-static bool handleEventSdl(Context &context, const SDL_Event *event) {
-	switch (event->type) {
-	case SDL_KEYDOWN:
-		switch (event->key.keysym.sym) {
-		case 's':
-			isMaximumSpeed = !isMaximumSpeed;
-			context.log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "maximum speed is %d", isMaximumSpeed);
-			break;
-		default:
-			return false;
-			break;
-		}
-		context.log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "typ %d sym %d", event->type, event->key.keysym.sym);
-		break;
-	default:
+
+static bool isQuitEventXcb(void *event, void *data) {
+	if (event == nullptr)
 		return false;
-		break;
+	if (data == nullptr) {
+		std::printf("%s isQuitEventXcb() display is null\n", LOG_FACILITY.c_str());
+		return false;
 	}
-	return true;
+	const xcb_generic_event_t *e = (const xcb_generic_event_t*) event;
+	const DisplayXcb *display = (const DisplayXcb*) data;
+	if ((e->response_type & ~0x80) == XCB_KEY_PRESS) {
+		xcb_key_press_event_t *kpe = (xcb_key_press_event_t*) event;
+		if (display->keysym(kpe->detail) == 65307) // esc key
+			return true;
+	}
+	return false;
 }
 
-static bool handleEventCurses(Context &context, const int c) {
-	switch (c) {
-	case 's':
-		isMaximumSpeed = !isMaximumSpeed;
-		context.log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "maximum speed is %d", isMaximumSpeed);
-		break;
-	default:
-		return false;
+static void onEventXcb(void *event, void *data) {
+	if (event == nullptr)
+		return;
+	if (data == nullptr) {
+		std::printf("%s onEventXcb() display is null\n", LOG_FACILITY.c_str());
+		return;
+	}
+	const xcb_generic_event_t *e = (const xcb_generic_event_t*) event;
+	const DisplayXcb *display = (const DisplayXcb*) data;
+	Context *context = display->getContext();
+	switch (e->response_type & ~0x80) {
+	case XCB_EXPOSE: {
+		xcb_expose_event_t *ee = (xcb_expose_event_t *) event;
+		context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventXcb", "expose");
 		break;
 	}
-	context.log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "char %d", c);
-	return true;
+	case XCB_BUTTON_PRESS: {
+		xcb_button_press_event_t *bpe = (xcb_button_press_event_t*) event;
+		context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventXcb", "button press %dx%d", bpe->event_x, bpe->event_y);
+		break;
+	}
+	case XCB_KEY_PRESS: {
+		xcb_key_press_event_t *kpe = (xcb_key_press_event_t*) event;
+		xcb_keysym_t sym = display->keysym(kpe->detail);
+		context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventXcb", "key press > %c %d", sym, sym);
+		switch (sym) {
+		case 'g':
+			isGameMode = !isGameMode;
+			context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventXcb", "game mode is %d",
+			    isGameMode);
+			break;
+		case 's':
+			isGameModeMaxSpeed = !isGameModeMaxSpeed;
+			context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventXcb", "max speed is %d",
+			    isGameModeMaxSpeed);
+			break;
+		default:
+			break;
+		}
+		break;
+	}
+	default:
+		break;
+	}
+}
+
+static bool isQuitEventCurses(void *event, void *data) {
+	if (event == nullptr)
+		return false;
+	const int c = *(const int*) event;
+	if (c == 27) // esc key
+		return true;
+	return false;
+}
+
+static void onEventCurses(void *event, void *data) {
+	if (event == nullptr)
+		return;
+	if (data == nullptr) {
+		std::printf("%s onEventCurses() display is null\n", LOG_FACILITY.c_str());
+		return;
+	}
+	const int c = *(const int*) event;
+	if (c == ERR)
+		return;
+	const DisplayXcb *display = (const DisplayXcb*) data;
+	Context *context = display->getContext();
+	switch (c) {
+	case 'g':
+		isGameMode = !isGameMode;
+		context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventCurses", "game mode is %d", isGameMode);
+		break;
+	case 's':
+		isGameModeMaxSpeed = !isGameModeMaxSpeed;
+		context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventCurses", "max speed is %d", isGameModeMaxSpeed);
+		break;
+	default:
+		break;
+	}
+	context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventCurses", "char %d", c);
+}
+
+static bool isQuitEventSdl(void *event, void *data) {
+	if (event == nullptr)
+		return false;
+	SDL_Event *e = (SDL_Event*) event;
+	if (e->type == SDL_KEYDOWN && e->key.keysym.sym == SDLK_ESCAPE)
+		return true;
+	return false;
+}
+
+static void onEventSdl(void *event, void *data) {
+	if (event == nullptr)
+		return;
+	if (data == nullptr) {
+		std::printf("%s onEventSdl() display is null\n", LOG_FACILITY.c_str());
+		return;
+	}
+	const DisplayXcb *display = (const DisplayXcb*) data;
+	Context *context = display->getContext();
+	const SDL_Event *e = (const SDL_Event*) event;
+	switch (e->type) {
+	case SDL_KEYDOWN:
+		switch (e->key.keysym.sym) {
+		case 'g':
+			isGameMode = !isGameMode;
+			context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventSdl", "game mode is %d", isGameMode);
+			break;
+		case 's':
+			isGameModeMaxSpeed = !isGameModeMaxSpeed;
+			context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventSdl", "max speed is %d", isGameMode);
+			break;
+		default:
+			break;
+		}
+		context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventSdl", "typ %d sym %d", e->type, e->key.keysym.sym);
+		break;
+	default:
+		break;
+	}
 }
 
 int main(int argc, char **argv) {
@@ -79,90 +189,27 @@ int main(int argc, char **argv) {
 	Button button3 { &root };
 
 /*
-	DisplayXcb display { &context, { 500, 1200 } };
-	timespec ts;
-	for (;;) {
-		if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0)
-			context.log(Context::LOG_DEBUG, LOG_FACILITY, "main", "clock gettime error");
-		const long ticks = 1000 * ts.tv_sec + ts.tv_nsec / 1000 / 1000;
-		const bool isElapsed = display.isTicksElapsed(ticks, 60);
-		if (isElapsed) {
-			display.resetTicks(ticks);
-			// <-- event handling here
-		}
-		if (isElapsed || isMaximumSpeed) {
-			// <-- my calc stuff here
-		} 
-		if (isElapsed) {
-			// <-- my render stuff here
-			context.draw();
-		}
-		if (!isElapsed && !isMaximumSpeed) {
-			ts.tv_sec = 0;
-			ts.tv_nsec = 1000 * 1000;
-			nanosleep(&ts, NULL);
-		}
-	}
+	xcb_connection_t *cn = DisplayXcb::initConnection();
+	xcb_screen_t *scr = DisplayXcb::initScreen(cn);
+	xcb_window_t win = DisplayXcb::initWindow(cn, scr, nullptr, nullptr);
+	xcb_font_t fn = DisplayXcb::initFont(cn);
+	DisplayXcb display { &context, cn, scr, win, fn };
+	display.gameEventLoop(60, true, isQuitEventXcb, onEventXcb, &display);
+//	display.applicationEventLoop(isQuitEventXcb, onEventXcb, &display);
 */
-
-	DisplayCurses display { &context };
-	timespec ts;
-	for (;;) {
-		if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0)
-			context.log(Context::LOG_DEBUG, LOG_FACILITY, "main", "clock gettime error");
-		const long ticks = 1000 * ts.tv_sec + ts.tv_nsec / 1000 / 1000;
-		const bool isElapsed = display.isTicksElapsed(ticks, 60);
-		if (isElapsed) {
-			display.resetTicks(ticks);
-			// <-- event handling here
-			const int c = getch();
-			if (c == 27)
-				break;
-			if (!display.handleEvent(c))
-				handleEventCurses(context, c);
-		}
-		if (isElapsed || isMaximumSpeed) {
-			// <-- my calc stuff here
-		} 
-		if (isElapsed) {
-			// <-- my render stuff here
-			context.draw();
-			refresh();
-		}
-		if (!isElapsed && !isMaximumSpeed) {
-			ts.tv_sec = 0;
-			ts.tv_nsec = 1000 * 1000;
-			nanosleep(&ts, NULL);
-		}
-	}
 
 /*
-	DisplaySdl display { &context };
-	display.resetTicks(SDL_GetTicks());
-	SDL_Event event;
-	for (;;) {
-		const long ticks = SDL_GetTicks();
-		const bool isElapsed = display.isTicksElapsed(ticks, 60);
-		if (isElapsed) {
-			display.resetTicks(ticks);
-			if (SDL_PollEvent(&event)) {
-				if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
-					break;
-				if (!display.handleEvent(&event))
-					handleEventSdl(context, &event);
-			}
-		}
-		if (isElapsed || isMaximumSpeed) {
-			// <-- my calc stuff here
-		} 
-		if (isElapsed) {
-			// <-- my render stuff here
-			context.draw();
-		}
-		if (!isElapsed && !isMaximumSpeed)
-			SDL_Delay(1);
-	}
+	WINDOW *w = DisplayCurses::initWindow();
+	DisplayCurses display = { &context, w };
+//	display.gameEventLoop(60, true, isQuitEventCurses, onEventCurses, &display);
+	display.applicationEventLoop(isQuitEventCurses, onEventCurses, &display);
 */
+
+	SDL_Surface *scr = DisplaySdl::initScreen();
+	DisplaySdl display { &context, scr };
+	display.gameEventLoop(60, true, isQuitEventSdl, onEventSdl, &display);
+//	display.applicationEventLoop(isQuitEventSdl, onEventSdl, &display);
+
 	return 0;
 }
 

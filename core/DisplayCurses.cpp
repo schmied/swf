@@ -28,22 +28,11 @@ static const std::basic_string<char> LOG_FACILITY = "DISPLAY_CURSES";
 
 
 /*
- * constructor / destructor
+ * ******************************************************** constructor / destructor
  */
 
-DisplayCurses::DisplayCurses(Context *c) : Display(c) {
-	window = initscr();
-	nodelay(window, TRUE); // do not block on getch()
-	cbreak();
-	noecho();
-	nonl();
-	intrflush(window, FALSE);
-	keypad(window, TRUE);
-	meta(window, TRUE);
-	raw();
-	scrollok(window, FALSE);
-	erase();
-	refresh();
+DisplayCurses::DisplayCurses(Context *c, WINDOW *w) : Display(c) {
+	window = w;
 }
 
 DisplayCurses::~DisplayCurses() {
@@ -52,10 +41,82 @@ DisplayCurses::~DisplayCurses() {
 
 
 /*
- * public
+ * ******************************************************** private
  */
 
-bool DisplayCurses::handleEvent(const int c) const {
+
+/*
+ * event handling
+ */
+
+void* DisplayCurses::eventPoll() {
+	currentEvent = getch();
+	if (currentEvent == ERR)
+		return nullptr;
+	return &currentEvent;
+}
+
+void* DisplayCurses::eventWait() {
+	currentEvent = getch();
+	if (currentEvent == ERR)
+		return nullptr;
+	return &currentEvent;
+}
+
+void DisplayCurses::gameEventSleep() const {
+	timespec ts;
+	ts.tv_sec = 0;
+	ts.tv_nsec = 1000 * 1000;
+	nanosleep(&ts, NULL);
+}
+
+long DisplayCurses::gameEventTicks() const {
+	timespec ts;
+	if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0)
+		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "fpsTicks", "clock gettime error");
+	return 1000L * ts.tv_sec + ts.tv_nsec / 1000L / 1000L;
+}
+
+
+/*
+ * ******************************************************** public
+ */
+
+
+/*
+ * drawing
+ */
+
+void DisplayCurses::drawBorder(const std::pair<int,int> &offset, const std::pair<int,int> &dimension) const {
+}
+
+void DisplayCurses::drawText(const std::pair<int,int> &offset, const std::pair<int,int> &dimension,
+	    const std::basic_string<char> &text) const {
+	mvaddstr(offset.second, offset.first, text.c_str());
+//	refresh();
+}
+
+std::pair<int,int> DisplayCurses::screenDimension() const {
+	int x, y;
+	getmaxyx(window, y, x);
+	return { x, y };
+}
+
+static const std::pair<int,int> fontDim { 1, 1 };
+
+std::pair<int,int> DisplayCurses::fontDimension() const {
+	return fontDim;
+}
+
+
+/*
+ * event handling
+ */
+
+bool DisplayCurses::handleEvent(void *event) const {
+	if (event == nullptr)
+		return false;
+	const int c = *(const int*) event;
 	switch (c) {
 	case 8: // BS (backspace)
 		break;
@@ -86,24 +147,24 @@ bool DisplayCurses::handleEvent(const int c) const {
 	return true;
 }
 
-void DisplayCurses::drawBorder(const std::pair<int,int> &offset, const std::pair<int,int> &dimension) const {
-}
 
-void DisplayCurses::drawText(const std::pair<int,int> &offset, const std::pair<int,int> &dimension,
-	    const std::basic_string<char> &text) const {
-	mvaddstr(offset.second, offset.first, text.c_str());
-//	refresh();
-}
+/*
+ * curses helper
+ */
 
-std::pair<int,int> DisplayCurses::screenDimension() const {
-	int x, y;
-	getmaxyx(window, y, x);
-	return { x, y };
-}
-
-static const std::pair<int,int> fontDim { 1, 1 };
-
-std::pair<int,int> DisplayCurses::fontDimension() const {
-	return fontDim;
+WINDOW* DisplayCurses::initWindow() {
+	WINDOW *w = initscr();
+	nodelay(w, TRUE); // do not block on getch()
+	cbreak();
+	noecho();
+	nonl();
+	intrflush(w, FALSE);
+	keypad(w, TRUE);
+	meta(w, TRUE);
+	raw();
+	scrollok(w, FALSE);
+	erase();
+	refresh();
+	return w;
 }
 
