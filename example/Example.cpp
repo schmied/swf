@@ -100,6 +100,8 @@ static bool isQuitEventCurses(void *event, void *data) {
 */
 
 static bool onEventCurses(const bool isFinal, void *event, void *data) {
+	if (!isFinal)
+		return true;
 	if (event == nullptr)
 		return true;
 	if (data == nullptr) {
@@ -115,8 +117,7 @@ static bool onEventCurses(const bool isFinal, void *event, void *data) {
 	context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventCurses", "%d %c", c, c);
 	switch (c) {
 	case 27:	// esc key
-		if (isFinal)
-			return false;
+		return false;
 		break;
 	default:
 		break;
@@ -147,6 +148,8 @@ static void onDrawCurses(const bool isFinal, void *data) {
  */
 
 static bool onEventSdl(const bool isFinal, void *event, void *data) {
+	if (!isFinal)
+		return true;
 	if (event == nullptr)
 		return true;
 	if (data == nullptr) {
@@ -161,8 +164,7 @@ static bool onEventSdl(const bool isFinal, void *event, void *data) {
 	case SDL_KEYDOWN:
 		switch (e->key.keysym.sym) {
 		case SDLK_ESCAPE:
-			if (isFinal)
-				return false;
+			return false;
 			break;
 		default:
 			break;
@@ -204,6 +206,8 @@ static void onDrawSdl(const bool isFinal, void *data) {
  */
 
 static bool onEventXcb(const bool isFinal, void *event, void *data) {
+	if (!isFinal)
+		return true;
 	if (event == nullptr)
 		return true;
 	if (data == nullptr) {
@@ -230,8 +234,7 @@ static bool onEventXcb(const bool isFinal, void *event, void *data) {
 		xcb_keysym_t sym = display->keysym(kpe->detail);
 		switch (sym) {
 		case 65307:	// esc key
-			if (isFinal)
-				return false;
+			return false;
 			break;
 		default:
 			break;
@@ -314,21 +317,21 @@ int main(int argc, char **argv) {
 	Button button2 { &root };
 	Button button3 { &root };
 
+/*
 	// curses
 	WINDOW *w = DisplayCurses::initWindow();
 	DisplayCurses display = { &context, w };
 	env.display = &display;
 	display.gameEventLoop(60, true, onEventCurses, onRender, onDrawCurses, &env);
 //	display.applicationEventLoop(isQuitEventCurses, onEventCurses, &env);
+*/
 
-/*
 	// sdl
 	SDL_Surface *scr = DisplaySdl::initScreen();
 	DisplaySdl display { &context, scr };
 	env.display = &display;
 	display.gameEventLoop(60, true, onEventSdl, onRender, onDrawSdl, &env);
 //	display.applicationEventLoop(isQuitEventSdl, onEventSdl, &env);
-*/
 
 /*
 	// xcb
