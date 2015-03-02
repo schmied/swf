@@ -92,8 +92,17 @@ void DisplayCurses::drawBorder(const std::pair<int,int> &offset, const std::pair
 
 void DisplayCurses::drawText(const std::pair<int,int> &offset, const std::pair<int,int> &dimension,
 	    const std::basic_string<char> &text) const {
+	if ((int) text.length() > dimension.first) {
+		auto s = text.substr(0, dimension.first);
+		mvaddstr(offset.second, offset.first, s.c_str());
+		return;
+	}
 	mvaddstr(offset.second, offset.first, text.c_str());
-//	refresh();
+	if ((int) text.length() < dimension.first) {
+		std::basic_string<char> s;
+		s.append(dimension.first - text.length(), ' ');
+		mvaddstr(offset.second, offset.first + text.length(), s.c_str());
+	}
 }
 
 std::pair<int,int> DisplayCurses::screenDimension() const {
@@ -154,6 +163,8 @@ bool DisplayCurses::handleEvent(void *event) const {
 
 WINDOW* DisplayCurses::initWindow() {
 	WINDOW *w = initscr();
+	start_color();
+	use_default_colors();
 	nodelay(w, TRUE); // do not block on getch()
 	cbreak();
 	noecho();

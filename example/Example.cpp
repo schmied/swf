@@ -81,7 +81,7 @@ static bool scaleBox(const Box &box, Box *boxScr, const std::pair<int,int> &scrD
 
 struct Env {
 	void *display;
-	std::vector<Box> boxes { 100 };
+	std::vector<Box> boxes { 200 };
 };
 
 
@@ -116,20 +116,31 @@ static bool onEventCurses(const bool isFinal, void *event, void *data) {
 }
 
 static void onDrawCurses(const bool isFinal, void *data) {
-	const Env *env = (const Env*) data;
-	const DisplayCurses *display = (const DisplayCurses*) env->display;
 	if (isFinal) {
 		refresh();
 		return;
 	}
+	const Env *env = (const Env*) data;
+	const DisplayCurses *display = (const DisplayCurses*) env->display;
 	erase();
 	const std::pair<int,int> scrDim = display->screenDimension();
 	Box boxScr;
+	char buf[100];
+	int i = 0;
+	for (int i = 0; i < 8; i++)
+		init_pair(i, i & 7, ((i + 5) * 3) & 7);
 	for (auto &box : env->boxes) {
+		i++;
 		if (!scaleBox(box, &boxScr, scrDim))
 			continue;
-		mvaddstr(boxScr.offset.second, boxScr.offset.first, "#");
+		std::memset(buf, 0, 100);
+		std::memset(buf, '#', boxScr.dimension.first);
+		attron(COLOR_PAIR(i & 7));
+		for (int y = 0; y < boxScr.dimension.second; y++) 
+			mvaddstr(boxScr.offset.second + y, boxScr.offset.first, buf);
 	}
+	for (int i = 0; i < 8; i++)
+		attroff(COLOR_PAIR(i));
 }
 
 
@@ -147,7 +158,7 @@ static bool onEventSdl(const bool isFinal, void *event, void *data) {
 		return true;
 	}
 //	const Env *env = (const Env*) data;
-//	const DisplayXcb *display = (const DisplayXcb*) env->display;
+//	const DisplaySdl *display = (const DisplaySdl*) env->display;
 //	Context *context = display->getContext();
 	const SDL_Event *e = (const SDL_Event*) event;
 	switch (e->type) {
@@ -171,7 +182,7 @@ static void onDrawSdl(const bool isFinal, void *data) {
 	const DisplaySdl *display = (const DisplaySdl*) env->display;
 	SDL_Surface *screen = (SDL_Surface*) display->getScreen();
 	if (isFinal) {
-		SDL_UpdateRect(screen, 0, 0, 0, 0);
+		SDL_Flip(screen);
 		return;
 	}
 	SDL_FillRect(screen, NULL, 0x00000000);
@@ -179,14 +190,13 @@ static void onDrawSdl(const bool isFinal, void *data) {
 	Box boxScr;
 	int i = 17;
 	for (auto &box : env->boxes) {
+		i+=31;
 		if (!scaleBox(box, &boxScr, scrDim))
 			continue;
 		SDL_Rect r { (Sint16) boxScr.offset.first, (Sint16) boxScr.offset.second, (Uint16) boxScr.dimension.first,
 		    (Uint16) boxScr.dimension.second };
-		Uint32 col = SDL_MapRGB(screen->format, (i * 23) & 0xff, (i * 13) & 0xff, (i * 19) & 0xff);
-		i+=31;
+		Uint32 col = SDL_MapRGB(screen->format, ((i + 3) * 23) & 0xff, ((i + 5) * 13) & 0xff, (i * 19) & 0xff);
 		SDL_FillRect(screen, &r, col);
-//		SDL_UpdateRect(screen, r.x, r.y, r.w, r.h);
 	}
 }
 
@@ -275,7 +285,7 @@ static void onRender(void *data) {
 		box.offset.second += box.velocity.second;
 		if (box.offset.second < 0 || box.offset.second + box.dimension.second > boxFieldDim.second) {
 			box.velocity.second *= -1;
-			box.offset.first += 2 * box.velocity.second;
+			box.offset.second += 2 * box.velocity.second;
 		}
 	}
 }
@@ -334,6 +344,7 @@ int main(int argc, char **argv) {
 	display.gameEventLoop(60, true, onEventXcb, onRender, onDrawXcb, &env);
 //	display.applicationEventLoop(isQuitEventXcb, onEventXcb, &display);
 */
+
 	return 0;
 }
 

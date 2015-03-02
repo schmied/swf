@@ -99,8 +99,8 @@ DisplaySdl::DisplaySdl(Context *c, SDL_Surface *scr) : Display(c) {
 
 	// create font panel
 	const SDL_PixelFormat *fmt = screen->format;
-	fontPanel = SDL_CreateRGBSurface(screen->flags | SDL_SRCCOLORKEY | SDL_HWSURFACE, fontPanelWidth, fontHeight, fmt->BitsPerPixel,
-	    fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
+	fontPanel = SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_HWPALETTE,
+	    fontPanelWidth, fontHeight, fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 	if (fontPanel == NULL) {
 		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "sdl create rgb surface error: %s", SDL_GetError());
 		return;
@@ -496,8 +496,8 @@ SDL_Surface* DisplaySdl::initScreen() {
 		std::printf("%s initScreen() sdl init error: %s\n", LOG_FACILITY.c_str(), SDL_GetError());
 		return nullptr;
 	}
-	SDL_Surface *scr = SDL_SetVideoMode(0, 0, 0, SDL_ANYFORMAT);
-//	screen = SDL_SetVideoMode(1024, 768, 0, SDL_ANYFORMAT);
+//	SDL_Surface *scr = SDL_SetVideoMode(0, 0, 0, SDL_ANYFORMAT);
+	SDL_Surface *scr = SDL_SetVideoMode(0, 0, 0, SDL_ANYFORMAT | SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_HWPALETTE);
 	if (scr == NULL) {
 		std::printf("%s initScreen() sdl set videomode error: %s\n", LOG_FACILITY.c_str(), SDL_GetError());
 		return nullptr;
