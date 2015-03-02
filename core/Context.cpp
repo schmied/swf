@@ -107,7 +107,8 @@ void Context::draw() {
 		if (display != nullptr) {
 			const std::pair<int,int> fontDimension = display->fontDimension();
 			const std::pair<int,int> screenDimension = display->screenDimension();
-			const std::pair<int,int> logDimension { screenDimension.first / 2, fontDimension.second };
+			const std::pair<int,int> logDimension { screenDimension.first / 2 - 2 * fontDimension.first,
+			    fontDimension.second };
 			std::pair<int,int> logOffset;
 			// 1 char left padding to screen
 			logOffset.first = 1 * fontDimension.first;

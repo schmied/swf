@@ -43,7 +43,7 @@ private:
 	int fontHeight;
 	int fontSize;
 	int fontWidthAvg;
-	bool fontPanelChar(const int c, SDL_Rect*) const;	// lookup char in font panel cache
+	bool isFontPanelChar(const int c, SDL_Rect*) const;	// lookup char in font panel cache
 
 	// drawing
 	inline static void drawPoint(SDL_Surface*, const int, const int, const Uint32);

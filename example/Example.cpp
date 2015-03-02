@@ -53,13 +53,14 @@ struct Box {
 };
 
 static bool scaleBox(const Box &box, Box *boxScr, const std::pair<int,int> &scrDim) {
-	const float scale = ((float) scrDim.first + scrDim.second) / (boxFieldDim.first + boxFieldDim.second);
-	boxScr->offset.first = scale * box.offset.first;
-	boxScr->offset.second = scale * box.offset.second;
-	boxScr->dimension.first = scale * box.dimension.first;
+	const float scaleX = (float) scrDim.first / boxFieldDim.first;
+	const float scaleY = (float) scrDim.second / boxFieldDim.second;
+	boxScr->offset.first = scaleX * box.offset.first;
+	boxScr->offset.second = scaleY * box.offset.second;
+	boxScr->dimension.first = scaleX * box.dimension.first;
 	if (boxScr->dimension.first < 1)
 		boxScr->dimension.first = 1;
-	boxScr->dimension.second = scale * box.dimension.second;
+	boxScr->dimension.second = scaleY * box.dimension.second;
 	if (boxScr->dimension.second < 1)
 		boxScr->dimension.second = 1;
 	if (boxScr->offset.first < 0)
@@ -87,17 +88,6 @@ struct Env {
 /*
  * curses
  */
-
-/*
-static bool isQuitEventCurses(void *event, void *data) {
-	if (event == nullptr)
-		return false;
-	const int c = *(const int*) event;
-	if (c == 27) // esc key
-		return true;
-	return false;
-}
-*/
 
 static bool onEventCurses(const bool isFinal, void *event, void *data) {
 	if (!isFinal)
@@ -344,7 +334,6 @@ int main(int argc, char **argv) {
 	display.gameEventLoop(60, true, onEventXcb, onRender, onDrawXcb, &env);
 //	display.applicationEventLoop(isQuitEventXcb, onEventXcb, &display);
 */
-
 	return 0;
 }
 
