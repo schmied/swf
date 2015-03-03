@@ -4,7 +4,8 @@ CFLAGS		= -Wall
 CPP		= clang++
 CPPFLAGS	= -O2 -Wall -Wextra -std=c++14 -stdlib=libc++
 #CPPFLAGS	= -g -O0 -Wall -Wextra -O2 -std=c++14 -stdlib=libc++
-INCLUDEDIRS	= -I/usr/local/include -I/usr/local/include/freetype2
+INCLUDEDIRS	= -I/usr/local/include
+#INCLUDEDIRS	= -I/usr/local/include -I/usr/local/include/freetype2
 
 all: swfexample
 
@@ -19,7 +20,8 @@ clean: clean-example clean-core
 ################################### example
 
 EXAMPLELDIRS	= -L. -L/usr/lib -L/usr/local/lib
-EXAMPLELIBS	= -lc++ -lswfcore -lxcb -lxcb-keysyms -lcurses -lSDL -lfreetype
+#EXAMPLELIBS	= -lc++ -lswfcore -lxcb -lxcb-keysyms -lcurses -lSDL -lfreetype
+EXAMPLELIBS	= -lc++ -lswfcore -lcurses
 EXAMPLESRCS	= \
 	example/Example.cpp
 
@@ -37,20 +39,23 @@ CORESRCS	= \
 	core/Container.cpp \
 	core/Context.cpp \
 	core/DisplayCurses.cpp \
-	core/DisplaySdl.cpp \
-	core/DisplayXcb.cpp \
 	core/Display.cpp \
 	core/Widget.cpp
+
+#	core/DisplaySdl.cpp \
+#	core/DisplayXcb.cpp \
+
 COREHDRS	= \
 	core/Button.hpp \
 	core/Component.hpp \
 	core/Container.hpp \
 	core/Context.hpp \
 	core/DisplayCurses.hpp \
-	core/DisplaySdl.hpp \
-	core/DisplayXcb.hpp \
 	core/Display.hpp \
 	core/Widget.hpp
+
+#	core/DisplaySdl.hpp \
+#	core/DisplayXcb.hpp \
 
 libswfcore.a: $(CORESRCS:.cpp=.o)
 	ar -c -r $@ $(CORESRCS:.cpp=.o)
