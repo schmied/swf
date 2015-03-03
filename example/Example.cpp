@@ -19,25 +19,15 @@
 #include <ctime>
 #include <iostream>
 
-#include <curses.h>
-
-#include <SDL/SDL.h>
-
-#include <xcb/xcb.h>
-#include <xcb/xcb_keysyms.h>
-
 //#include "../core/Component.hpp"
 #include "../core/Button.hpp"
 #include "../core/Container.hpp"
 #include "../core/Context.hpp"
-#include "../core/DisplayCurses.hpp"
-#include "../core/DisplayXcb.hpp"
-#include "../core/DisplaySdl.hpp"
 #include "../core/Widget.hpp"
 
 #define SWF_HAS_CURSES
-#define SWF_HAS_SDL
-#define SWF_HAS_XCB
+//#define SWF_HAS_SDL
+//#define SWF_HAS_XCB
 
 
 static const std::basic_string<char> LOG_FACILITY = "EXAMPLE";
@@ -87,7 +77,7 @@ struct Env {
 	Context *context;
 	std::vector<void*>initData;
 	std::vector<std::pair<int (*)(Env&),void(*)(Env&)>> startFunctions;
-	std::vector<Box> boxes { 20 };
+	std::vector<Box> boxes { 100 };
 };
 
 
@@ -117,6 +107,10 @@ static void onRender(void *data) {
  */
 
 #ifdef SWF_HAS_CURSES
+
+#include <curses.h>
+
+#include "../core/DisplayCurses.hpp"
 
 static int onEventCurses(const bool isFinal, void *event, void *data) {
 	if (!isFinal || event == nullptr || data == nullptr)
@@ -190,6 +184,10 @@ static void finishCurses(Env &env) {
 
 #ifdef SWF_HAS_SDL
 
+#include <SDL/SDL.h>
+
+#include "../core/DisplaySdl.hpp"
+
 static int onEventSdl(const bool isFinal, void *event, void *data) {
 	if (!isFinal || event == nullptr || data == nullptr)
 		return 0;
@@ -260,6 +258,11 @@ static void finishSdl(Env &env) {
  */
 
 #ifdef SWF_HAS_XCB
+
+#include <xcb/xcb.h>
+#include <xcb/xcb_keysyms.h>
+
+#include "../core/DisplayXcb.hpp"
 
 static int onEventXcb(const bool isFinal, void *event, void *data) {
 	if (!isFinal || event == nullptr || data == nullptr)
