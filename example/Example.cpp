@@ -18,6 +18,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include <memory>
 
 //#include "../core/Component.hpp"
 #include "../core/Button.hpp"
@@ -40,30 +41,41 @@ static const std::basic_string<char> LOG_FACILITY = "EXAMPLE";
 static const std::pair<int,int> boxFieldDim { 16000, 10000 };
 static const int boxMaxDim = (boxFieldDim.first + boxFieldDim.second) / 2 / 10;
 static const int boxMaxVel = 4 * boxMaxDim / 100;
-struct Box {
+class Box {
+public:
+	Box() { };
 	std::pair<int,int> offset;
 	std::pair<int,int> dimension;
 	std::pair<int,int> velocity;
 };
 
-static bool scaleBox(const Box &box, Box *boxScr, const std::pair<int,int> &scrDim) {
+static void randomizeBox(Box &box) {
+	box.offset.first = std::rand() % (boxFieldDim.first - boxMaxDim);
+	box.offset.second = std::rand() % (boxFieldDim.second - boxMaxDim);
+	box.dimension.first = std::rand() % (boxMaxDim - 1) + 1;
+	box.dimension.second = std::rand() % (boxMaxDim - 1) + 1;
+	box.velocity.first = std::rand() % (boxMaxVel - 1) + 1;
+	box.velocity.second = std::rand() % (boxMaxVel - 1) + 1;
+}
+
+static bool scaleBox(const Box &box, Box &boxScr, const std::pair<int,int> &scrDim) {
 	const float scaleX = (float) scrDim.first / boxFieldDim.first;
 	const float scaleY = (float) scrDim.second / boxFieldDim.second;
-	boxScr->offset.first = scaleX * box.offset.first;
-	boxScr->offset.second = scaleY * box.offset.second;
-	boxScr->dimension.first = scaleX * box.dimension.first;
-	if (boxScr->dimension.first < 1)
-		boxScr->dimension.first = 1;
-	boxScr->dimension.second = scaleY * box.dimension.second;
-	if (boxScr->dimension.second < 1)
-		boxScr->dimension.second = 1;
-	if (boxScr->offset.first < 0)
+	boxScr.offset.first = scaleX * box.offset.first;
+	boxScr.offset.second = scaleY * box.offset.second;
+	boxScr.dimension.first = scaleX * box.dimension.first;
+	if (boxScr.dimension.first < 1)
+		boxScr.dimension.first = 1;
+	boxScr.dimension.second = scaleY * box.dimension.second;
+	if (boxScr.dimension.second < 1)
+		boxScr.dimension.second = 1;
+	if (boxScr.offset.first < 0)
 		return false;
-	if (boxScr->offset.second < 0)
+	if (boxScr.offset.second < 0)
 		return false;
-	if (boxScr->offset.first + boxScr->dimension.first > scrDim.first)
+	if (boxScr.offset.first + boxScr.dimension.first > scrDim.first)
 		return false;
-	if (boxScr->offset.second + boxScr->dimension.second > scrDim.second)
+	if (boxScr.offset.second + boxScr.dimension.second > scrDim.second)
 		return false;
 	return true;
 }
@@ -77,7 +89,7 @@ struct Env {
 	Context *context;
 	std::vector<void*>initData;
 	std::vector<std::pair<int (*)(Env&),void(*)(Env&)>> startFunctions;
-	std::vector<Box> boxes { 100 };
+	std::vector<std::unique_ptr<Box>> boxes;
 };
 
 enum ExitCode {
@@ -94,16 +106,17 @@ enum ExitCode {
 
 static void onRender(void *data) {
 	Env *env = (Env*) data;
-	for (auto &box : env->boxes) {
-		box.offset.first += box.velocity.first;
-		if (box.offset.first < 0 || box.offset.first + box.dimension.first > boxFieldDim.first) {
-			box.velocity.first *= -1;
-			box.offset.first += 2 * box.velocity.first;
+	for (auto &b : env->boxes) {
+		auto box = b.get();
+		box->offset.first += box->velocity.first;
+		if (box->offset.first < 0 || box->offset.first + box->dimension.first > boxFieldDim.first) {
+			box->velocity.first *= -1;
+			box->offset.first += 2 * box->velocity.first;
 		}
-		box.offset.second += box.velocity.second;
-		if (box.offset.second < 0 || box.offset.second + box.dimension.second > boxFieldDim.second) {
-			box.velocity.second *= -1;
-			box.offset.second += 2 * box.velocity.second;
+		box->offset.second += box->velocity.second;
+		if (box->offset.second < 0 || box->offset.second + box->dimension.second > boxFieldDim.second) {
+			box->velocity.second *= -1;
+			box->offset.second += 2 * box->velocity.second;
 		}
 	}
 }
@@ -133,9 +146,9 @@ static int onEventCurses(const bool isFinal, void *event, void *data) {
 	context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventCurses", "%d %c", c, c);
 	switch (c) {
 	case 27:	// esc key
-		return -1;
-	case 276:	// f12
-		return 1;
+		return ExitCode::QUIT;
+	case 276:	// f12 key
+		return ExitCode::NEXT_DISPLAY;
 	default:
 		break;
 	}
@@ -159,7 +172,7 @@ static void onDrawCurses(const bool isFinal, void *data) {
 		init_pair(i, i & 7, (i + 5) & 7);
 	for (auto &box : env->boxes) {
 		i++;
-		if (!scaleBox(box, &boxScr, scrDim))
+		if (!scaleBox(*box.get(), boxScr, scrDim))
 			continue;
 		std::memset(buf, 0, 100);
 		std::memset(buf, '#', boxScr.dimension.first);
@@ -206,9 +219,9 @@ static int onEventSdl(const bool isFinal, void *event, void *data) {
 	case SDL_KEYDOWN:
 		switch (e->key.keysym.sym) {
 		case SDLK_ESCAPE:
-			return -1;
-		case 293:
-			return 1;
+			return ExitCode::QUIT;
+		case 293:	// f12 key
+			return ExitCode::NEXT_DISPLAY;
 		default:
 			context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventSdl", "key press %c %d",
 			    e->key.keysym.sym, e->key.keysym.sym);
@@ -289,9 +302,9 @@ static int onEventXcb(const bool isFinal, void *event, void *data) {
 		xcb_keysym_t sym = display->keysym(kpe->detail);
 		switch (sym) {
 		case 65307:	// esc key
-			return -1;
-		case 65481:	// f12
-			return 1;
+			return ExitCode::QUIT;
+		case 65481:	// f12 key
+			return ExitCode::NEXT_DISPLAY;
 		default:
 			context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventXcb", "key press %c %d", sym, sym);
 			break;
@@ -347,20 +360,23 @@ static void finishXcb(Env &env) {
  * main
  */
 
+static void addBox(Env &e) {
+//	auto b = std::make_unique<Box>;
+	std::unique_ptr<Box> b(new Box);
+	Box *box = b.get();
+	std::srand(std::time(NULL));
+	box->offset.first = std::rand() % (boxFieldDim.first - boxMaxDim);
+	box->offset.second = std::rand() % (boxFieldDim.second - boxMaxDim);
+	box->dimension.first = std::rand() % (boxMaxDim - 1) + 1;
+	box->dimension.second = std::rand() % (boxMaxDim - 1) + 1;
+	box->velocity.first = std::rand() % (boxMaxVel - 1) + 1;
+	box->velocity.second = std::rand() % (boxMaxVel - 1) + 1;
+	e.boxes.push_back(b);
+}
+
 int main(int argc, char **argv) {
 
 	Env env;
-
-	// init boxes with random values
-	std::srand(std::time(NULL));
-	for (auto &box : env.boxes) {
-		box.offset.first = std::rand() % (boxFieldDim.first - boxMaxDim);
-		box.offset.second = std::rand() % (boxFieldDim.second - boxMaxDim);
-		box.dimension.first = std::rand() % (boxMaxDim - 1) + 1;
-		box.dimension.second = std::rand() % (boxMaxDim - 1) + 1;
-		box.velocity.first = std::rand() % (boxMaxVel - 1) + 1;
-		box.velocity.second = std::rand() % (boxMaxVel - 1) + 1;
-	}
 
 	// init gui
 	Context context;
@@ -386,6 +402,10 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 
+	int boxCount = 10;
+	for (int i = 0 ; i < boxCount; i++)
+		addBox(env);
+
 	int funcIdx = 0;
 	bool run = true;
 	while (run) {
@@ -401,8 +421,13 @@ int main(int argc, char **argv) {
 				funcIdx = 0;
 			break;
 		case ExitCode::BOX_COUNT_INC:
+		//	boxCount = 1.1 * boxCount;
+			addBox(env);
 			break;
 		case ExitCode::BOX_COUNT_DEC:
+			boxCount = boxCount / 1.1;
+			if (boxCount < 10)
+				boxCount = 10;
 			break;
 		}
 	}
