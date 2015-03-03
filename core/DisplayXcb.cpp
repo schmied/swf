@@ -26,14 +26,14 @@
 #include "Context.hpp"
 
 
-static const std::basic_string<char> LOG_FACILITY = "DISPLAY_SDL";
+static const std::basic_string<char> LOG_FACILITY = "DISPLAY_XCB";
 
 
 /*
  * ******************************************************** constructor / destructor
  */
 
-DisplayXcb::DisplayXcb(Context *c, xcb_connection_t* cn, xcb_screen_t *scr, const xcb_window_t win, const xcb_font_t fn) : Display(c) {
+DisplayXcb::DisplayXcb(Context &c, xcb_connection_t* cn, xcb_screen_t *scr, const xcb_window_t win, const xcb_font_t fn) : Display(c) {
 
 	connection = cn;
 	screen = scr;
@@ -167,14 +167,15 @@ std::pair<int,int> DisplayXcb::fontDimension() const {
  * event handling
  */
 
-bool DisplayXcb::handleEvent(void *event) const {
+void DisplayXcb::handleEvent(void *event) const {
 	if (event == nullptr)
-		return true;
+		return;
 	const xcb_generic_event_t *e = (const xcb_generic_event_t*) event;
 	switch (e->response_type & ~0x80) {
 	case XCB_EXPOSE: {
 		xcb_expose_event_t *ee = (xcb_expose_event_t *) event;
 		getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "expose");
+		((Component*)getContext()->getRootContainer())->flushPositionCache();
 		break;
 	}
 	case XCB_BUTTON_PRESS: {
@@ -188,16 +189,13 @@ bool DisplayXcb::handleEvent(void *event) const {
 //		getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "key press %c %d", sym, sym);
 		switch (sym) {
 		default:
-			return true;
 			break;
 		}
 		break;
 	}
 	default:
-		return true;
 		break;
 	}
-	return false;
 }
 
 

@@ -43,7 +43,7 @@ private:
 	void eventFree(void*) override;
 
 public:
-	DisplayXcb(Context*, xcb_connection_t*, xcb_screen_t*, const xcb_window_t, const xcb_font_t);
+	DisplayXcb(Context&, xcb_connection_t*, xcb_screen_t*, const xcb_window_t, const xcb_font_t);
 	~DisplayXcb();
 
 	// getter
@@ -60,7 +60,7 @@ public:
 	std::pair<int,int> fontDimension() const override;
 
 	// event handling
-	bool handleEvent(void*) const override;
+	void handleEvent(void*) const override;
 
 	// xcb helper
 	xcb_keysym_t keysym(xcb_keycode_t) const;

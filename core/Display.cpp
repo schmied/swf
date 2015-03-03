@@ -17,6 +17,7 @@
 #include "Display.hpp"
 
 
+#include "Component.hpp"
 #include "Context.hpp"
 
 static const std::basic_string<char> LOG_FACILITY = "DISPLAY";
@@ -26,13 +27,9 @@ static const std::basic_string<char> LOG_FACILITY = "DISPLAY";
  * ******************************************************** constructor / destructor
  */
 
-Display::Display(Context *c) {
-	if (c == nullptr) {
-		std::printf("%s <init> no context\n", LOG_FACILITY.c_str());
-		return;
-	}
-	context = c;
-	context->setDisplay(this);
+Display::Display(Context &c) {
+	context = &c;
+	context->setDisplay(*this);
 
 	fpsTicksPrevious = 0;
 	fpsFrameMillis = 0;
@@ -103,27 +100,26 @@ std::pair<int,int> Display::getFpsStat() const {
  * event handling
  */
 
-void* Display::gameEventLoop(const int targetFps, const bool isSleepy, bool (*onEvent)(const bool, void*, void*),
+int Display::gameEventLoop(const int targetFps, const bool isSleepy, int (*onEvent)(const bool, void*, void*),
 	   void (*onRender)(void*), void (*onDraw)(const bool, void*), void* userData) {
-	void *e;
+//	void *e;
 	for (;;) {
 		const long ticks = gameEventTicks();
 		const bool isElapsed = fpsIsTicksElapsed(ticks, targetFps);
 		if (isElapsed) {
 			fpsResetTicks(ticks);
-			e = eventPoll();
-			bool leave = false;
+			void *e = eventPoll();
+			int exitCode = 0;
 			if (e != nullptr) {
-				if (onEvent(false, e, userData)) {
-					if (handleEvent(e)) {
-						if (!onEvent(true, e, userData))
-							leave = true;
-					}
+				exitCode = onEvent(false, e, userData);
+				if (!exitCode) {
+					handleEvent(e);
+					exitCode = onEvent(true, e, userData);
 				}
 			}
 			eventFree(e);
-			if (leave)
-				return e;
+			if (exitCode)
+				return exitCode;
 		}
 		if (isElapsed || !isSleepy)
 			onRender(userData);
@@ -137,16 +133,21 @@ void* Display::gameEventLoop(const int targetFps, const bool isSleepy, bool (*on
 	}
 }
 
-void* Display::applicationEventLoop(bool (*isQuitEvent)(void*, void*), void (*onEvent)(void*, void*), void* userData) {
+//int Display::applicationEventLoop(bool (*isQuitEvent)(void*, void*), int (*onEvent)(void*, void*), void* userData) {
+int Display::applicationEventLoop(int (*onEvent)(const bool, void*, void*), void* userData) {
 	void *e;
 	for (;;) {
 		e = eventWait();
 		if (e == nullptr)
 			continue;
-		if (isQuitEvent(e, userData))
-			return e;
-		if (!handleEvent(e))
-			onEvent(e, userData);
+		bool exitCode = 0;
+		exitCode = onEvent(false, e, userData);
+		if (!exitCode) {
+			handleEvent(e);
+			exitCode = onEvent(true, e, userData);
+		}
+		if (exitCode)
+			return exitCode;
 		getContext()->draw();
 	}
 }

@@ -38,7 +38,7 @@ static const std::basic_string<char> LOG_FACILITY = "DISPLAY_SDL";
  * ******************************************************** constructor
  */
 
-DisplaySdl::DisplaySdl(Context *c, SDL_Surface *scr) : Display(c) {
+DisplaySdl::DisplaySdl(Context &c, SDL_Surface *scr) : Display(c) {
 
 	screen = scr;
 
@@ -126,7 +126,6 @@ DisplaySdl::DisplaySdl(Context *c, SDL_Surface *scr) : Display(c) {
 
 DisplaySdl::~DisplaySdl() {
 	SDL_FreeSurface(fontPanel);
-	SDL_Quit();
 	int error = FT_Done_Face(fontFace);
 	if (error) {
 		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<free>", "freetype done face error: %d", error);
@@ -185,6 +184,7 @@ inline void DisplaySdl::drawPoint(SDL_Surface *dst, const int x, const int y, co
 		break;
 	}
 }
+
 void DisplaySdl::drawLine(SDL_Surface *dst, int x0, int y0, int x1, int y1, const Uint32 color) {
 	const bool steep = std::abs(y1 - y0) > std::abs(x1 - x0);
 	int tmp;
@@ -459,9 +459,9 @@ std::pair<int,int> DisplaySdl::fontDimension() const {
  * event handling
  */
 
-bool DisplaySdl::handleEvent(void *event) const {
+void DisplaySdl::handleEvent(void *event) const {
 	if (event == nullptr)
-		return true;
+		return;
 	const SDL_Event *e = (const SDL_Event*) event;
 	switch (e->type) {
 	case SDL_KEYDOWN:
@@ -474,15 +474,12 @@ bool DisplaySdl::handleEvent(void *event) const {
 		case SDLK_DOWN:
 			break;
 		default:
-			return true;
 			break;
 		}
 		break;
 	default:
-		return true;
 		break;
 	}
-	return false;
 }
 
 

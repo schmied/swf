@@ -26,7 +26,7 @@
 class Container : public Component {
 
 private:
-	std::vector<Component*> components;// {};
+	std::vector<Component*> components;
 //	int layout_columns;
 //	int layout_rows;
 

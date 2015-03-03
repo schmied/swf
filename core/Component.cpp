@@ -29,7 +29,7 @@ static const std::basic_string<char> LOG_FACILITY = "COMPONENT";
 
 
 /*
- * constructor
+ * ******************************************************** constructor / destructor
  */
 
 Component::Component(Context* c) {
@@ -40,8 +40,8 @@ Component::Component(Context* c) {
 	}
 	parent = nullptr;
 	context = c;
-	flushPositionCache();
-	context->setRootContainer((Container*) this);
+	onFlushPositionCache(this, nullptr);
+	context->setRootContainer(*(Container*) this);
 }
 
 Component::Component(Container* p) {
@@ -52,19 +52,22 @@ Component::Component(Container* p) {
 	}
 	context = nullptr;
 	parent = p;
-	flushPositionCache();
+	onFlushPositionCache(this, nullptr);
 	((Component*) parent)->addToContents(this);
 }
 
 
 /*
- * private
+ * ******************************************************** private
  */
 
-void Component::flushPositionCache() {
-	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "flushPositionCache", nullptr);
-	offset.first = -1;
-	dimension.first = -1;
+void Component::onFlushPositionCache(Component *c, void *ud) {
+	c->offset.first = -1;
+	c->dimension.first = -1;
+}
+
+inline bool Component::isPositionCacheValid() const {
+	return offset.first != -1 && dimension.first != -1;
 }
 
 // returns position index of component in parent container
@@ -106,7 +109,7 @@ Context* Component::getContext() {
 }
 
 std::pair<int,int>* Component::getOffset() {
-	if (offset.first != -1)
+	if (isPositionCacheValid())
 		return &offset;
 	if (parent == nullptr) {
 		offset.first = 0;
@@ -131,7 +134,7 @@ std::pair<int,int>* Component::getOffset() {
 }
 
 std::pair<int,int>* Component::getDimension() {
-	if (dimension.first != -1)
+	if (isPositionCacheValid())
 		return &dimension;
 	const Display *display = getContext()->getDisplay();
 	if (display == nullptr) {
@@ -162,7 +165,7 @@ std::pair<int,int>* Component::getDimension() {
 
 
 /*
- * public
+ * ******************************************************** public
  */
 
 
@@ -174,6 +177,10 @@ bool Component::isStateFocus() const {
 	return false;
 }
 
+void Component::flushPositionCache() {
+	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "flushPositionCache", nullptr);
+	traverse(this, onFlushPositionCache, nullptr);
+}
 
 /*
  * component traversing

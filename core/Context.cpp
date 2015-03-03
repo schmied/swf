@@ -76,10 +76,9 @@ const Display* Context::getDisplay() {
 	return display;
 }
 
-void Context::setDisplay(Display *d) {
-	display = d;
-	if (display == nullptr)
-		log(LOG_WARN, LOG_FACILITY, "setDisplay", "no display");
+void Context::setDisplay(Display &d) {
+	display = &d;
+	rootContainer->flushPositionCache();
 }
 
 const Container* Context::getRootContainer() {
@@ -88,10 +87,8 @@ const Container* Context::getRootContainer() {
 	return rootContainer;
 }
 
-void Context::setRootContainer(Container *r) {
-	rootContainer = r;
-	if (rootContainer == nullptr)
-		log(LOG_WARN, LOG_FACILITY, "setRootContainer", "no root container");
+void Context::setRootContainer(Container &r) {
+	rootContainer = &r;
 }
 
 

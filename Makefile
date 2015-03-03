@@ -2,8 +2,8 @@
 CC		= clang
 CFLAGS		= -Wall
 CPP		= clang++
-#CPPFLAGS	= -O2 -Wall -Wextra -std=c++14 -stdlib=libc++
-CPPFLAGS	= -g -O0 -Wall -Wextra -O2 -std=c++14 -stdlib=libc++
+CPPFLAGS	= -O2 -Wall -Wextra -std=c++14 -stdlib=libc++
+#CPPFLAGS	= -g -O0 -Wall -Wextra -O2 -std=c++14 -stdlib=libc++
 INCLUDEDIRS	= -I/usr/local/include -I/usr/local/include/freetype2
 
 all: swfexample

@@ -31,12 +31,13 @@ static const std::basic_string<char> LOG_FACILITY = "DISPLAY_CURSES";
  * ******************************************************** constructor / destructor
  */
 
-DisplayCurses::DisplayCurses(Context *c, WINDOW *w) : Display(c) {
+DisplayCurses::DisplayCurses(Context &c, WINDOW *w) : Display(c) {
 	window = w;
 }
 
 DisplayCurses::~DisplayCurses() {
-	endwin();
+	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", nullptr);
+//	endwin();
 }
 
 
@@ -122,9 +123,10 @@ std::pair<int,int> DisplayCurses::fontDimension() const {
  * event handling
  */
 
-bool DisplayCurses::handleEvent(void *event) const {
+void DisplayCurses::handleEvent(void *event) const {
+	((Component*) getContext()->getRootContainer())->flushPositionCache();
 	if (event == nullptr)
-		return true;
+		return;
 	const int c = *(const int*) event;
 //	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "char %d", c);
 	switch (c) {
@@ -150,10 +152,8 @@ bool DisplayCurses::handleEvent(void *event) const {
 	case KEY_DOWN:		// cursor down
 		break;
 	default:
-		return true;
 		break;
 	}
-	return false;
 }
 
 

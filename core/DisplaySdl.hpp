@@ -58,7 +58,7 @@ private:
 	long gameEventTicks() const override;
 
 public:
-	DisplaySdl(Context*, SDL_Surface*);
+	DisplaySdl(Context&, SDL_Surface*);
 	~DisplaySdl();
 
 	// getter
@@ -71,7 +71,7 @@ public:
 	std::pair<int,int> fontDimension() const override;
 
 	// event handling
-	bool handleEvent(void*) const override;
+	void handleEvent(void*) const override;
 
 	// sdl helper
 	static SDL_Surface* initScreen(); 

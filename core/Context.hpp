@@ -45,9 +45,9 @@ public:
 
 	// getter / setter
 	const Display* getDisplay();
-	void setDisplay(Display*);
+	void setDisplay(Display&);
 	const Container* getRootContainer();
-	void setRootContainer(Container*);
+	void setRootContainer(Container&);
 
 	// drawing
 	void draw();

@@ -36,7 +36,7 @@ private:
 	long gameEventTicks() const override;
 
 public:
-	DisplayCurses(Context*, WINDOW*);
+	DisplayCurses(Context&, WINDOW*);
 	~DisplayCurses();
 
 	// drawing
@@ -46,7 +46,7 @@ public:
 	std::pair<int,int> fontDimension() const override;
 
 	// event handling
-	bool handleEvent(void*) const override;
+	void handleEvent(void*) const override;
 
 	// curses helper
 	static WINDOW* initWindow();

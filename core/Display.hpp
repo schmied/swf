@@ -45,7 +45,7 @@ private:
 protected:
 
 public:
-	Display(Context*);
+	Display(Context&);
 	~Display();
 
 	// getter
@@ -59,9 +59,9 @@ public:
 	virtual std::pair<int,int> fontDimension() const = 0;
 
 	// event handling
-	virtual bool handleEvent(void*) const = 0;
-	void* gameEventLoop(const int, const bool, bool (*)(const bool, void*, void*), void (*)(void*), void (*)(const bool, void*), void*);
-	void* applicationEventLoop(bool (*)(void*, void*), void (*)(void*, void*), void*);
+	virtual void handleEvent(void*) const = 0;
+	int gameEventLoop(const int, const bool, int (*)(const bool, void*, void*), void (*)(void*), void (*)(const bool, void*), void*);
+	int applicationEventLoop(int (*)(const bool, void*, void*), void*);
 };
 
 #endif // SWF_CORE_DISPLAY
