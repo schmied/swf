@@ -90,6 +90,13 @@ struct Env {
 	std::vector<Box> boxes { 20 };
 };
 
+enum ExitCode {
+	QUIT		= -1,
+	NEXT_DISPLAY	= 1,
+	BOX_COUNT_DEC	= 2,
+	BOX_COUNT_INC	= 3,
+};
+
 
 /*
  * rendering
@@ -376,15 +383,25 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 
-	int i = 0;
-	for (;;) {
-		const int exitCode = env.startFunctions[i].first(env);
-		env.startFunctions[i].second(env);
-		if (exitCode == -1)
+	int funcIdx = 0;
+	bool run = true;
+	while (run) {
+		const int exitCode = env.startFunctions[funcIdx].first(env);
+		env.startFunctions[funcIdx].second(env);
+		switch (exitCode) {
+		case ExitCode::QUIT:
+			run = false;
 			break;
-		i++;
-		if (i >= (int) env.startFunctions.size())
-			i = 0;
+		case ExitCode::NEXT_DISPLAY:
+			funcIdx++;
+			if (funcIdx >= (int) env.startFunctions.size())
+				funcIdx = 0;
+			break;
+		case ExitCode::BOX_COUNT_INC:
+			break;
+		case ExitCode::BOX_COUNT_DEC:
+			break;
+		}
 	}
 
 	return 0;
