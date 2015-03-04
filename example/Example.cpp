@@ -59,6 +59,7 @@ static void randomizeBox(Box &box) {
 	box.velocity.second = std::rand() % (boxMaxVel - 1) + 1;
 }
 
+// scale box to screen positions
 static bool scaleBox(const Box &box, Box &boxScr, const std::pair<int,int> &scrDim) {
 	const float scaleX = (float) scrDim.first / boxFieldDim.first;
 	const float scaleY = (float) scrDim.second / boxFieldDim.second;
@@ -96,8 +97,6 @@ struct Env {
 enum ExitCode {
 	QUIT		= -1,
 	NEXT_DISPLAY	= 1,
-//	BOX_COUNT_DEC	= 2,
-//	BOX_COUNT_INC	= 3,
 };
 
 static void addBoxes(Env &e) {
@@ -123,7 +122,7 @@ static void addBoxes(Env &e) {
 
 static void removeBoxes(Env &e) {
 	int cnt = e.boxes.size();
-	if (cnt == 0)
+	if (cnt < 1)
 		return;
 	cnt /= 4;
 	if (cnt < 1)
