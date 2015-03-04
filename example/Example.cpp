@@ -27,8 +27,8 @@
 #include "../core/Widget.hpp"
 
 #define SWF_HAS_CURSES
-//#define SWF_HAS_SDL
-//#define SWF_HAS_XCB
+#define SWF_HAS_SDL
+#define SWF_HAS_XCB
 
 
 static const std::basic_string<char> LOG_FACILITY = "EXAMPLE";
@@ -44,6 +44,7 @@ static const int boxMaxVel = 4 * boxMaxDim / 100;
 class Box {
 public:
 	Box() { };
+	~Box() { };
 	std::pair<int,int> offset;
 	std::pair<int,int> dimension;
 	std::pair<int,int> velocity;
@@ -95,9 +96,42 @@ struct Env {
 enum ExitCode {
 	QUIT		= -1,
 	NEXT_DISPLAY	= 1,
-	BOX_COUNT_DEC	= 2,
-	BOX_COUNT_INC	= 3,
+//	BOX_COUNT_DEC	= 2,
+//	BOX_COUNT_INC	= 3,
 };
+
+static void addBoxes(Env &e) {
+	int cnt = e.boxes.size();
+	if (cnt > 10000)
+		return;
+	cnt /= 4;
+	if (cnt < 1)
+		cnt = 1;
+	for (int i = 0; i < cnt; i++) {
+		std::unique_ptr<Box> b = std::make_unique<Box>();
+		Box *box = b.get();
+		box->offset.first = std::rand() % (boxFieldDim.first - boxMaxDim);
+		box->offset.second = std::rand() % (boxFieldDim.second - boxMaxDim);
+		box->dimension.first = std::rand() % (boxMaxDim - 1) + 1;
+		box->dimension.second = std::rand() % (boxMaxDim - 1) + 1;
+		box->velocity.first = std::rand() % (boxMaxVel - 1) + 1;
+		box->velocity.second = std::rand() % (boxMaxVel - 1) + 1;
+		e.boxes.push_back(std::move(b));
+	}
+	e.context->log(Context::LOG_DEBUG, LOG_FACILITY, "addBoxes", "box count %d", e.boxes.size());
+}
+
+static void removeBoxes(Env &e) {
+	int cnt = e.boxes.size();
+	if (cnt == 0)
+		return;
+	cnt /= 4;
+	if (cnt < 1)
+		cnt = 1;
+	for (int i = 0; i < cnt; i++)
+		e.boxes.pop_back();
+	e.context->log(Context::LOG_DEBUG, LOG_FACILITY, "removeBoxes", "box count %d", e.boxes.size());
+}
 
 
 /*
@@ -135,7 +169,7 @@ static void onRender(void *data) {
 static int onEventCurses(const bool isFinal, void *event, void *data) {
 	if (!isFinal || event == nullptr || data == nullptr)
 		return 0;
-	const Env *env = (const Env*) data;
+	Env *env = (Env*) data;
 	Context *context = env->context;
 //	const DisplayXcb *display = (const DisplayXcb*) context->getDisplay();
 	const int c = *(const int*) event;
@@ -149,6 +183,12 @@ static int onEventCurses(const bool isFinal, void *event, void *data) {
 		return ExitCode::QUIT;
 	case 276:	// f12 key
 		return ExitCode::NEXT_DISPLAY;
+	case '+':
+		addBoxes(*env);
+		break;
+	case '-':
+		removeBoxes(*env);
+		break;
 	default:
 		break;
 	}
@@ -211,7 +251,7 @@ static void finishCurses(Env &env) {
 static int onEventSdl(const bool isFinal, void *event, void *data) {
 	if (!isFinal || event == nullptr || data == nullptr)
 		return 0;
-	const Env *env = (const Env*) data;
+	Env *env = (Env*) data;
 	Context *context = env->context;
 //	const DisplaySdl *display = (const DisplaySdl*) context->getDisplay();
 	const SDL_Event *e = (const SDL_Event*) event;
@@ -222,6 +262,12 @@ static int onEventSdl(const bool isFinal, void *event, void *data) {
 			return ExitCode::QUIT;
 		case 293:	// f12 key
 			return ExitCode::NEXT_DISPLAY;
+		case '+':
+			addBoxes(*env);
+			break;
+		case '-':
+			removeBoxes(*env);
+			break;
 		default:
 			context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventSdl", "key press %c %d",
 			    e->key.keysym.sym, e->key.keysym.sym);
@@ -249,7 +295,7 @@ static void onDrawSdl(const bool isFinal, void *data) {
 	int i = 17;
 	for (auto &box : env->boxes) {
 		i+=31;
-		if (!scaleBox(box, &boxScr, scrDim))
+		if (!scaleBox(*box, boxScr, scrDim))
 			continue;
 		SDL_Rect r { (Sint16) boxScr.offset.first, (Sint16) boxScr.offset.second, (Uint16) boxScr.dimension.first,
 		    (Uint16) boxScr.dimension.second };
@@ -287,7 +333,7 @@ static void finishSdl(Env &env) {
 static int onEventXcb(const bool isFinal, void *event, void *data) {
 	if (!isFinal || event == nullptr || data == nullptr)
 		return 0;
-	const Env *env = (const Env*) data;
+	Env *env = (Env*) data;
 	Context *context = env->context;
 	const DisplayXcb *display = (const DisplayXcb*) context->getDisplay();
 	const xcb_generic_event_t *e = (const xcb_generic_event_t*) event;
@@ -305,6 +351,12 @@ static int onEventXcb(const bool isFinal, void *event, void *data) {
 			return ExitCode::QUIT;
 		case 65481:	// f12 key
 			return ExitCode::NEXT_DISPLAY;
+		case '+':
+			addBoxes(*env);
+			break;
+		case '-':
+			removeBoxes(*env);
+			break;
 		default:
 			context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventXcb", "key press %c %d", sym, sym);
 			break;
@@ -330,7 +382,7 @@ static void onDrawXcb(const bool isFinal, void *data) {
 	xcb_poly_fill_rectangle(display->getConnection(), display->getWindow(), display->getGContextInverse(), 1, &rect);
 	Box boxScr;
 	for (auto &box : env->boxes) {
-		if (!scaleBox(box, &boxScr, scrDim))
+		if (!scaleBox(*box, boxScr, scrDim))
 			continue;
 		rect.x = boxScr.offset.first;
 		rect.y = boxScr.offset.second;
@@ -360,20 +412,6 @@ static void finishXcb(Env &env) {
  * main
  */
 
-static void addBox(Env &e) {
-//	auto b = std::make_unique<Box>;
-	std::unique_ptr<Box> b(new Box);
-	Box *box = b.get();
-	std::srand(std::time(NULL));
-	box->offset.first = std::rand() % (boxFieldDim.first - boxMaxDim);
-	box->offset.second = std::rand() % (boxFieldDim.second - boxMaxDim);
-	box->dimension.first = std::rand() % (boxMaxDim - 1) + 1;
-	box->dimension.second = std::rand() % (boxMaxDim - 1) + 1;
-	box->velocity.first = std::rand() % (boxMaxVel - 1) + 1;
-	box->velocity.second = std::rand() % (boxMaxVel - 1) + 1;
-	e.boxes.push_back(b);
-}
-
 int main(int argc, char **argv) {
 
 	Env env;
@@ -402,32 +440,24 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 
-	int boxCount = 10;
-	for (int i = 0 ; i < boxCount; i++)
-		addBox(env);
+	std::srand(std::time(NULL));
+	while (env.boxes.size() < 10)
+		addBoxes(env);
 
 	int funcIdx = 0;
 	bool run = true;
 	while (run) {
 		const int exitCode = env.startFunctions[funcIdx].first(env);
-		env.startFunctions[funcIdx].second(env);
 		switch (exitCode) {
 		case ExitCode::QUIT:
+			env.startFunctions[funcIdx].second(env);
 			run = false;
 			break;
 		case ExitCode::NEXT_DISPLAY:
+			env.startFunctions[funcIdx].second(env);
 			funcIdx++;
 			if (funcIdx >= (int) env.startFunctions.size())
 				funcIdx = 0;
-			break;
-		case ExitCode::BOX_COUNT_INC:
-		//	boxCount = 1.1 * boxCount;
-			addBox(env);
-			break;
-		case ExitCode::BOX_COUNT_DEC:
-			boxCount = boxCount / 1.1;
-			if (boxCount < 10)
-				boxCount = 10;
 			break;
 		}
 	}
