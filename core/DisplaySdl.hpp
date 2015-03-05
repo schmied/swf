@@ -20,9 +20,12 @@
 #include <string>
 #include <utility>
 
-#include <freetype2/ft2build.h>
-#include <freetype2/freetype.h>
-#include <SDL/SDL.h>
+//#include <freetype2/ft2build.h>
+//#include <freetype2/freetype.h>
+#include <ft2build.h>
+#include <freetype/freetype.h>
+//#include <SDL/SDL.h>
+#include <SDL.h>
 
 #include "Display.hpp"
 

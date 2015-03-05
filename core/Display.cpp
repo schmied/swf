@@ -140,7 +140,7 @@ int Display::applicationEventLoop(int (*onEvent)(const bool, void*, void*), void
 		e = eventWait();
 		if (e == nullptr)
 			continue;
-		bool exitCode = 0;
+		int exitCode = 0;
 		exitCode = onEvent(false, e, userData);
 		if (!exitCode) {
 			handleEvent(e);

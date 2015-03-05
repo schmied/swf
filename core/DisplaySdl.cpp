@@ -14,13 +14,17 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <bitset>
 #include <cmath>
 #include <iostream>
 #include <utility>
 
-#include <freetype2/ft2build.h>
-#include <freetype2/freetype.h>
-#include <SDL/SDL.h>
+//#include <freetype2/ft2build.h>
+//#include <freetype2/freetype.h>
+#include <ft2build.h>
+#include <freetype/freetype.h>
+//#include <SDL/SDL.h>
+#include <SDL.h>
 
 #include "DisplaySdl.hpp"
 
@@ -38,7 +42,7 @@ static const std::basic_string<char> LOG_FACILITY = "DISPLAY_SDL";
  * ******************************************************** constructor
  */
 
-DisplaySdl::DisplaySdl(Context &c, SDL_Surface *scr) : Display(c) {
+DisplaySdl::DisplaySdl(Context &ctx, SDL_Surface *scr) : Display(ctx) {
 
 	screen = scr;
 
