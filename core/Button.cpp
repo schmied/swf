@@ -36,7 +36,7 @@ Button::Button(Container *c) : Widget(c) {
 }
 
 Button::~Button() {
-	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", nullptr);
+	getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<free>", nullptr);
 }
 
 

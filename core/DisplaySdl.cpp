@@ -52,28 +52,43 @@ DisplaySdl::DisplaySdl(Context &ctx, SDL_Surface *scr) : Display(ctx) {
 		return;
 	}
 
-//	error = FT_New_Face(fontLibrary, "/usr/local/lib/X11/fonts/75dpi/courR14.pcf.gz", 0, &fontFace);
-	error = FT_New_Face(fontLibrary, "/usr/local/lib/X11/fonts/75dpi/term14.pcf.gz", 0, &fontFace);
-//	error = FT_New_Face(fontLibrary, "/usr/local/lib/X11/fonts/75dpi/courR12.pcf.gz", 0, &fontFace);
-//	error = FT_New_Face(fontLibrary, "/usr/local/lib/X11/fonts/75dpi/helvR18.pcf.gz", 0, &fontFace);
+//	error = FT_New_Face(fontLibrary, "/usr/local/lib/X11/fonts/75dpi/term14.pcf.gz", 0, &fontFace);
+//	error = FT_New_Face(fontLibrary, "C:/Users/schmied/Documents/Visual Studio 2015/Projects/swf/Release/cour.ttf", 0, &fontFace);
+	error = FT_New_Face(fontLibrary, "cour.ttf", 0, &fontFace);
 	if (error) {
 		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "freetype new face error: %d", error);
 		return;
 	}
 
+	int targetFontSize = screen->h / 100;
+	if (targetFontSize < 8)
+		targetFontSize = 8;
+	fontHeight = 0;
+	fontSize = 0;
+
+	const FT_Bitmap_Size *sizes = fontFace->available_sizes;
 	const FT_Int sizesCount = fontFace->num_fixed_sizes;
-	if (sizesCount > 0) {
-		const FT_Bitmap_Size *sizes = fontFace->available_sizes;
-		if (sizes == NULL) {
-			getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "freetype no bitmap sizes");
+	if (sizes != NULL && sizesCount > 0) {
+		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "looking for bitmap sizes");
+		int fontWidth = 0;
+		for (int i = 0; i < sizesCount; i++) {
+			fontWidth = sizes[i].width;
+			fontHeight = sizes[i].height;
+			fontSize = std::lround(sizes[i].size / 64.0);
+			if (fontHeight >= targetFontSize)
+				break;
+		}
+		error = FT_Set_Pixel_Sizes(fontFace, fontWidth, fontHeight);
+		if (error) {
+			getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "freetype set pixel sizes error: %d", error);
 			return;
 		}
-		fontHeight = sizes[0].height;
-		fontSize = std::lround(sizes[0].size / 64.0);
-	} else {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "bitmapless fonts not supported (yet)");
+	}
+	if (fontHeight == 0 || fontSize == 0) {
+		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "cannot determine font size");
 		return;
 	}
+	getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "font: %s, height: %d, size: %d", fontFace->family_name, fontHeight, fontSize);
 
 	// determine font panel offsets
 	int lastXOffset = 0;
@@ -138,7 +153,7 @@ DisplaySdl::~DisplaySdl() {
 	if (error) {
 		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<free>", "freetype done freetype error: %d", error);
 	}
-	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", nullptr);
+	getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<free>", nullptr);
 }
 
 
@@ -415,7 +430,7 @@ void DisplaySdl::drawText(const std::pair<int,int> &offset, const std::pair<int,
 			screenRect.w = fontFace->glyph->bitmap.width;
 		}
 		if (screenRect.x + screenRect.w >= screen->w) {
-			getContext()->log(Context::LOG_WARN, LOG_FACILITY, "drawText", "%d + %d > %d", screenRect.x,
+			getContext()->log(Context::LOG_WARN, LOG_FACILITY, "drawText", "%d + %d >= %d", screenRect.x,
 			    screenRect.w, screen->w);
 			break;
 		}
@@ -506,4 +521,3 @@ SDL_Surface* DisplaySdl::initScreen() {
 	SDL_FillRect(scr, NULL, 0x00000000);
 	return scr;
 }
-

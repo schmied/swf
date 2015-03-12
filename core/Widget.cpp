@@ -36,7 +36,7 @@ Widget::Widget(Container *c) : Component(c) {
 }
 
 Widget::~Widget() {
-	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", nullptr);
+	getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<free>", nullptr);
 }
 
 
