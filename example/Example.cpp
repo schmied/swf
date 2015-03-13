@@ -26,9 +26,9 @@
 #include "../core/Context.hpp"
 #include "../core/Widget.hpp"
 
-//#define SWF_HAS_CURSES
+#define SWF_HAS_CURSES
 #define SWF_HAS_SDL
-//#define SWF_HAS_XCB
+#define SWF_HAS_XCB
 
 
 static const std::basic_string<char> LOG_FACILITY = "EXAMPLE";
@@ -243,7 +243,7 @@ static void finishCurses(Env &env) {
 
 #ifdef SWF_HAS_SDL
 
-//#include <SDL/SDL.h>
+#include <SDL.h>
 #include <SDL.h>
 
 #include "../core/DisplaySdl.hpp"

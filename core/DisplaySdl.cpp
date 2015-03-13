@@ -19,11 +19,8 @@
 #include <iostream>
 #include <utility>
 
-//#include <freetype2/ft2build.h>
-//#include <freetype2/freetype.h>
 #include <ft2build.h>
-#include <freetype/freetype.h>
-//#include <SDL/SDL.h>
+#include <freetype.h>
 #include <SDL.h>
 
 #include "DisplaySdl.hpp"
@@ -52,9 +49,7 @@ DisplaySdl::DisplaySdl(Context &ctx, SDL_Surface *scr) : Display(ctx) {
 		return;
 	}
 
-//	error = FT_New_Face(fontLibrary, "/usr/local/lib/X11/fonts/75dpi/term14.pcf.gz", 0, &fontFace);
-//	error = FT_New_Face(fontLibrary, "C:/Users/schmied/Documents/Visual Studio 2015/Projects/swf/Release/cour.ttf", 0, &fontFace);
-	error = FT_New_Face(fontLibrary, "cour.ttf", 0, &fontFace);
+	error = FT_New_Face(fontLibrary, "term14.pcf.gz", 0, &fontFace);
 	if (error) {
 		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "freetype new face error: %d", error);
 		return;
@@ -78,11 +73,13 @@ DisplaySdl::DisplaySdl(Context &ctx, SDL_Surface *scr) : Display(ctx) {
 			if (fontHeight >= targetFontSize)
 				break;
 		}
+/*
 		error = FT_Set_Pixel_Sizes(fontFace, fontWidth, fontHeight);
 		if (error) {
 			getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "freetype set pixel sizes error: %d", error);
 			return;
 		}
+*/
 	}
 	if (fontHeight == 0 || fontSize == 0) {
 		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "cannot determine font size");
