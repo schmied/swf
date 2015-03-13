@@ -26,9 +26,11 @@
 #include "../core/Context.hpp"
 #include "../core/Widget.hpp"
 
+#ifdef __FreeBSD__
 #define SWF_HAS_CURSES
-#define SWF_HAS_SDL
 #define SWF_HAS_XCB
+#endif
+#define SWF_HAS_SDL
 
 
 static const std::basic_string<char> LOG_FACILITY = "EXAMPLE";

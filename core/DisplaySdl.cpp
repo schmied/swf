@@ -20,7 +20,12 @@
 #include <utility>
 
 #include <ft2build.h>
+#ifdef __FreeBSD__
 #include <freetype.h>
+#endif
+#ifdef WIN32
+#include <freetype/freetype.h>
+#endif
 #include <SDL.h>
 
 #include "DisplaySdl.hpp"
