@@ -26,9 +26,9 @@
 #include "../core/Context.hpp"
 #include "../core/Widget.hpp"
 
-#define SWF_HAS_CURSES
+//#define SWF_HAS_CURSES
 #define SWF_HAS_SDL
-#define SWF_HAS_XCB
+//#define SWF_HAS_XCB
 
 
 static const std::basic_string<char> LOG_FACILITY = "EXAMPLE";
@@ -63,12 +63,12 @@ static void randomizeBox(Box &box) {
 static bool scaleBox(const Box &box, Box &boxScr, const std::pair<int,int> &scrDim) {
 	const float scaleX = (float) scrDim.first / boxFieldDim.first;
 	const float scaleY = (float) scrDim.second / boxFieldDim.second;
-	boxScr.offset.first = scaleX * box.offset.first;
-	boxScr.offset.second = scaleY * box.offset.second;
-	boxScr.dimension.first = scaleX * box.dimension.first;
+	boxScr.offset.first = (int) (scaleX * box.offset.first);
+	boxScr.offset.second = (int) (scaleY * box.offset.second);
+	boxScr.dimension.first = (int) (scaleX * box.dimension.first);
 	if (boxScr.dimension.first < 1)
 		boxScr.dimension.first = 1;
-	boxScr.dimension.second = scaleY * box.dimension.second;
+	boxScr.dimension.second = (int) (scaleY * box.dimension.second);
 	if (boxScr.dimension.second < 1)
 		boxScr.dimension.second = 1;
 	if (boxScr.offset.first < 0)
@@ -243,7 +243,8 @@ static void finishCurses(Env &env) {
 
 #ifdef SWF_HAS_SDL
 
-#include <SDL/SDL.h>
+//#include <SDL/SDL.h>
+#include <SDL.h>
 
 #include "../core/DisplaySdl.hpp"
 
@@ -439,7 +440,7 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 
-	std::srand(std::time(NULL));
+	std::srand((unsigned int) std::time(NULL));
 	while (env.boxes.size() < 10)
 		addBoxes(env);
 
@@ -463,4 +464,3 @@ int main(int argc, char **argv) {
 
 	return 0;
 }
-

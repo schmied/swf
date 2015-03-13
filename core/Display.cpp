@@ -92,7 +92,7 @@ Context* Display::getContext() const {
 
 
 std::pair<int,int> Display::getFpsStat() const {
-	return { fpsFrameMillis, fpsCyclesPerFrame };
+	return {fpsFrameMillis, fpsCyclesPerFrame};
 }
 
 
@@ -102,7 +102,7 @@ std::pair<int,int> Display::getFpsStat() const {
 
 int Display::gameEventLoop(const int targetFps, const bool isSleepy, int (*onEvent)(const bool, void*, void*),
 	   void (*onRender)(void*), void (*onDraw)(const bool, void*), void* userData) {
-//	void *e;
+	//getContext()->log(Context::LOG_INFO, LOG_FACILITY, "gameEventLoop", "entering loop");
 	for (;;) {
 		const long ticks = gameEventTicks();
 		const bool isElapsed = fpsIsTicksElapsed(ticks, targetFps);
@@ -140,7 +140,7 @@ int Display::applicationEventLoop(int (*onEvent)(const bool, void*, void*), void
 		e = eventWait();
 		if (e == nullptr)
 			continue;
-		bool exitCode = 0;
+		int exitCode = 0;
 		exitCode = onEvent(false, e, userData);
 		if (!exitCode) {
 			handleEvent(e);

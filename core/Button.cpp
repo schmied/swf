@@ -36,7 +36,7 @@ Button::Button(Container *c) : Widget(c) {
 }
 
 Button::~Button() {
-	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", nullptr);
+	getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<free>", nullptr);
 }
 
 
@@ -45,10 +45,10 @@ Button::~Button() {
  */
 
 void Button::onDraw(const Display *display) {
-	std::pair<int,int> *offset = getOffset();
-	std::pair<int,int> *dimension = getDimension();
-	display->drawBorder(*offset, *dimension);
-	display->drawText(*offset, *dimension, "blaa");
+	std::pair<int,int> *off = getOffset();
+	std::pair<int,int> *dim = getDimension();
+	display->drawBorder(*off, *dim);
+	display->drawText(*off, *dim, "blaa");
 }
 
 

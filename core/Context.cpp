@@ -38,7 +38,7 @@ Context::Context() {
 Context::~Context() {
 //	for (auto log : logs)
 //		delete log
-	log(LOG_DEBUG, LOG_FACILITY, "<free>", nullptr);
+	log(LOG_WARN, LOG_FACILITY, "<free>", nullptr);
 }
 
 
@@ -99,9 +99,9 @@ void Context::setRootContainer(Container &r) {
 void Context::draw() {
 	Component::traverse((Component*) rootContainer, Context::onDraw, display);
 
-	// draw log
-	if (logs.size() > 0) {
-		if (display != nullptr) {
+	if (display != nullptr) {
+		// draw log
+		if (logs.size() > 0) {
 			const std::pair<int,int> fontDimension = display->fontDimension();
 			const std::pair<int,int> screenDimension = display->screenDimension();
 			const std::pair<int,int> logDimension { screenDimension.first / 2 - 2 * fontDimension.first,
@@ -116,14 +116,8 @@ void Context::draw() {
 				display->drawText(logOffset, logDimension, *log);
 				logOffset.second += fontDimension.second;
 			}
-		} else {
-			for (const auto log : logs)
-				std::printf("%s\n", log->c_str());
 		}
-	}
-
-	// draw fps stats
-	if (display != nullptr) {
+		// draw fps stats
 		const std::pair<int,int> frameStat = display->getFpsStat();
 		if (frameStat.first > 0 && frameStat.second > 0) {
 			const std::pair<int,int> fontDimension = display->fontDimension();
@@ -174,5 +168,8 @@ void Context::log(const int level, const std::basic_string<char> &facility, cons
 	}
 
 	logs.push_back(s);
+
+	if (display == nullptr || level == Context::LOG_WARN)
+		std::printf("%s\n", s->c_str());
 }
 
