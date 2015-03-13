@@ -414,24 +414,29 @@ static void finishXcb(Env &env) {
  * main
  */
 
+#if defined (_WINDOWS) && !defined (SWF_HAS_SDL)
+#include <windows.h>
+int APIENTRY _tWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPTSTR lpCmdLine, _In_ int nCmdShow) {
+#else
 int main(int argc, char **argv) {
+#endif
 
 	Env env;
 
 	// init gui
 	Context context;
 	env.context = &context;
-	Container root { &context };
-	Button button1 { &root };
-	Button button2 { &root };
-	Button button3 { &root };
+	Container root {&context};
+	Button button1 {&root};
+	Button button2 {&root};
+	Button button3 {&root};
 
 	// register start functions
 #ifdef SWF_HAS_CURSES
 	env.startFunctions.push_back({ startCurses, finishCurses });
 #endif
 #ifdef SWF_HAS_SDL
-	env.startFunctions.push_back({ startSdl, finishSdl });
+	env.startFunctions.push_back({startSdl, finishSdl});
 #endif
 #ifdef SWF_HAS_XCB
 	env.startFunctions.push_back({ startXcb, finishXcb });
