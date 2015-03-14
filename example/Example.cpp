@@ -30,7 +30,8 @@
 #define SWF_HAS_CURSES
 #define SWF_HAS_XCB
 #endif
-#define SWF_HAS_SDL
+//#define SWF_HAS_SDL
+#define SWF_HAS_SDL2
 
 
 static const std::basic_string<char> LOG_FACILITY = "EXAMPLE";
@@ -245,8 +246,7 @@ static void finishCurses(Env &env) {
 
 #ifdef SWF_HAS_SDL
 
-#include <SDL.h>
-#include <SDL.h>
+#include <SDL/SDL.h>
 
 #include "../core/DisplaySdl.hpp"
 
@@ -319,6 +319,87 @@ static void finishSdl(Env &env) {
 }
 
 #endif // SWF_HAS_SDL
+
+
+/*
+ * sdl2
+ */
+
+#ifdef SWF_HAS_SDL2
+
+#include <SDL2/SDL.h>
+
+#include "../core/DisplaySdl.hpp"
+
+static int onEventSdl(const bool isFinal, void *event, void *data) {
+	if (!isFinal || event == nullptr || data == nullptr)
+		return 0;
+	Env *env = (Env*) data;
+	Context *context = env->context;
+//	const DisplaySdl *display = (const DisplaySdl*) context->getDisplay();
+	const SDL_Event *e = (const SDL_Event*) event;
+	switch (e->type) {
+	case SDL_KEYDOWN:
+		switch (e->key.keysym.sym) {
+		case SDLK_ESCAPE:
+			return ExitCode::QUIT;
+		case 293:	// f12 key
+			return ExitCode::NEXT_DISPLAY;
+		case '+':
+			addBoxes(*env);
+			break;
+		case '-':
+			removeBoxes(*env);
+			break;
+		default:
+			context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventSdl", "key press %c %d",
+			    e->key.keysym.sym, e->key.keysym.sym);
+			break;
+		}
+		break;
+	default:
+		break;
+	}
+	return 0;
+}
+
+static void onDrawSdl(const bool isFinal, void *data) {
+	const Env *env = (const Env*) data;
+	Context *context = env->context;
+	const DisplaySdl *display = (const DisplaySdl*) context->getDisplay();
+	SDL_Surface *screen = (SDL_Surface*) display->getScreen();
+	if (isFinal) {
+		SDL_Flip(screen);
+		return;
+	}
+	SDL_FillRect(screen, NULL, 0x00000000);
+	const std::pair<int,int> scrDim = display->screenDimension();
+	Box boxScr;
+	int i = 17;
+	for (auto &box : env->boxes) {
+		i+=31;
+		if (!scaleBox(*box, boxScr, scrDim))
+			continue;
+		SDL_Rect r { (Sint16) boxScr.offset.first, (Sint16) boxScr.offset.second, (Uint16) boxScr.dimension.first,
+		    (Uint16) boxScr.dimension.second };
+		Uint32 col = SDL_MapRGB(screen->format, ((i + 3) * 23) & 0xff, ((i + 5) * 13) & 0xff, (i * 19) & 0xff);
+		SDL_FillRect(screen, &r, col);
+	}
+}
+
+static int startSdl(Env &env) {
+	SDL_Surface *scr = DisplaySdl::initScreen();
+	DisplaySdl display { *env.context, scr };
+	return display.gameEventLoop(60, true, onEventSdl, onRender, onDrawSdl, &env);
+//	display.applicationEventLoop(isQuitEventSdl, onEventSdl, &env);
+//	env.initData.push_back(scr);
+}
+
+static void finishSdl(Env &env) {
+	SDL_Quit();
+}
+
+#endif // SWF_HAS_SDL2
 
 
 /*
@@ -414,7 +495,7 @@ static void finishXcb(Env &env) {
  * main
  */
 
-#if defined (_WINDOWS) && !defined (SWF_HAS_SDL)
+#if defined (_WINDOWS) && !defined (SWF_HAS_SDL) && !defined (SWF_HAS_SDL2)
 #include <windows.h>
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPTSTR lpCmdLine, _In_ int nCmdShow) {
 #else

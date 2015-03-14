@@ -14,8 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef SWF_CORE_DISPLAY_SDL
-#define SWF_CORE_DISPLAY_SDL
+#ifndef SWF_CORE_DISPLAY_SDL2
+#define SWF_CORE_DISPLAY_SDL2
 
 #include <string>
 #include <utility>
@@ -28,16 +28,15 @@
 #include <ft2build.h>
 #include <freetype/freetype.h>
 #endif
-#include <SDL/SDL.h>
-
+#include <SDL2/SDL.h>
 
 #include "Display.hpp"
 
 
-class DisplaySdl : public Display {
+class DisplaySdl2 : public Display {
 
 private:
-	struct SDL_Surface *screen;
+	SDL_Window *screen;
 
 	// font panel, caches often used chars for blitting
 	static const int fontPanelFirstChar = 0x20;		// first char: space
@@ -65,11 +64,11 @@ private:
 	long gameEventTicks() const override;
 
 public:
-	DisplaySdl(Context&, SDL_Surface*);
-	~DisplaySdl();
+	DisplaySdl2(Context&, SDL_Window*);
+	~DisplaySdl2();
 
 	// getter
-	struct SDL_Surface* getScreen() const;
+	SDL_Window* getScreen() const;
 
 	// drawing
 	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
@@ -81,9 +80,8 @@ public:
 	void handleEvent(void*) const override;
 
 	// sdl helper
-	static SDL_Surface* initScreen(); 
+	static SDL_Window* initScreen(); 
 
 };
 
-#endif // SWF_CORE_DISPLAY_SDL
-
+#endif // SWF_CORE_DISPLAY_SDL2
