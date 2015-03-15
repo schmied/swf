@@ -40,6 +40,7 @@ Component::Component(Context* c) {
 	}
 	parent = nullptr;
 	context = c;
+	style = {4, 7};
 	onInvalidatePosition(this, nullptr);
 	context->setRootContainer(*(Container*) this);
 }
@@ -52,6 +53,7 @@ Component::Component(Container* p) {
 	}
 	context = nullptr;
 	parent = p;
+	style = {4, 7};
 	onInvalidatePosition(this, nullptr);
 	((Component*) parent)->addToContents(this);
 }
@@ -70,7 +72,7 @@ inline bool Component::isPositionValid() const {
 }
 
 // returns position index of component in parent container
-int Component::containerPositionIndex() const {
+int Component::positionIndex() const {
 	if (parent == nullptr)
 		return 0;
 	const auto contents = parent->contents();
@@ -124,21 +126,32 @@ const Position* Component::getPosition() {
 		position.textY = 0;
 		return &position;
 	}
-	//const std::pair<int,int> *parentOffset = parent->getOffset();
-	const Position *parentPosition = parent->getPosition();
-	if (parentPosition == nullptr) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "getPosition", "no parent position");
-		return nullptr;
+	parent->calculatePosition(positionIndex(), style, &position);
+	position.w = position.w - 2 * style.margin;
+	if (position.w < 1)
+		position.w = 1;
+	position.h = position.h - 2 * style.margin;
+	if (position.h < 1)
+		position.h = 1;
+	if (position.w > 2 * (style.margin + style.padding)) {
+		position.x = position.x + style.margin;
+		position.textX = position.x + style.padding;
+	} else {
+		position.textX = position.x;
 	}
-	position.x = parentPosition->x + containerPositionIndex() * parentPosition->w / parent->contents()->size();
-	position.y = 0;
-	position.w = parentPosition->w / parent->contents()->size();
-	position.h = display->fontDimension().second;
-	position.textX = position.x + style.padding;
-	position.textY = position.y + style.padding;
-	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "getPosition", "%d+%d %dx%d", position.x, position.y,
-	    position.w, position.h);
+	if (position.h > 2 * (style.margin + style.padding)) {
+		position.y = position.y + style.margin;
+		position.textY = position.y + style.padding;
+	} else {
+		position.textY = position.y;
+	}
+	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "getPosition", "%d+%d %dx%d t%d+%d m%d p%d", position.x, position.y,
+	    position.w, position.h, position.textX, position.textY, style.margin, style.padding);
 	return &position;
+}
+
+const Style* Component::getStyle() const {
+	return &style;
 }
 
 

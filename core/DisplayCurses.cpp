@@ -88,24 +88,17 @@ long DisplayCurses::gameEventTicks() const {
  * drawing
  */
 
-/*
-void DisplayCurses::drawBorder(const std::pair<int,int> &offset, const std::pair<int,int> &dimension) const {
-}
-*/
-
-//void DisplayCurses::drawText(const std::pair<int,int> &offset, const std::pair<int,int> &dimension,
-//	    const std::basic_string<char> &text) const {
 void DisplayCurses::draw(const Position *pos, const std::basic_string<char> &text) const {
 	if ((int) text.length() > pos->w) {
 		auto s = text.substr(0, pos->w);
-		mvaddstr(pos->y, pos->x, s.c_str());
+		mvaddstr(pos->textY, pos->textX, s.c_str());
 		return;
 	}
-	mvaddstr(pos->y, pos->x, text.c_str());
+	mvaddstr(pos->textY, pos->textX, text.c_str());
 	if ((int) text.length() < pos->w) {
 		std::basic_string<char> s;
 		s.append(pos->w - text.length(), ' ');
-		mvaddstr(pos->y, pos->x + text.length(), s.c_str());
+		mvaddstr(pos->textY, pos->textX + text.length(), s.c_str());
 	}
 }
 

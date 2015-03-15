@@ -14,35 +14,32 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef SWF_CORE_CONTAINER
-#define SWF_CORE_CONTAINER
+#ifndef SWF_CORE_CONTAINER_LIST
+#define SWF_CORE_CONTAINER_LIST
 
 #include <vector>
 
 #include "Component.hpp"
+#include "Container.hpp"
 
 //enum layout_t { INLINE, 
 
-class Container : public Component {
+class ContainerList : public Container {
 
 private:
-	std::vector<Component*> components;
+	int advance;
 
-	void addToContents(Component*) override;
 //	void onDraw(const Display*) override;
+	void calculatePosition(const int, const Style&, Position*) override;
 
 protected:
 
 public:
-	Container(Context*);
-	Container(Container*);
-	~Container();
-
-	std::vector<Component*>* contents() override;
-
-	virtual void calculatePosition(const int, const Style&, Position*) = 0;
+	ContainerList(Context*);
+	ContainerList(Container*);
+	~ContainerList();
 
 };
 
-#endif // SWF_CORE_CONTAINER
+#endif // SWF_CORE_CONTAINER_LIST
 

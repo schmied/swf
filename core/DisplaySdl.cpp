@@ -401,14 +401,7 @@ void DisplaySdl::drawBorder(const std::pair<int,int> &offset, const std::pair<in
 }
 */
 
-//void DisplaySdl::drawText(const std::pair<int,int> &offset, const std::pair<int,int> &dimension,
-//	    const std::basic_string<char> &text) const {
 void DisplaySdl::draw(const Position *pos, const std::basic_string<char> &text) const {
-//	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "drawText", "%d+%d '%s'", offset.first, offset.second, text.c_str());
-
-	if (pos->h != fontHeight)
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "drawText", "dimension height %d != font height %d",
-		    pos->h, fontHeight);
 
 	SDL_Rect screenRect, fontPanelRect;
 
@@ -420,6 +413,9 @@ void DisplaySdl::draw(const Position *pos, const std::basic_string<char> &text) 
 	// fill background
 	if (SDL_FillRect(surface, &screenRect, 0x00002000) == -1)
 		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "drawText", "sdl fill rect error: %s", SDL_GetError());
+
+	screenRect.x = pos->textX;
+	screenRect.y = pos->textY;
 
 	for (const auto c : text) {
 		const bool isPanelChar = isFontPanelChar(c, &fontPanelRect);

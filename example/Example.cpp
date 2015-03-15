@@ -23,6 +23,7 @@
 //#include "../core/Component.hpp"
 #include "../core/Button.hpp"
 #include "../core/Container.hpp"
+#include "../core/ContainerList.hpp"
 #include "../core/Context.hpp"
 #include "../core/Widget.hpp"
 
@@ -512,7 +513,7 @@ int main(int argc, char **argv) {
 	// init gui
 	Context context;
 	env.context = &context;
-	Container root {&context};
+	ContainerList root {&context};
 	Button button1 {&root};
 	Button button2 {&root};
 	Button button3 {&root};

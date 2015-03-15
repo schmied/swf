@@ -36,26 +36,21 @@ class Component {
 
 private:
 	Container *parent;
-
 	Context *context; // cache to context
-//	std::pair<int,int> offset; // cache to offset;
-//	std::pair<int,int> dimension; // cache to dimension;
 
-	Style style;
-
+	// position
 	Position position;
+	Style style;
 	static void onInvalidatePosition(Component*, void*);
 	inline bool isPositionValid() const;
-
-	int containerPositionIndex() const;
+	int positionIndex() const;
 
 	virtual void addToContents(Component*) = 0;
 
 protected:
 	inline const Container* getParent() const;
-//	std::pair<int,int>* getOffset();
-//	std::pair<int,int>* getDimension();
 	const Position* getPosition();
+	const Style* getStyle() const;
 
 public:
 	Component(Context*);
