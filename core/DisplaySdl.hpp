@@ -37,7 +37,7 @@
 class DisplaySdl : public Display {
 
 private:
-	struct SDL_Surface *screen;
+	struct SDL_Surface *surface;
 
 	// font panel, caches often used chars for blitting
 	static const int fontPanelFirstChar = 0x20;		// first char: space
@@ -69,7 +69,7 @@ public:
 	~DisplaySdl();
 
 	// getter
-	struct SDL_Surface* getScreen() const;
+	struct SDL_Surface* getSurface() const;
 
 	// drawing
 	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
@@ -81,7 +81,7 @@ public:
 	void handleEvent(void*) const override;
 
 	// sdl helper
-	static SDL_Surface* initScreen(); 
+	static SDL_Surface* initSurface(); 
 
 };
 

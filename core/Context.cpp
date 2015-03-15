@@ -78,7 +78,7 @@ const Display* Context::getDisplay() {
 
 void Context::setDisplay(Display &d) {
 	display = &d;
-	rootContainer->flushPositionCache();
+	rootContainer->invalidatePosition();
 }
 
 const Container* Context::getRootContainer() {

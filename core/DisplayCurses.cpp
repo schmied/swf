@@ -124,7 +124,7 @@ std::pair<int,int> DisplayCurses::fontDimension() const {
  */
 
 void DisplayCurses::handleEvent(void *event) const {
-	((Component*) getContext()->getRootContainer())->flushPositionCache();
+	((Component*) getContext()->getRootContainer())->invalidatePosition();
 	if (event == nullptr)
 		return;
 	const int c = *(const int*) event;

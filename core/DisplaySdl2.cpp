@@ -45,9 +45,10 @@ static const std::basic_string<char> LOG_FACILITY = "DISPLAY_SDL";
  * ******************************************************** constructor
  */
 
-DisplaySdl2::DisplaySdl2(Context &ctx, SDL_Window *scr) : Display(ctx) {
+DisplaySdl2::DisplaySdl2(Context &ctx, SDL_Window *win, SDL_Renderer *rnd) : Display(ctx) {
 
-	screen = scr;
+	window = win;
+	renderer = rnd;
 
 	int error = FT_Init_FreeType(&fontLibrary);
 	if (error) {
@@ -61,7 +62,9 @@ DisplaySdl2::DisplaySdl2(Context &ctx, SDL_Window *scr) : Display(ctx) {
 		return;
 	}
 
-	int targetFontSize = screen->h / 100;
+	int screenHeight;
+	SDL_GetWindowSize(window, NULL, &screenHeight);
+	int targetFontSize = screenHeight / 100;
 	if (targetFontSize < 8)
 		targetFontSize = 8;
 	fontHeight = 0;
@@ -70,7 +73,7 @@ DisplaySdl2::DisplaySdl2(Context &ctx, SDL_Window *scr) : Display(ctx) {
 	const FT_Bitmap_Size *sizes = fontFace->available_sizes;
 	const FT_Int sizesCount = fontFace->num_fixed_sizes;
 	if (sizes != NULL && sizesCount > 0) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "looking for bitmap sizes");
+		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "look for bitmap sizes");
 		int fontWidth = 0;
 		for (int i = 0; i < sizesCount; i++) {
 			fontWidth = sizes[i].width;
@@ -119,16 +122,14 @@ DisplaySdl2::DisplaySdl2(Context &ctx, SDL_Window *scr) : Display(ctx) {
 	const int fontPanelWidth = fontPanelOffsets[fontPanelCharCount-1];
 	fontWidthAvg = fontPanelWidth / fontPanelCharCount;
 
-	// create font panel
-	const SDL_PixelFormat *fmt = screen->format;
-	fontPanel = SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_HWPALETTE,
-	    fontPanelWidth, fontHeight, fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
+	// create font panel surface
+	SDL_Surface *fontPanelSrf = SDL_CreateRGBSurface(0, fontPanelWidth, fontHeight, 32, 0, 0, 0, 0);
 	if (fontPanel == NULL) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "sdl create rgb surface error: %s", SDL_GetError());
+		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "sdl2 create rgb surface error: %s", SDL_GetError());
 		return;
 	}
-	if (SDL_SetColorKey(fontPanel, SDL_SRCCOLORKEY | SDL_RLEACCEL, 0x00000000) == -1)
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "sdl set color key error: %s", SDL_GetError());
+	if (SDL_SetColorKey(fontPanelSrf, SDL_TRUE, 0x00000000) == -1)
+		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "sdl2 set color key error: %s", SDL_GetError());
 
 	// populate font panel
 	for (int i = 0; i < fontPanelCharCount; i++) {
@@ -142,12 +143,16 @@ DisplaySdl2::DisplaySdl2(Context &ctx, SDL_Window *scr) : Display(ctx) {
 		if (i > 0)
 			x = fontPanelOffsets[i-1];
 		drawGlyph(fontPanel, fontFace->glyph, x, 0, SDL_MapRGB(fontPanel->format, 0xff, 0xff, 0xff));
-		drawGlyph(screen, fontFace->glyph, x, 200, SDL_MapRGB(fontPanel->format, 255, 255, 0));
+		drawGlyph(window, fontFace->glyph, x, 200, SDL_MapRGB(fontPanel->format, 255, 255, 0));
 	}
+
+	// load font panel surface into texture
+	fontPanel = SDL_CreateTextureFromSurface(renderer, fontPanelSrf);
+	SDL_FreeSurface(fontPanelSrf);
 }
 
 DisplaySdl2::~DisplaySdl2() {
-	SDL_FreeSurface(fontPanel);
+	SDL_DestroyTexture(fontPanel);
 	int error = FT_Done_Face(fontFace);
 	if (error) {
 		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<free>", "freetype done face error: %d", error);
@@ -179,7 +184,7 @@ bool DisplaySdl2::isFontPanelChar(const int c, SDL_Rect *dimension) const {
 		dimension->x = fontPanelOffsets[idx-1];
 	dimension->y = 0;
 	dimension->w = fontPanelOffsets[idx] - dimension->x;
-	dimension->h = fontPanel->h;
+	dimension->h = fontHeight;
 	return true;
 }
 
@@ -363,8 +368,8 @@ long DisplaySdl2::gameEventTicks() const {
  * getter
  */
 
-SDL_Window* DisplaySdl2::getScreen() const {
-	return screen;
+SDL_Window* DisplaySdl2::getWindow() const {
+	return window;
 }
 
 
@@ -432,14 +437,16 @@ void DisplaySdl2::drawText(const std::pair<int,int> &offset, const std::pair<int
 			}
 			screenRect.w = fontFace->glyph->bitmap.width;
 		}
+/*
 		if (screenRect.x + screenRect.w >= screen->w) {
 			getContext()->log(Context::LOG_WARN, LOG_FACILITY, "drawText", "%d + %d >= %d", screenRect.x,
 			    screenRect.w, screen->w);
 			break;
 		}
+*/
 		if (isPanelChar) {
-			if (SDL_BlitSurface(fontPanel, &fontPanelRect, screen, &screenRect) == -1)
-				getContext()->log(Context::LOG_WARN, LOG_FACILITY, "drawText", "sdl blit surface error: %s",
+			if (SDL_RenderCopy(renderer, fontPanel, &fontPanelRect, &screenRect) != 0)
+				getContext()->log(Context::LOG_WARN, LOG_FACILITY, "drawText", "sdl2 blit surface error: %s",
 				    SDL_GetError());
 		} else {
 			drawGlyph(screen, fontFace->glyph, screenRect.x, screenRect.y,
@@ -449,12 +456,14 @@ void DisplaySdl2::drawText(const std::pair<int,int> &offset, const std::pair<int
 	}
 
 	// debug
+/*
 	SDL_LockSurface(screen);
 	drawPoint(screen, offset.first, offset.second, 0x80808080);
 	drawPoint(screen, offset.first + dimension.first - 1, offset.second, 0x80808080);
 	drawPoint(screen, offset.first, offset.second + dimension.second - 1, 0x80808080);
 	drawPoint(screen, offset.first + dimension.first - 1, offset.second + dimension.second - 1, 0x80808080);
 	SDL_UnlockSurface(screen);
+*/
 
 /*
 	// fill rect to the end of dimension width
@@ -469,6 +478,8 @@ void DisplaySdl2::drawText(const std::pair<int,int> &offset, const std::pair<int
 }
 
 std::pair<int,int> DisplaySdl2::screenDimension() const {
+	int w, h;
+	SDL_GetWindowSize(window, &w, &h);
 	return { screen->w, screen->h };
 }
 
@@ -509,7 +520,11 @@ void DisplaySdl2::handleEvent(void *event) const {
  * sdl helper
  */
 
-SDL_Window* DisplaySdl2::initScreen() {
+SDL_Window* DisplaySdl2::initWindow() {
+	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+		std::printf("%s initScreen() sdl2 init error: %s\n", LOG_FACILITY.c_str(), SDL_GetError());
+		return nullptr;
+	}
 	SDL_Window *scr = SDL_CreateWindow("title", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
 	if (scr == NULL) {
 		std::printf("%s initScreen() sdl2 create window error: %s\n", LOG_FACILITY.c_str(), SDL_GetError());
@@ -517,19 +532,12 @@ SDL_Window* DisplaySdl2::initScreen() {
 	}
 	return scr;
 
-/*
-	// create screen
-	if (SDL_Init(SDL_INIT_VIDEO) == -1) {
-		std::printf("%s initScreen() sdl init error: %s\n", LOG_FACILITY.c_str(), SDL_GetError());
+SDL_Renderer* DisplaySdl2::initRenderer(const SDL_Window *win) {
+	SDL_Renderer *rnd = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if (rnd == NULL) {
+		std::printf("%s initRenderer() sdl2 create renderer error: %s\n", LOG_FACILITY.c_str(), SDL_GetError());
 		return nullptr;
 	}
-	SDL_Surface *scr = SDL_SetVideoMode(0, 0, 0, SDL_ANYFORMAT);
-//	SDL_Surface *scr = SDL_SetVideoMode(0, 0, 0, SDL_ANYFORMAT | SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_HWPALETTE);
-	if (scr == NULL) {
-		std::printf("%s initScreen() sdl set videomode error: %s\n", LOG_FACILITY.c_str(), SDL_GetError());
-		return nullptr;
-	}
-	SDL_FillRect(scr, NULL, 0x00000000);
-	return scr;
-*/
+	return rnd;
 }
+

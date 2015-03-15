@@ -34,8 +34,8 @@ private:
 	std::pair<int,int> offset; // cache to offset;
 	std::pair<int,int> dimension; // cache to dimension;
 
-	static void onFlushPositionCache(Component*, void*);
-	inline bool isPositionCacheValid() const;
+	static void onInvalidatePosition(Component*, void*);
+	inline bool isPositionValid() const;
 
 	int containerPositionIndex() const;
 
@@ -55,7 +55,7 @@ public:
 	bool isStateActive() const;
 	bool isStateFocus() const;
 
-	void flushPositionCache();
+	void invalidatePosition();
 	virtual std::vector<Component*>* contents() = 0;
 	virtual void onDraw(const Display*) = 0;
 

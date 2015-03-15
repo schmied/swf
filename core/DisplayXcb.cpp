@@ -175,7 +175,7 @@ void DisplayXcb::handleEvent(void *event) const {
 	case XCB_EXPOSE: {
 		xcb_expose_event_t *ee = (xcb_expose_event_t *) event;
 		getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "expose");
-		((Component*)getContext()->getRootContainer())->flushPositionCache();
+		((Component*)getContext()->getRootContainer())->invalidatePosition();
 		break;
 	}
 	case XCB_BUTTON_PRESS: {

@@ -30,8 +30,8 @@
 #define SWF_HAS_CURSES
 #define SWF_HAS_XCB
 #endif
-//#define SWF_HAS_SDL
-#define SWF_HAS_SDL2
+#define SWF_HAS_SDL
+//#define SWF_HAS_SDL2
 
 
 static const std::basic_string<char> LOG_FACILITY = "EXAMPLE";
@@ -286,7 +286,7 @@ static void onDrawSdl(const bool isFinal, void *data) {
 	const Env *env = (const Env*) data;
 	Context *context = env->context;
 	const DisplaySdl *display = (const DisplaySdl*) context->getDisplay();
-	SDL_Surface *screen = (SDL_Surface*) display->getScreen();
+	SDL_Surface *screen = (SDL_Surface*) display->getSurface();
 	if (isFinal) {
 		SDL_Flip(screen);
 		return;
@@ -307,7 +307,7 @@ static void onDrawSdl(const bool isFinal, void *data) {
 }
 
 static int startSdl(Env &env) {
-	SDL_Surface *scr = DisplaySdl::initScreen();
+	SDL_Surface *scr = DisplaySdl::initSurface();
 	DisplaySdl display { *env.context, scr };
 	return display.gameEventLoop(60, true, onEventSdl, onRender, onDrawSdl, &env);
 //	display.applicationEventLoop(isQuitEventSdl, onEventSdl, &env);
@@ -331,7 +331,7 @@ static void finishSdl(Env &env) {
 
 #include "../core/DisplaySdl.hpp"
 
-static int onEventSdl(const bool isFinal, void *event, void *data) {
+static int onEventSdl2(const bool isFinal, void *event, void *data) {
 	if (!isFinal || event == nullptr || data == nullptr)
 		return 0;
 	Env *env = (Env*) data;
@@ -363,7 +363,7 @@ static int onEventSdl(const bool isFinal, void *event, void *data) {
 	return 0;
 }
 
-static void onDrawSdl(const bool isFinal, void *data) {
+static void onDrawSdl2(const bool isFinal, void *data) {
 	const Env *env = (const Env*) data;
 	Context *context = env->context;
 	const DisplaySdl *display = (const DisplaySdl*) context->getDisplay();
@@ -387,15 +387,20 @@ static void onDrawSdl(const bool isFinal, void *data) {
 	}
 }
 
-static int startSdl(Env &env) {
-	SDL_Surface *scr = DisplaySdl::initScreen();
+static int startSdl2(Env &env) {
+	SDL_Window *scr = DisplaySdl2::initScreen();
+	SDL_Renderer *rnd = DisplaySdl2::initRenderer();
 	DisplaySdl display { *env.context, scr };
-	return display.gameEventLoop(60, true, onEventSdl, onRender, onDrawSdl, &env);
-//	display.applicationEventLoop(isQuitEventSdl, onEventSdl, &env);
-//	env.initData.push_back(scr);
+	return display.gameEventLoop(60, true, onEventSdl2, onRender2, onDrawSdl2, &env);
+	env.initData.push_back(scr);
+	env.initData.push_back(rnd);
 }
 
-static void finishSdl(Env &env) {
+static void finishSdl2(Env &env) {
+	SDL_DestroyRenderer(env.initData.back());
+	env.initData.pop_back()
+	SDL_DestroyWindow(env.initData.back());
+	env.initData.pop_back()
 	SDL_Quit();
 }
 
@@ -518,6 +523,9 @@ int main(int argc, char **argv) {
 #endif
 #ifdef SWF_HAS_SDL
 	env.startFunctions.push_back({startSdl, finishSdl});
+#endif
+#ifdef SWF_HAS_SDL2
+	env.startFunctions.push_back({startSdl2, finishSdl2});
 #endif
 #ifdef SWF_HAS_XCB
 	env.startFunctions.push_back({ startXcb, finishXcb });

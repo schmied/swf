@@ -40,7 +40,7 @@ Component::Component(Context* c) {
 	}
 	parent = nullptr;
 	context = c;
-	onFlushPositionCache(this, nullptr);
+	onInvalidatePosition(this, nullptr);
 	context->setRootContainer(*(Container*) this);
 }
 
@@ -52,7 +52,7 @@ Component::Component(Container* p) {
 	}
 	context = nullptr;
 	parent = p;
-	onFlushPositionCache(this, nullptr);
+	onInvalidatePosition(this, nullptr);
 	((Component*) parent)->addToContents(this);
 }
 
@@ -61,12 +61,12 @@ Component::Component(Container* p) {
  * ******************************************************** private
  */
 
-void Component::onFlushPositionCache(Component *c, void *ud) {
+void Component::onInvalidatePosition(Component *c, void *ud) {
 	c->offset.first = -1;
 	c->dimension.first = -1;
 }
 
-inline bool Component::isPositionCacheValid() const {
+inline bool Component::isPositionValid() const {
 	return offset.first != -1 && dimension.first != -1;
 }
 
@@ -109,7 +109,7 @@ Context* Component::getContext() {
 }
 
 std::pair<int,int>* Component::getOffset() {
-	if (isPositionCacheValid())
+	if (isPositionValid())
 		return &offset;
 	if (parent == nullptr) {
 		offset.first = 0;
@@ -134,7 +134,7 @@ std::pair<int,int>* Component::getOffset() {
 }
 
 std::pair<int,int>* Component::getDimension() {
-	if (isPositionCacheValid())
+	if (isPositionValid())
 		return &dimension;
 	const Display *display = getContext()->getDisplay();
 	if (display == nullptr) {
@@ -177,9 +177,9 @@ bool Component::isStateFocus() const {
 	return false;
 }
 
-void Component::flushPositionCache() {
+void Component::invalidatePosition() {
 	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "flushPositionCache", nullptr);
-	traverse(this, onFlushPositionCache, nullptr);
+	traverse(this, onInvalidatePosition, nullptr);
 }
 
 /*

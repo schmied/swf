@@ -36,13 +36,14 @@
 class DisplaySdl2 : public Display {
 
 private:
-	SDL_Window *screen;
+	SDL_Window *window;
+	SDL_Renderer *renderer;
 
 	// font panel, caches often used chars for blitting
 	static const int fontPanelFirstChar = 0x20;		// first char: space
 	static const int fontPanelLastChar = 0x7e;		// last char: tilde
 	static const int fontPanelCharCount = fontPanelLastChar - fontPanelFirstChar + 1;
-	struct SDL_Surface *fontPanel;
+	struct SDL_Texture *fontPanel;
 	FT_Library fontLibrary;
 	FT_Face fontFace;
 	int fontPanelOffsets[fontPanelCharCount];
@@ -64,11 +65,11 @@ private:
 	long gameEventTicks() const override;
 
 public:
-	DisplaySdl2(Context&, SDL_Window*);
+	DisplaySdl2(Context&, SDL_Window*, SDL_Renderer*);
 	~DisplaySdl2();
 
 	// getter
-	SDL_Window* getScreen() const;
+	SDL_Window* getWindow() const;
 
 	// drawing
 	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
@@ -80,7 +81,8 @@ public:
 	void handleEvent(void*) const override;
 
 	// sdl helper
-	static SDL_Window* initScreen(); 
+	static SDL_Window* initWindow(); 
+	static SDL_Renderer* initRenderer(); 
 
 };
 
