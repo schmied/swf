@@ -88,21 +88,24 @@ long DisplayCurses::gameEventTicks() const {
  * drawing
  */
 
+/*
 void DisplayCurses::drawBorder(const std::pair<int,int> &offset, const std::pair<int,int> &dimension) const {
 }
+*/
 
-void DisplayCurses::drawText(const std::pair<int,int> &offset, const std::pair<int,int> &dimension,
-	    const std::basic_string<char> &text) const {
-	if ((int) text.length() > dimension.first) {
-		auto s = text.substr(0, dimension.first);
-		mvaddstr(offset.second, offset.first, s.c_str());
+//void DisplayCurses::drawText(const std::pair<int,int> &offset, const std::pair<int,int> &dimension,
+//	    const std::basic_string<char> &text) const {
+void DisplayCurses::draw(const Position *pos, const std::basic_string<char> &text) const {
+	if ((int) text.length() > pos->w) {
+		auto s = text.substr(0, pos->w);
+		mvaddstr(pos->y, pos->x, s.c_str());
 		return;
 	}
-	mvaddstr(offset.second, offset.first, text.c_str());
-	if ((int) text.length() < dimension.first) {
+	mvaddstr(pos->y, pos->x, text.c_str());
+	if ((int) text.length() < pos->w) {
 		std::basic_string<char> s;
-		s.append(dimension.first - text.length(), ' ');
-		mvaddstr(offset.second, offset.first + text.length(), s.c_str());
+		s.append(pos->w - text.length(), ' ');
+		mvaddstr(pos->y, pos->x + text.length(), s.c_str());
 	}
 }
 

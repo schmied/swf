@@ -44,12 +44,13 @@ Button::~Button() {
  * private
  */
 
+/*
 void Button::onDraw(const Display *display) {
 	std::pair<int,int> *off = getOffset();
 	std::pair<int,int> *dim = getDimension();
-	display->drawBorder(*off, *dim);
-	display->drawText(*off, *dim, "blaa");
+	display->draw(*off, *dim, "blaa");
 }
+*/
 
 
 /*

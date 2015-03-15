@@ -23,7 +23,7 @@ class Widget : public Component {
 
 private:
 	void addToContents(Component*) override;
-	void onDraw(const Display*) override;
+//	void onDraw(const Display*) override;
 
 protected:
 

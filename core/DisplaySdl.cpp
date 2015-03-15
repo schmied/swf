@@ -372,6 +372,7 @@ struct SDL_Surface* DisplaySdl::getSurface() const {
  * drawing
  */
 
+/*
 void DisplaySdl::drawBorder(const std::pair<int,int> &offset, const std::pair<int,int> &dimension) const {
 //	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "drawBorder", "%d+%d %dx%d", offset.first, offset.second, dimension.first, dimension.second);
 	const Uint32 color = SDL_MapRGB(surface->format, 0xff, 0x00, 0x00);
@@ -390,7 +391,6 @@ void DisplaySdl::drawBorder(const std::pair<int,int> &offset, const std::pair<in
 //	SDL_UpdateRect(screen, x0, y0, 1, dimension.second);
 //	SDL_UpdateRect(screen, x1, y0, 1, dimension.second);
 
-/*
 	// rect method
 	SDL_Rect rectOuter { (Sint16) offset.first, (Sint16) offset.second, (Uint16) dimension.first, (Uint16) dimension.second };
 	SDL_FillRect(screen, &rectOuter, color); 
@@ -398,23 +398,24 @@ void DisplaySdl::drawBorder(const std::pair<int,int> &offset, const std::pair<in
 	    (Uint16) (dimension.second - 2) };
 	SDL_FillRect(screen, &rectInner, 0x00000000); 
 	SDL_UpdateRect(screen, offset.first, offset.second, dimension.first, dimension.second);
-*/
 }
+*/
 
-void DisplaySdl::drawText(const std::pair<int,int> &offset, const std::pair<int,int> &dimension,
-	    const std::basic_string<char> &text) const {
+//void DisplaySdl::drawText(const std::pair<int,int> &offset, const std::pair<int,int> &dimension,
+//	    const std::basic_string<char> &text) const {
+void DisplaySdl::draw(const Position *pos, const std::basic_string<char> &text) const {
 //	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "drawText", "%d+%d '%s'", offset.first, offset.second, text.c_str());
 
-	if (dimension.second != fontHeight)
+	if (pos->h != fontHeight)
 		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "drawText", "dimension height %d != font height %d",
-		    dimension.second, fontHeight);
+		    pos->h, fontHeight);
 
 	SDL_Rect screenRect, fontPanelRect;
 
-	screenRect.x = offset.first;
-	screenRect.y = offset.second;
-	screenRect.w = dimension.first;
-	screenRect.h = dimension.second;
+	screenRect.x = pos->x;
+	screenRect.y = pos->y;
+	screenRect.w = pos->w;
+	screenRect.h = pos->h;
 
 	// fill background
 	if (SDL_FillRect(surface, &screenRect, 0x00002000) == -1)
@@ -450,10 +451,10 @@ void DisplaySdl::drawText(const std::pair<int,int> &offset, const std::pair<int,
 
 	// debug
 	SDL_LockSurface(surface);
-	drawPoint(surface, offset.first, offset.second, 0x80808080);
-	drawPoint(surface, offset.first + dimension.first - 1, offset.second, 0x80808080);
-	drawPoint(surface, offset.first, offset.second + dimension.second - 1, 0x80808080);
-	drawPoint(surface, offset.first + dimension.first - 1, offset.second + dimension.second - 1, 0x80808080);
+	drawPoint(surface, pos->x, pos->y, 0x80808080);
+	drawPoint(surface, pos->x + pos->w - 1, pos->y, 0x80808080);
+	drawPoint(surface, pos->x, pos->y + pos->h - 1, 0x80808080);
+	drawPoint(surface, pos->x + pos->w - 1, pos->y + pos->h - 1, 0x80808080);
 	SDL_UnlockSurface(surface);
 
 /*

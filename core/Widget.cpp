@@ -48,12 +48,15 @@ void Widget::addToContents(Component *c) {
 	getContext()->log(Context::LOG_WARN, LOG_FACILITY, "addToContents", "cannot add contents to a widget");
 }
 
+/*
 void Widget::onDraw(const Display *display) {
-	std::pair<int,int> *off = getOffset();
-	std::pair<int,int> *dim = getDimension();
-	display->drawBorder(*off, *dim);
-//	display->drawText(*off, *dim, "blaa");
+//	std::pair<int,int> *off = getOffset();
+//	std::pair<int,int> *dim = getDimension();
+//	display->drawBorder(*off, *dim);
+	const Position *p = getPosition();
+	display->draw(*off, *dim, "blaau");
 }
+*/
 
 
 /*

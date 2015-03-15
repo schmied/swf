@@ -31,7 +31,7 @@ private:
 //	int layout_rows;
 
 	void addToContents(Component*) override;
-	void onDraw(const Display*) override;
+//	void onDraw(const Display*) override;
 
 protected:
 

@@ -62,12 +62,11 @@ Component::Component(Container* p) {
  */
 
 void Component::onInvalidatePosition(Component *c, void *ud) {
-	c->offset.first = -1;
-	c->dimension.first = -1;
+	c->position.x = -1;
 }
 
 inline bool Component::isPositionValid() const {
-	return offset.first != -1 && dimension.first != -1;
+	return position.x != -1;
 }
 
 // returns position index of component in parent container
@@ -108,6 +107,42 @@ Context* Component::getContext() {
 	return context;
 }
 
+const Position* Component::getPosition() {
+	if (isPositionValid())
+		return &position;
+	const Display *display = getContext()->getDisplay();
+	if (display == nullptr) {
+		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "getPosition", "no display");
+		return nullptr;
+	}
+	if (parent == nullptr) {
+		position.x = 0;
+		position.y = 0;
+		position.w = display->screenDimension().first;
+		position.h = display->screenDimension().second;
+		position.textX = 0;
+		position.textY = 0;
+		return &position;
+	}
+	//const std::pair<int,int> *parentOffset = parent->getOffset();
+	const Position *parentPosition = parent->getPosition();
+	if (parentPosition == nullptr) {
+		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "getPosition", "no parent position");
+		return nullptr;
+	}
+	const int width = parentPosition->w / parent->contents()->size();
+	position.x = parentPosition->x + containerPositionIndex() * width;
+	position.y = 0;
+	position.w = width;
+	position.h = display->fontDimension().second;
+	position.textX = 0;
+	position.textY = 0;
+	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "getPosition", "%d+%d %dx%d", position.x, position.y,
+	    position.w, position.h);
+	return &position;
+}
+
+/*
 std::pair<int,int>* Component::getOffset() {
 	if (isPositionValid())
 		return &offset;
@@ -162,6 +197,7 @@ std::pair<int,int>* Component::getDimension() {
 	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "getDimension", "%dx%d", dimension.first, dimension.second);
 	return &dimension;
 }
+*/
 
 
 /*
@@ -180,6 +216,16 @@ bool Component::isStateFocus() const {
 void Component::invalidatePosition() {
 	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "flushPositionCache", nullptr);
 	traverse(this, onInvalidatePosition, nullptr);
+}
+
+void Component::onDraw(const Display *display) {
+//	std::pair<int,int> *off = getOffset();
+//	std::pair<int,int> *dim = getDimension();
+//	display->drawBorder(*off, *dim);
+	if (parent == nullptr)
+		return;
+	const Position *p = getPosition();
+	display->draw(p, "blaau");
 }
 
 /*

@@ -22,7 +22,7 @@
 class Button : public Widget {
 
 private:
-	void onDraw(const Display*) override;
+//	void onDraw(const Display*) override;
 
 protected:
 

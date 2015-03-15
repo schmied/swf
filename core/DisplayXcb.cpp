@@ -135,6 +135,7 @@ xcb_gcontext_t DisplayXcb::getGContextInverse() const {
 
 static xcb_rectangle_t rectBorder;
 
+/*
 void DisplayXcb::drawBorder(const std::pair<int,int> &offset, const std::pair<int,int> &dimension) const {
 	rectBorder.x = offset.first;
 	rectBorder.y = offset.second;
@@ -143,10 +144,12 @@ void DisplayXcb::drawBorder(const std::pair<int,int> &offset, const std::pair<in
 	xcb_poly_rectangle(connection, window, gcontext, 1, &rectBorder);
 //	xcb_flush(connection);
 }
+*/
 
-void DisplayXcb::drawText(const std::pair<int,int> &offset, const std::pair<int,int> &dimension,
-	    const std::basic_string<char> &text) const {
-	xcb_image_text_8(connection, text.size(), window, gcontext, offset.first + 1, offset.second + 12, text.c_str());
+//void DisplayXcb::drawText(const std::pair<int,int> &offset, const std::pair<int,int> &dimension,
+//	    const std::basic_string<char> &text) const {
+void DisplayXcb::draw(const Position *pos, const std::basic_string<char> &text) const {
+	xcb_image_text_8(connection, text.size(), window, gcontext, pos->x + 1, pos->y + 12, text.c_str());
 //	xcb_flush(connection);
 }
 

@@ -24,6 +24,13 @@ class Container;
 class Context;
 class Display;
 
+struct Position {
+	int x, y, w, h, textX, textY;
+};
+
+struct Style {
+	int margin, padding;
+};
 
 class Component {
 
@@ -31,9 +38,10 @@ private:
 	Container *parent;
 
 	Context *context; // cache to context
-	std::pair<int,int> offset; // cache to offset;
-	std::pair<int,int> dimension; // cache to dimension;
+//	std::pair<int,int> offset; // cache to offset;
+//	std::pair<int,int> dimension; // cache to dimension;
 
+	Position position;
 	static void onInvalidatePosition(Component*, void*);
 	inline bool isPositionValid() const;
 
@@ -43,8 +51,9 @@ private:
 
 protected:
 	inline const Container* getParent() const;
-	std::pair<int,int>* getOffset();
-	std::pair<int,int>* getDimension();
+//	std::pair<int,int>* getOffset();
+//	std::pair<int,int>* getDimension();
+	const Position* getPosition();
 
 public:
 	Component(Context*);
@@ -57,7 +66,8 @@ public:
 
 	void invalidatePosition();
 	virtual std::vector<Component*>* contents() = 0;
-	virtual void onDraw(const Display*) = 0;
+//	virtual void onDraw(const Display*) = 0;
+	void onDraw(const Display*);
 
 	/* component traversing */
 	static void traverse(Component*, void (*)(Component*, void*), void*);

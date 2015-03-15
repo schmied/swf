@@ -57,9 +57,12 @@ std::vector<Component*>* Container::contents() {
 	return &components;
 }
 
+/*
 void Container::onDraw(const Display *display) {
 //	std::pair<int,int> *offset = getOffset();
 //	std::pair<int,int> *dimension = getDimension();
 //	display->drawBorder(*offset, *dimension);
+//	display->draw(*offset, *dimension);
 }
+*/
 

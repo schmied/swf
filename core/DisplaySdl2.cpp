@@ -377,6 +377,7 @@ SDL_Window* DisplaySdl2::getWindow() const {
  * drawing
  */
 
+/*
 void DisplaySdl2::drawBorder(const std::pair<int,int> &offset, const std::pair<int,int> &dimension) const {
 //	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "drawBorder", "%d+%d %dx%d", offset.first, offset.second, dimension.first, dimension.second);
 	const Uint32 color = SDL_MapRGB(screen->format, 0xff, 0x00, 0x00);
@@ -395,7 +396,6 @@ void DisplaySdl2::drawBorder(const std::pair<int,int> &offset, const std::pair<i
 //	SDL_UpdateRect(screen, x0, y0, 1, dimension.second);
 //	SDL_UpdateRect(screen, x1, y0, 1, dimension.second);
 
-/*
 	// rect method
 	SDL_Rect rectOuter { (Sint16) offset.first, (Sint16) offset.second, (Uint16) dimension.first, (Uint16) dimension.second };
 	SDL_FillRect(screen, &rectOuter, color); 
@@ -403,10 +403,12 @@ void DisplaySdl2::drawBorder(const std::pair<int,int> &offset, const std::pair<i
 	    (Uint16) (dimension.second - 2) };
 	SDL_FillRect(screen, &rectInner, 0x00000000); 
 	SDL_UpdateRect(screen, offset.first, offset.second, dimension.first, dimension.second);
-*/
 }
+*/
 
-void DisplaySdl2::drawText(const std::pair<int,int> &offset, const std::pair<int,int> &dimension,
+//void DisplaySdl2::drawText(const std::pair<int,int> &offset, const std::pair<int,int> &dimension,
+//	    const std::basic_string<char> &text) const {
+void DisplaySdl2::draw(const std::pair<int,int> &offset, const std::pair<int,int> &dimension,
 	    const std::basic_string<char> &text) const {
 //	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "drawText", "%d+%d '%s'", offset.first, offset.second, text.c_str());
 
