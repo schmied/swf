@@ -130,74 +130,16 @@ const Position* Component::getPosition() {
 		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "getPosition", "no parent position");
 		return nullptr;
 	}
-	const int width = parentPosition->w / parent->contents()->size();
-	position.x = parentPosition->x + containerPositionIndex() * width;
+	position.x = parentPosition->x + containerPositionIndex() * parentPosition->w / parent->contents()->size();
 	position.y = 0;
-	position.w = width;
+	position.w = parentPosition->w / parent->contents()->size();
 	position.h = display->fontDimension().second;
-	position.textX = 0;
-	position.textY = 0;
+	position.textX = position.x + style.padding;
+	position.textY = position.y + style.padding;
 	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "getPosition", "%d+%d %dx%d", position.x, position.y,
 	    position.w, position.h);
 	return &position;
 }
-
-/*
-std::pair<int,int>* Component::getOffset() {
-	if (isPositionValid())
-		return &offset;
-	if (parent == nullptr) {
-		offset.first = 0;
-		offset.second = 0;
-	} else {
-		const std::pair<int,int> *parentOffset = parent->getOffset();
-		if (parentOffset == nullptr) {
-			getContext()->log(Context::LOG_WARN, LOG_FACILITY, "getOffset", "no parent offset");
-			return nullptr;
-		}
-		const std::pair<int,int> *parentDimension = parent->getDimension();
-		if (parentDimension == nullptr) {
-			getContext()->log(Context::LOG_WARN, LOG_FACILITY, "getOffset", "no parent dimension");
-			return nullptr;
-		}
-		const int width = parentDimension->first / parent->contents()->size();
-		offset.first = parentOffset->first + containerPositionIndex() * width;
-		offset.second = 0;
-	}
-	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "getOffset", "%d+%d", offset.first, offset.second);
-	return &offset;
-}
-
-std::pair<int,int>* Component::getDimension() {
-	if (isPositionValid())
-		return &dimension;
-	const Display *display = getContext()->getDisplay();
-	if (display == nullptr) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "getDimension", "no display");
-		return nullptr;
-	}
-	if (parent == nullptr) {
-		dimension.first = display->screenDimension().first;
-		dimension.second = display->screenDimension().second;
-	} else {
-		const std::pair<int,int> *parentOffset = parent->getOffset();
-		if (parentOffset == nullptr) {
-			getContext()->log(Context::LOG_WARN, LOG_FACILITY, "getDimension", "no parent offset");
-			return nullptr;
-		}
-		const std::pair<int,int> *parentDimension = parent->getDimension();
-		if (parentDimension == nullptr) {
-			getContext()->log(Context::LOG_WARN, LOG_FACILITY, "getDimension", "no parent dimension");
-			return nullptr;
-		}
-		const int width = parentDimension->first / parent->contents()->size();
-		dimension.first = width;
-		dimension.second = display->fontDimension().second;
-	}
-	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "getDimension", "%dx%d", dimension.first, dimension.second);
-	return &dimension;
-}
-*/
 
 
 /*
@@ -219,9 +161,7 @@ void Component::invalidatePosition() {
 }
 
 void Component::onDraw(const Display *display) {
-//	std::pair<int,int> *off = getOffset();
-//	std::pair<int,int> *dim = getDimension();
-//	display->drawBorder(*off, *dim);
+	// do not draw root container
 	if (parent == nullptr)
 		return;
 	const Position *p = getPosition();

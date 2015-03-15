@@ -41,6 +41,8 @@ private:
 //	std::pair<int,int> offset; // cache to offset;
 //	std::pair<int,int> dimension; // cache to dimension;
 
+	Style style;
+
 	Position position;
 	static void onInvalidatePosition(Component*, void*);
 	inline bool isPositionValid() const;
