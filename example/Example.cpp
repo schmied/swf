@@ -27,13 +27,15 @@
 #include "../core/Context.hpp"
 #include "../core/Widget.hpp"
 
+//#define SWF_HAS_SDL
+//#define SWF_HAS_SDL2
 #ifdef __FreeBSD__
 #define SWF_HAS_CURSES
 #define SWF_HAS_XCB
 #endif
-#define SWF_HAS_SDL
-//#define SWF_HAS_SDL2
-
+#ifdef _WINDOWS
+#define SWF_HAS_GDI
+#endif
 
 static const std::basic_string<char> LOG_FACILITY = "EXAMPLE";
 
@@ -242,6 +244,70 @@ static void finishCurses(Env &env) {
 
 
 /*
+ * gdi
+ */
+
+#ifdef SWF_HAS_GDI
+
+#include <windows.h>
+
+#include "../core/DisplayGdi.hpp"
+
+static int onEventGdi(const bool isFinal, void *event, void *data) {
+	if (!isFinal || event == nullptr || data == nullptr)
+		return 0;
+	Env *env = (Env*) data;
+	Context *context = env->context;
+//	const DisplayXcb *display = (const DisplayXcb*) context->getDisplay();
+	const LPMSG e = *(const LPMSG*) event;
+//	context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventGdi", "%d %c", c, c);
+	switch (e->message) {
+	case WM_KEYDOWN:
+		switch (e->wParam) {
+		case VK_ESCAPE:
+			return ExitCode::QUIT;
+		case VK_F12:
+			return ExitCode::NEXT_DISPLAY;
+		default:
+			break;
+		}
+	default:
+		break;
+	}
+	return 0;
+}
+
+static void onDrawGdi(const bool isFinal, void *data) {
+	if (isFinal) {
+		return;
+	}
+	const Env *env = (const Env*) data;
+	Context *context = env->context;
+	const DisplayGdi *display = (const DisplayGdi*) context->getDisplay();
+	const std::pair<int,int> scrDim = display->screenDimension();
+	Box boxScr;
+	for (auto &box : env->boxes) {
+	}
+}
+
+static int startGdi(Env &env) {
+	HWND w = DisplayGdi::initWindow();
+	DisplayGdi display = { *env.context, w };
+	env.initData.push_back(w);
+	return display.gameEventLoop(60, true, onEventGdi, onRender, onDrawGdi, &env);
+//	display.applicationEventLoop(isQuitEventCurses, onEventCurses, &env);
+}
+
+static void finishGdi(Env &env) {
+	if (!DestroyWindow((HWND) env.initData.back()))
+		env.context->log(Context::LOG_WARN, LOG_FACILITY, "finishGdi", "win32 destroy windows error: %d", GetLastError());
+	env.initData.pop_back();
+}
+
+#endif // SWF_HAS_GDI
+
+
+/*
  * sdl
  */
 
@@ -391,10 +457,10 @@ static void onDrawSdl2(const bool isFinal, void *data) {
 static int startSdl2(Env &env) {
 	SDL_Window *scr = DisplaySdl2::initScreen();
 	SDL_Renderer *rnd = DisplaySdl2::initRenderer();
-	DisplaySdl display { *env.context, scr };
-	return display.gameEventLoop(60, true, onEventSdl2, onRender2, onDrawSdl2, &env);
 	env.initData.push_back(scr);
 	env.initData.push_back(rnd);
+	DisplaySdl display { *env.context, scr };
+	return display.gameEventLoop(60, true, onEventSdl2, onRender2, onDrawSdl2, &env);
 }
 
 static void finishSdl2(Env &env) {
@@ -503,7 +569,7 @@ static void finishXcb(Env &env) {
 
 #if defined (_WINDOWS) && !defined (SWF_HAS_SDL) && !defined (SWF_HAS_SDL2)
 #include <windows.h>
-int APIENTRY _tWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPTSTR lpCmdLine, _In_ int nCmdShow) {
+int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPTSTR lpCmdLine, _In_ int nCmdShow) {
 #else
 int main(int argc, char **argv) {
 #endif
@@ -520,7 +586,10 @@ int main(int argc, char **argv) {
 
 	// register start functions
 #ifdef SWF_HAS_CURSES
-	env.startFunctions.push_back({ startCurses, finishCurses });
+	env.startFunctions.push_back({startCurses, finishCurses});
+#endif
+#ifdef SWF_HAS_GDI
+	env.startFunctions.push_back({startGdi, finishGdi});
 #endif
 #ifdef SWF_HAS_SDL
 	env.startFunctions.push_back({startSdl, finishSdl});
@@ -529,7 +598,7 @@ int main(int argc, char **argv) {
 	env.startFunctions.push_back({startSdl2, finishSdl2});
 #endif
 #ifdef SWF_HAS_XCB
-	env.startFunctions.push_back({ startXcb, finishXcb });
+	env.startFunctions.push_back({startXcb, finishXcb});
 #endif
 
 	if (env.startFunctions.empty()) {

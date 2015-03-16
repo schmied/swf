@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2015, Michael Schmiedgen
+ * Copyright (c) 2015, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -46,19 +46,18 @@ ContainerList::~ContainerList() {
  * private
  */
 
-//void ContainerList::calculatePosition(const int index, Position *childPos) {
 void ContainerList::calculatePosition(const int childIndex, const Style &childStyle, Position *childPos) {
 	Context *ctx = getContext();
 	const Position *pos = getPosition();
-	const Style *style = getStyle();
-	const int space = style->margin + style->padding;
+	const Style *stl = getStyle();
+	const int space = stl->margin + stl->padding;
 	const int fontHeight = ctx->getDisplay()->fontDimension().second;
 	childPos->w = pos->w - 2 * space;
 	if (childPos->w < 1)
 		childPos->w = 1;
 	childPos->h = fontHeight + 2 * space;
-	childPos->x = pos->x + style->margin + style->padding;
-	childPos->y = pos->y + style->margin + style->padding + childIndex * (childPos->h + advance);
+	childPos->x = pos->x + stl->margin + stl->padding;
+	childPos->y = pos->y + stl->margin + stl->padding + childIndex * (childPos->h + advance);
 /*
 	// columns
 	const int size = contents()->size();
@@ -85,4 +84,3 @@ void Container::onDraw(const Display *display) {
 //	display->draw(*offset, *dimension);
 }
 */
-

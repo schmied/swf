@@ -18,6 +18,10 @@ clean: clean-example clean-core
 
 ################################### example
 
+# lib dependencies:
+# windows sdl: Winmm.lib, dxguid.lib
+# windows sdl2: Imm32.lib, version.lib
+
 EXAMPLELDIRS	= -L. -L/usr/lib -L/usr/local/lib
 EXAMPLELIBS	= -lc++ -lswfcore -lxcb -lxcb-keysyms -lcurses -lSDL -lfreetype
 EXAMPLESRCS	= \
