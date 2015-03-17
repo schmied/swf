@@ -33,6 +33,7 @@ static std::vector<Component*> noContents {};
 
 Widget::Widget(Container *c) : Component(c) {
 	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "<init>", nullptr);
+	style = {3, 3};
 }
 
 Widget::~Widget() {

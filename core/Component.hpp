@@ -40,7 +40,6 @@ private:
 
 	// position
 	Position position;
-	Style style;
 	static void onInvalidatePosition(Component*, void*);
 	inline bool isPositionValid() const;
 	int positionIndex() const;
@@ -48,6 +47,8 @@ private:
 	virtual void addToContents(Component*) = 0;
 
 protected:
+	Style style;
+
 	inline const Container* getParent() const;
 	const Position* getPosition();
 	const Style* getStyle() const;

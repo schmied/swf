@@ -15,6 +15,7 @@
  */
 
 
+#include <cmath>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
@@ -69,12 +70,12 @@ static void randomizeBox(Box &box) {
 static bool scaleBox(const Box &box, Box &boxScr, const std::pair<int,int> &scrDim) {
 	const float scaleX = (float) scrDim.first / boxFieldDim.first;
 	const float scaleY = (float) scrDim.second / boxFieldDim.second;
-	boxScr.offset.first = (int) (scaleX * box.offset.first);
-	boxScr.offset.second = (int) (scaleY * box.offset.second);
-	boxScr.dimension.first = (int) (scaleX * box.dimension.first);
+	boxScr.offset.first = (int) std::round(scaleX * box.offset.first);
+	boxScr.offset.second = (int) std::round(scaleY * box.offset.second);
+	boxScr.dimension.first = (int) std::round(scaleX * box.dimension.first);
 	if (boxScr.dimension.first < 1)
 		boxScr.dimension.first = 1;
-	boxScr.dimension.second = (int) (scaleY * box.dimension.second);
+	boxScr.dimension.second = (int) std::round(scaleY * box.dimension.second);
 	if (boxScr.dimension.second < 1)
 		boxScr.dimension.second = 1;
 	if (boxScr.offset.first < 0)

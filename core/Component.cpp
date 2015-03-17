@@ -40,7 +40,7 @@ Component::Component(Context* c) {
 	}
 	parent = nullptr;
 	context = c;
-	style = {4, 7};
+	style = {0, 0};
 	onInvalidatePosition(this, nullptr);
 	context->setRootContainer(*(Container*) this);
 }
@@ -53,7 +53,7 @@ Component::Component(Container* p) {
 	}
 	context = nullptr;
 	parent = p;
-	style = {4, 7};
+	style = {0, 0};
 	onInvalidatePosition(this, nullptr);
 	((Component*) parent)->addToContents(this);
 }
