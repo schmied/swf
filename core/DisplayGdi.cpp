@@ -84,7 +84,7 @@ long DisplayGdi::gameEventTicks() const {
  * drawing
  */
 
-void DisplayGdi::draw(const Position *pos, const std::basic_string<char> &text) const {
+void DisplayGdi::draw(const Position &pos, const Style &stl, const std::basic_string<char> &text) const {
 //	DHC c;
 	PAINTSTRUCT ps; 
 	BeginPaint(window, &ps); 

@@ -20,7 +20,7 @@ clean: clean-example clean-core
 
 # lib dependencies:
 # windows sdl: Winmm.lib, dxguid.lib
-# windows sdl2: Imm32.lib, version.lib
+# windows sdl2: Winmm.lib, Imm32.lib, version.lib
 
 EXAMPLELDIRS	= -L. -L/usr/lib -L/usr/local/lib
 EXAMPLELIBS	= -lc++ -lswfcore -lxcb -lxcb-keysyms -lcurses -lSDL2 -lfreetype

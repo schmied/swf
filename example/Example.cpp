@@ -35,7 +35,7 @@
 #define SWF_HAS_XCB
 #endif
 #ifdef _WINDOWS
-#define SWF_HAS_GDI
+//#define SWF_HAS_GDI
 #endif
 
 static const std::basic_string<char> LOG_FACILITY = "EXAMPLE";
@@ -267,7 +267,7 @@ static int onEventGdi(const bool isFinal, void *event, void *data) {
 		switch (e->wParam) {
 		case VK_ESCAPE:
 			return ExitCode::QUIT;
-		case VK_D:
+		case VK_F12:
 			return ExitCode::NEXT_DISPLAY;
 		default:
 			break;
