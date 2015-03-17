@@ -35,7 +35,7 @@
 #define SWF_HAS_XCB
 #endif
 #ifdef _WINDOWS
-//#define SWF_HAS_GDI
+#define SWF_HAS_GDI
 #endif
 
 static const std::basic_string<char> LOG_FACILITY = "EXAMPLE";
@@ -292,6 +292,7 @@ static void onDrawGdi(const bool isFinal, void *data) {
 }
 
 static int startGdi(Env &env) {
+	std::printf("sgdi\n");
 	HWND w = DisplayGdi::initWindow();
 	DisplayGdi display = { *env.context, w };
 	env.initData.push_back(w);
