@@ -55,7 +55,7 @@ private:
 	// drawing
 	inline static void drawPoint(SDL_Surface*, const int, const int, const Uint32);
 	static void drawLine(SDL_Surface*, int, int, int, int, const Uint32);
-	void drawGlyph(SDL_Surface*, const FT_GlyphSlot, const int, const int, const Uint32) const;
+	static void drawGlyph(SDL_Surface*, const FT_GlyphSlot, const int, const int, const Uint32);
 
 	// event handling
 	SDL_Event currentEvent;
@@ -70,11 +70,12 @@ public:
 
 	// getter
 	SDL_Window* getWindow() const;
+	SDL_Renderer* getRenderer() const;
 
 	// drawing
 //	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
 //	void drawText(const std::pair<int,int>&, const std::pair<int,int>&, const std::basic_string<char>&) const override;
-	void draw(const std::pair<int,int>&, const std::pair<int,int>&, const std::basic_string<char>&) const override;
+	void draw(const Position&, const Style&, const std::basic_string<char>&) const override;
 	std::pair<int,int> screenDimension() const override;
 	std::pair<int,int> fontDimension() const override;
 
@@ -82,8 +83,8 @@ public:
 	void handleEvent(void*) const override;
 
 	// sdl helper
-	static SDL_Window* initWindow(); 
-	static SDL_Renderer* initRenderer(); 
+	static SDL_Window* initWindow();
+	static SDL_Renderer* initRenderer(SDL_Window*);
 
 };
 

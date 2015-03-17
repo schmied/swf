@@ -58,7 +58,7 @@ public:
 //	virtual void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const = 0;
 //	virtual void drawText(const std::pair<int,int>&, const std::pair<int,int>&, const std::basic_string<char>&) const = 0;
 //	virtual void draw(const std::pair<int,int>&, const std::pair<int,int>&, const std::basic_string<char>&) const = 0;
-	virtual void draw(const Position*, const std::basic_string<char>&) const = 0;
+	virtual void draw(const Position&, const Style&, const std::basic_string<char>&) const = 0;
 	virtual std::pair<int,int> screenDimension() const = 0;
 	virtual std::pair<int,int> fontDimension() const = 0;
 

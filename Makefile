@@ -23,7 +23,7 @@ clean: clean-example clean-core
 # windows sdl2: Imm32.lib, version.lib
 
 EXAMPLELDIRS	= -L. -L/usr/lib -L/usr/local/lib
-EXAMPLELIBS	= -lc++ -lswfcore -lxcb -lxcb-keysyms -lcurses -lSDL -lfreetype
+EXAMPLELIBS	= -lc++ -lswfcore -lxcb -lxcb-keysyms -lcurses -lSDL2 -lfreetype
 EXAMPLESRCS	= \
 	example/Example.cpp
 
@@ -44,6 +44,7 @@ CORESRCS	= \
 	core/Display.cpp \
 	core/DisplayCurses.cpp \
 	core/DisplaySdl.cpp \
+	core/DisplaySdl2.cpp \
 	core/DisplayXcb.cpp \
 	core/Widget.cpp
 
@@ -56,6 +57,7 @@ COREHDRS	= \
 	core/Display.hpp \
 	core/DisplayCurses.hpp \
 	core/DisplaySdl.hpp \
+	core/DisplaySdl2.hpp \
 	core/DisplayXcb.hpp \
 	core/Widget.hpp
 

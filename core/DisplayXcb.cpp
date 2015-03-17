@@ -148,8 +148,8 @@ void DisplayXcb::drawBorder(const std::pair<int,int> &offset, const std::pair<in
 
 //void DisplayXcb::drawText(const std::pair<int,int> &offset, const std::pair<int,int> &dimension,
 //	    const std::basic_string<char> &text) const {
-void DisplayXcb::draw(const Position *pos, const std::basic_string<char> &text) const {
-	xcb_image_text_8(connection, text.size(), window, gcontext, pos->textX + 1, pos->textY + 12, text.c_str());
+void DisplayXcb::draw(const Position &pos, const Style &stl, const std::basic_string<char> &text) const {
+	xcb_image_text_8(connection, text.size(), window, gcontext, pos.textX + 1, pos.textY + 12, text.c_str());
 //	xcb_flush(connection);
 }
 

@@ -57,7 +57,7 @@ public:
 //	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
 //	void drawText(const std::pair<int,int>&, const std::pair<int,int>&, const std::basic_string<char>&) const override;
 //	void draw(const std::pair<int,int>&, const std::pair<int,int>&, const std::basic_string<char>&) const override;
-	void draw(const Position*, const std::basic_string<char>&) const override;
+	void draw(const Position&, const Style&, const std::basic_string<char>&) const override;
 	std::pair<int,int> screenDimension() const override;
 	std::pair<int,int> fontDimension() const override;
 

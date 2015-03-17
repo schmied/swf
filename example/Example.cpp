@@ -28,7 +28,7 @@
 #include "../core/Widget.hpp"
 
 //#define SWF_HAS_SDL
-//#define SWF_HAS_SDL2
+#define SWF_HAS_SDL2
 #ifdef __FreeBSD__
 #define SWF_HAS_CURSES
 #define SWF_HAS_XCB
@@ -396,7 +396,7 @@ static void finishSdl(Env &env) {
 
 #include <SDL2/SDL.h>
 
-#include "../core/DisplaySdl.hpp"
+#include "../core/DisplaySdl2.hpp"
 
 static int onEventSdl2(const bool isFinal, void *event, void *data) {
 	if (!isFinal || event == nullptr || data == nullptr)
@@ -433,13 +433,14 @@ static int onEventSdl2(const bool isFinal, void *event, void *data) {
 static void onDrawSdl2(const bool isFinal, void *data) {
 	const Env *env = (const Env*) data;
 	Context *context = env->context;
-	const DisplaySdl *display = (const DisplaySdl*) context->getDisplay();
-	SDL_Surface *screen = (SDL_Surface*) display->getScreen();
+	const DisplaySdl2 *display = (const DisplaySdl2*) context->getDisplay();
+//	SDL_Surface *screen = (SDL_Surface*) display->getScreen();
+	SDL_Renderer *rnd = display->getRenderer();
 	if (isFinal) {
-		SDL_Flip(screen);
+		SDL_RenderPresent(rnd);
 		return;
 	}
-	SDL_FillRect(screen, NULL, 0x00000000);
+	SDL_RenderClear(rnd);
 	const std::pair<int,int> scrDim = display->screenDimension();
 	Box boxScr;
 	int i = 17;
@@ -449,25 +450,25 @@ static void onDrawSdl2(const bool isFinal, void *data) {
 			continue;
 		SDL_Rect r { (Sint16) boxScr.offset.first, (Sint16) boxScr.offset.second, (Uint16) boxScr.dimension.first,
 		    (Uint16) boxScr.dimension.second };
-		Uint32 col = SDL_MapRGB(screen->format, ((i + 3) * 23) & 0xff, ((i + 5) * 13) & 0xff, (i * 19) & 0xff);
-		SDL_FillRect(screen, &r, col);
+		SDL_SetRenderDrawColor(rnd, ((i + 3) * 23) & 0xff, ((i + 5) * 13) & 0xff, (i * 19) & 0xff, 0);
+		SDL_RenderFillRect(rnd, &r);
 	}
 }
 
 static int startSdl2(Env &env) {
-	SDL_Window *scr = DisplaySdl2::initScreen();
-	SDL_Renderer *rnd = DisplaySdl2::initRenderer();
-	env.initData.push_back(scr);
+	SDL_Window *win = DisplaySdl2::initWindow();
+	SDL_Renderer *rnd = DisplaySdl2::initRenderer(win);
+	env.initData.push_back(win);
 	env.initData.push_back(rnd);
-	DisplaySdl display { *env.context, scr };
-	return display.gameEventLoop(60, true, onEventSdl2, onRender2, onDrawSdl2, &env);
+	DisplaySdl2 display {*env.context, win, rnd};
+	return display.gameEventLoop(60, true, onEventSdl2, onRender, onDrawSdl2, &env);
 }
 
 static void finishSdl2(Env &env) {
-	SDL_DestroyRenderer(env.initData.back());
-	env.initData.pop_back()
-	SDL_DestroyWindow(env.initData.back());
-	env.initData.pop_back()
+	SDL_DestroyRenderer((SDL_Renderer*) env.initData.back());
+	env.initData.pop_back();
+	SDL_DestroyWindow((SDL_Window*) env.initData.back());
+	env.initData.pop_back();
 	SDL_Quit();
 }
 

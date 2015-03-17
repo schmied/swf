@@ -401,21 +401,21 @@ void DisplaySdl::drawBorder(const std::pair<int,int> &offset, const std::pair<in
 }
 */
 
-void DisplaySdl::draw(const Position *pos, const std::basic_string<char> &text) const {
+void DisplaySdl::draw(const Position &pos, const Style &stl, const std::basic_string<char> &text) const {
 
 	SDL_Rect screenRect, fontPanelRect;
 
-	screenRect.x = pos->x;
-	screenRect.y = pos->y;
-	screenRect.w = pos->w;
-	screenRect.h = pos->h;
+	screenRect.x = pos.x;
+	screenRect.y = pos.y;
+	screenRect.w = pos.w;
+	screenRect.h = pos.h;
 
 	// fill background
 	if (SDL_FillRect(surface, &screenRect, 0x00002000) == -1)
 		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "drawText", "sdl fill rect error: %s", SDL_GetError());
 
-	screenRect.x = pos->textX;
-	screenRect.y = pos->textY;
+	screenRect.x = pos.textX;
+	screenRect.y = pos.textY;
 
 	for (const auto c : text) {
 		const bool isPanelChar = isFontPanelChar(c, &fontPanelRect);
@@ -447,10 +447,10 @@ void DisplaySdl::draw(const Position *pos, const std::basic_string<char> &text) 
 
 	// debug
 	SDL_LockSurface(surface);
-	drawPoint(surface, pos->x, pos->y, 0x80808080);
-	drawPoint(surface, pos->x + pos->w - 1, pos->y, 0x80808080);
-	drawPoint(surface, pos->x, pos->y + pos->h - 1, 0x80808080);
-	drawPoint(surface, pos->x + pos->w - 1, pos->y + pos->h - 1, 0x80808080);
+	drawPoint(surface, pos.x, pos.y, 0x80808080);
+	drawPoint(surface, pos.x + pos.w - 1, pos.y, 0x80808080);
+	drawPoint(surface, pos.x, pos.y + pos.h - 1, 0x80808080);
+	drawPoint(surface, pos.x + pos.w - 1, pos.y + pos.h - 1, 0x80808080);
 	SDL_UnlockSurface(surface);
 
 /*

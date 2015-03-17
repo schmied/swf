@@ -178,7 +178,8 @@ void Component::onDraw(const Display *display) {
 	if (parent == nullptr)
 		return;
 	const Position *p = getPosition();
-	display->draw(p, "blaau");
+	const Style *s = getStyle();
+	display->draw(*p, *s, "blaau");
 }
 
 /*

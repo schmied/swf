@@ -112,9 +112,10 @@ void Context::draw() {
 			// 1 char bottom padding to screen
 			const int y = screenDimension.second - (1 + logs.size()) * fontDimension.second;
 			Position pos {x, y, screenDimension.first / 2 - 2 * fontDimension.first, fontDimension.second, x, y};
+			Style stl {0, 0};
 			for (const auto log : logs) {
 				//display->draw(logOffset, logDimension, *log);
-				display->draw(&pos, *log);
+				display->draw(pos, stl, *log);
 				pos.y += fontDimension.second;
 				pos.textY = pos.y;
 			}
@@ -130,7 +131,8 @@ void Context::draw() {
 //			const std::pair<int,int> statDimension { width, fontDimension.second };
 	//		display->draw(statOffset, statDimension, buf);
 			const Position pos {x, y, w, fontDimension.second, x, y};
-			display->draw(&pos, buf);
+			Style stl {0, 0};
+			display->draw(pos, stl, buf);
 		}
 	}
 }
