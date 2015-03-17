@@ -186,7 +186,7 @@ static int onEventCurses(const bool isFinal, void *event, void *data) {
 	switch (c) {
 	case 27:	// esc key
 		return ExitCode::QUIT;
-	case 276:	// f12 key
+	case 'd':
 		return ExitCode::NEXT_DISPLAY;
 	case '+':
 		addBoxes(*env);
@@ -258,7 +258,7 @@ static int onEventGdi(const bool isFinal, void *event, void *data) {
 		return 0;
 	Env *env = (Env*) data;
 	Context *context = env->context;
-//	const DisplayXcb *display = (const DisplayXcb*) context->getDisplay();
+//	const DisplayGdi *display = (const DisplayGdi*) context->getDisplay();
 	const LPMSG e = *(const LPMSG*) event;
 //	context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventGdi", "%d %c", c, c);
 	switch (e->message) {
@@ -266,7 +266,7 @@ static int onEventGdi(const bool isFinal, void *event, void *data) {
 		switch (e->wParam) {
 		case VK_ESCAPE:
 			return ExitCode::QUIT;
-		case VK_F12:
+		case VK_D:
 			return ExitCode::NEXT_DISPLAY;
 		default:
 			break;
@@ -329,7 +329,7 @@ static int onEventSdl(const bool isFinal, void *event, void *data) {
 		switch (e->key.keysym.sym) {
 		case SDLK_ESCAPE:
 			return ExitCode::QUIT;
-		case 293:	// f12 key
+		case 'd':
 			return ExitCode::NEXT_DISPLAY;
 		case '+':
 			addBoxes(*env);
@@ -403,14 +403,14 @@ static int onEventSdl2(const bool isFinal, void *event, void *data) {
 		return 0;
 	Env *env = (Env*) data;
 	Context *context = env->context;
-//	const DisplaySdl *display = (const DisplaySdl*) context->getDisplay();
+//	const DisplaySdl2 *display = (const DisplaySdl2*) context->getDisplay();
 	const SDL_Event *e = (const SDL_Event*) event;
 	switch (e->type) {
 	case SDL_KEYDOWN:
 		switch (e->key.keysym.sym) {
 		case SDLK_ESCAPE:
 			return ExitCode::QUIT;
-		case 293:	// f12 key
+		case 'd':
 			return ExitCode::NEXT_DISPLAY;
 		case '+':
 			addBoxes(*env);
@@ -419,7 +419,7 @@ static int onEventSdl2(const bool isFinal, void *event, void *data) {
 			removeBoxes(*env);
 			break;
 		default:
-			context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventSdl", "key press %c %d",
+			context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventSdl2", "key press %c %d",
 			    e->key.keysym.sym, e->key.keysym.sym);
 			break;
 		}
@@ -434,12 +434,12 @@ static void onDrawSdl2(const bool isFinal, void *data) {
 	const Env *env = (const Env*) data;
 	Context *context = env->context;
 	const DisplaySdl2 *display = (const DisplaySdl2*) context->getDisplay();
-//	SDL_Surface *screen = (SDL_Surface*) display->getScreen();
 	SDL_Renderer *rnd = display->getRenderer();
 	if (isFinal) {
 		SDL_RenderPresent(rnd);
 		return;
 	}
+	SDL_SetRenderDrawColor(rnd, 0, 0, 0, 0);
 	SDL_RenderClear(rnd);
 	const std::pair<int,int> scrDim = display->screenDimension();
 	Box boxScr;
@@ -505,7 +505,7 @@ static int onEventXcb(const bool isFinal, void *event, void *data) {
 		switch (sym) {
 		case 65307:	// esc key
 			return ExitCode::QUIT;
-		case 65481:	// f12 key
+		case 'd':
 			return ExitCode::NEXT_DISPLAY;
 		case '+':
 			addBoxes(*env);

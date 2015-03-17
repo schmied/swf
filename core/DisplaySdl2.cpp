@@ -124,8 +124,12 @@ DisplaySdl2::DisplaySdl2(Context &ctx, SDL_Window *win, SDL_Renderer *rnd) : Dis
 
 	// create font panel surface
 	SDL_Surface *fontPanelSrf = SDL_CreateRGBSurface(0, fontPanelWidth, fontHeight, 32, 0, 0, 0, 0);
-	if (fontPanel == NULL) {
+	if (fontPanelSrf == NULL) {
 		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "sdl2 create rgb surface error: %s", SDL_GetError());
+		return;
+	}
+	if (SDL_FillRect(fontPanelSrf, NULL, 0x000000) == -1) {
+		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "sdl2 fill rect error: %s", SDL_GetError());
 		return;
 	}
 	if (SDL_SetColorKey(fontPanelSrf, SDL_TRUE, 0x00000000) == -1)
@@ -423,6 +427,7 @@ void DisplaySdl2::draw(const Position &pos, const Style& stl, const std::basic_s
 	screenRect.h = pos.h;
 
 	// fill background
+	SDL_SetRenderDrawColor(renderer, 100, 100, 100, 0);
 	if (SDL_RenderFillRect(renderer, &screenRect) != 0) {
 		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "draw", "sdl2 render fill rect error: %s", SDL_GetError());
 		return;
