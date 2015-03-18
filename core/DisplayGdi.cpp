@@ -62,14 +62,15 @@ DisplayGdi::~DisplayGdi() {
  */
 
 void* DisplayGdi::eventPoll() {
-	if (!PeekMessage(currentEvent, NULL, 0, 0, 0))
+	if (!PeekMessage(currentEvent, window, 0, 0, 0))
 		return nullptr;
+	getContext()->log(Context::LOG_WARN, LOG_FACILITY, "eventPoll", "win32 get message error:");
 	TranslateMessage(currentEvent);
 	return &currentEvent;
 }
 
 void* DisplayGdi::eventWait() {
-	if (GetMessage(currentEvent, NULL, 0, 0) == -1) {
+	if (GetMessage(currentEvent, window, 0, 0) == -1) {
 		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "eventWait", "win32 get message error: %d", GetLastError());
 		return nullptr;
 	}
@@ -106,7 +107,7 @@ void DisplayGdi::draw(const Position &pos, const Style &stl, const std::basic_st
 std::pair<int,int> DisplayGdi::screenDimension() const {
 	RECT r;
 	GetWindowRect(window, &r);
-	return {r.right - r.left, r.bottom - r.top};
+	return {r.right - r.left, r.bottom - r.top - 50};
 }
 
 std::pair<int,int> DisplayGdi::fontDimension() const {
@@ -144,7 +145,7 @@ HWND DisplayGdi::initWindow(HINSTANCE hInstance, const char *name) {
 	wcex.hInstance      = 0;//hInstance;
 	wcex.hIcon          = NULL;
 	wcex.hCursor        = NULL;//LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground  = 0;//(HBRUSH)(COLOR_WINDOW+1);
+	wcex.hbrBackground  = NULL;//GetStockObject(WHITE_BRUSH);
 	wcex.lpszMenuName   = NULL;
 	wcex.lpszClassName  = name;
 	wcex.hIconSm        = NULL;//LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
@@ -152,7 +153,7 @@ HWND DisplayGdi::initWindow(HINSTANCE hInstance, const char *name) {
 		messageBox(GetLastError(), "%s initWindow() win32 register class ex", LOG_FACILITY.c_str());
 		return nullptr;
 	}
-	HWND w = CreateWindow(name, name, WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 600, 600, 0, 0, 0 /*hinstance*/, 0);
+	HWND w = CreateWindow(name, name, WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, 0 /*hinstance*/, NULL);
 	if (w == nullptr) {
 		messageBox(GetLastError(), "%s initWindow() win32 create window", LOG_FACILITY.c_str());
 		return nullptr;
