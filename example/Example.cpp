@@ -36,6 +36,8 @@
 #endif
 #ifdef _WINDOWS
 #define SWF_HAS_GDI
+#include <windows.h>
+static HINSTANCE globalHInstance;
 #endif
 
 static const std::basic_string<char> LOG_FACILITY = "EXAMPLE";
@@ -292,17 +294,18 @@ static void onDrawGdi(const bool isFinal, void *data) {
 }
 
 static int startGdi(Env &env) {
-	std::printf("sgdi\n");
-	HWND w = DisplayGdi::initWindow();
-	DisplayGdi display = { *env.context, w };
+	HWND w = DisplayGdi::initWindow(globalHInstance, "swfexample");
+	DisplayGdi display = {*env.context, w};
 	env.initData.push_back(w);
+	env.context->log(Context::LOG_WARN, LOG_FACILITY, "asdf", "1");
 	return display.gameEventLoop(60, true, onEventGdi, onRender, onDrawGdi, &env);
 //	display.applicationEventLoop(isQuitEventCurses, onEventCurses, &env);
 }
 
 static void finishGdi(Env &env) {
-	if (!DestroyWindow((HWND) env.initData.back()))
+	if (env.initData.size() > 0 && !DestroyWindow((HWND) env.initData.back()))
 		env.context->log(Context::LOG_WARN, LOG_FACILITY, "finishGdi", "win32 destroy windows error: %d", GetLastError());
+	UnregisterClass("swfexample", globalHInstance);
 	env.initData.pop_back();
 }
 
@@ -573,6 +576,7 @@ static void finishXcb(Env &env) {
 #if defined (_WINDOWS) && !defined (SWF_HAS_SDL) && !defined (SWF_HAS_SDL2)
 #include <windows.h>
 int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPTSTR lpCmdLine, _In_ int nCmdShow) {
+	globalHInstance = hInstance;
 #else
 int main(int argc, char **argv) {
 #endif

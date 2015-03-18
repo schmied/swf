@@ -551,4 +551,3 @@ SDL_Renderer* DisplaySdl2::initRenderer(SDL_Window *win) {
 	}
 	return rnd;
 }
-

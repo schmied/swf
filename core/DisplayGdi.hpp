@@ -28,6 +28,7 @@ class DisplayGdi : public Display {
 private:
 	HWND window;
 	HDC windowContext;
+	HFONT font;
 
 	// event handling
 	LPMSG currentEvent;
@@ -52,7 +53,8 @@ public:
 	void handleEvent(void*) const override;
 
 	// gdi helper
-	static HWND initWindow();
+	static HWND initWindow(HINSTANCE, const char*);
+	static int messageBox(const int, const char*...);
 
 };
 

@@ -21,6 +21,7 @@
 #include "Container.hpp"
 #include "Context.hpp"
 #include "Display.hpp"
+#include "DisplayGdi.hpp"
 
 
 static const std::basic_string<char> LOG_FACILITY = "CONTEXT";
@@ -175,5 +176,9 @@ void Context::log(const int level, const std::basic_string<char> &facility, cons
 
 	if (display == nullptr || level == Context::LOG_WARN)
 		std::printf("%s\n", s->c_str());
+#ifdef _WINDOWS
+	if (display == nullptr && level == Context::LOG_WARN)
+		DisplayGdi::messageBox(0, s->c_str());
+#endif
 }
 

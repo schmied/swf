@@ -18,6 +18,8 @@
 
 #include <iostream>
 
+#include <windows.h>
+
 #include "Component.hpp"
 #include "Context.hpp"
 
@@ -32,9 +34,18 @@ static const std::basic_string<char> LOG_FACILITY = "DISPLAY_GDI";
 DisplayGdi::DisplayGdi(Context &c, HWND win) : Display(c) {
 	window = win;
 	windowContext = GetDC(win);
+	font = CreateFont(-12, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+	    NONANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Courier New");
+	if (font == NULL) {
+		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "win32 create font error");
+		return;
+	}
+	SelectObject(windowContext, font);
 }
 
 DisplayGdi::~DisplayGdi() {
+	if (!DeleteObject(font))
+		getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", "win32 delete object (font) error");
 	if (!ReleaseDC(window, windowContext)) 
 		getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", "win32 release dc error");
 	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", nullptr);
@@ -88,13 +99,14 @@ void DisplayGdi::draw(const Position &pos, const Style &stl, const std::basic_st
 //	DHC c;
 	PAINTSTRUCT ps; 
 	BeginPaint(window, &ps); 
-	TextOut(windowContext, 10, 10, text.c_str(), text.length()); 
+	TextOut(windowContext, pos.textX, pos.textY, text.c_str(), text.length()); 
 	EndPaint(window, &ps); 
 }
 
 std::pair<int,int> DisplayGdi::screenDimension() const {
-	//return {GetSystemMetrics(), GetSystemMetrics()};
-	return {500, 500};
+	RECT r;
+	GetWindowRect(window, &r);
+	return {r.right - r.left, r.bottom - r.top};
 }
 
 std::pair<int,int> DisplayGdi::fontDimension() const {
@@ -122,11 +134,58 @@ void DisplayGdi::handleEvent(void *event) const {
  * gdi helper
  */
 
-HWND DisplayGdi::initWindow() {
-	HWND w = CreateWindow(NULL, NULL, 0, 100, 100, 600, 600, 0, 0, 0, 0);
+HWND DisplayGdi::initWindow(HINSTANCE hInstance, const char *name) {
+	WNDCLASSEX wcex;
+	wcex.cbSize         = sizeof(WNDCLASSEX);
+	wcex.style          = CS_NOCLOSE;
+	wcex.lpfnWndProc    = DefWindowProc;
+	wcex.cbClsExtra     = 0;
+	wcex.cbWndExtra     = 0;
+	wcex.hInstance      = 0;//hInstance;
+	wcex.hIcon          = NULL;
+	wcex.hCursor        = NULL;//LoadCursor(NULL, IDC_ARROW);
+	wcex.hbrBackground  = 0;//(HBRUSH)(COLOR_WINDOW+1);
+	wcex.lpszMenuName   = NULL;
+	wcex.lpszClassName  = name;
+	wcex.hIconSm        = NULL;//LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
+	if (!RegisterClassEx(&wcex)) {
+		messageBox(GetLastError(), "%s initWindow() win32 register class ex", LOG_FACILITY.c_str());
+		return nullptr;
+	}
+	HWND w = CreateWindow(name, name, WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 600, 600, 0, 0, 0 /*hinstance*/, 0);
 	if (w == nullptr) {
-		std::printf("%s initWindow() win32 create window error: %s\n", LOG_FACILITY.c_str(), GetLastError());
+		messageBox(GetLastError(), "%s initWindow() win32 create window", LOG_FACILITY.c_str());
 		return nullptr;
 	}
 	return w;
+}
+
+const static std::size_t bufSize = 1000;
+static char buf[bufSize];
+
+int DisplayGdi::messageBox(const int error, const char *format...) {
+	std::basic_string<char> s;
+	if (format != nullptr) {
+		va_list arg;
+		va_start(arg, format);
+		std::vsnprintf(buf, bufSize, format, arg);
+		s.append(buf);
+		va_end(arg);
+	}
+	if (error != 0) {
+		char errorBuf[bufSize];
+		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, error, LANG_NEUTRAL, errorBuf, bufSize, nullptr);
+		std::snprintf(buf, bufSize, " error: %s (%d)", errorBuf, error);
+		s.append(buf);
+	}
+	int id = MessageBox(NULL, s.c_str(), "warning", MB_OK);
+	switch (id) {
+	case IDCANCEL:
+		break;
+	case IDTRYAGAIN:
+		break;
+	case IDCONTINUE:
+		break;
+    }
+    return id;
 }
