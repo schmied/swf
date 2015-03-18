@@ -104,7 +104,7 @@ int Display::gameEventLoop(const int targetFps, const bool isSleepy, int (*onEve
 	   void (*onRender)(void*), void (*onDraw)(const bool, void*), void* userData) {
 	//getContext()->log(Context::LOG_INFO, LOG_FACILITY, "gameEventLoop", "entering loop");
 	for (;;) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "gameEventLoop", "1");
+//		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "gameEventLoop", "1");
 		const long ticks = gameEventTicks();
 		const bool isElapsed = fpsIsTicksElapsed(ticks, targetFps);
 		if (isElapsed) {

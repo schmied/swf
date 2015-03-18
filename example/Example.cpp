@@ -297,7 +297,6 @@ static int startGdi(Env &env) {
 	HWND w = DisplayGdi::initWindow(globalHInstance, "swfexample");
 	DisplayGdi display = {*env.context, w};
 	env.initData.push_back(w);
-	env.context->log(Context::LOG_WARN, LOG_FACILITY, "asdf", "1");
 	return display.gameEventLoop(60, true, onEventGdi, onRender, onDrawGdi, &env);
 //	display.applicationEventLoop(isQuitEventCurses, onEventCurses, &env);
 }
