@@ -21,7 +21,9 @@
 #include "Container.hpp"
 #include "Context.hpp"
 #include "Display.hpp"
+#ifdef _WINDOWS
 #include "DisplayGdi.hpp"
+#endif
 
 
 static const std::basic_string<char> LOG_FACILITY = "CONTEXT";
