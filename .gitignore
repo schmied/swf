@@ -1,4 +1,15 @@
-*.o
 *.a
-.ycm_extra_conf.pyc
+*.htm
+*.filters
+*.log
+*.o
+*.obj
+*.opensdf
+*.sdf
 *.swp
+*.user
+.vs
+.ycm_extra_conf.pyc
+ipch
+Debug
+Release
