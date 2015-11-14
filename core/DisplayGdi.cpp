@@ -83,7 +83,7 @@ void DisplayGdi::gameEventSleep() const {
 }
 
 long DisplayGdi::gameEventTicks() const {
-	return GetTickCount();
+	return GetTickCount64();
 }
 
 
