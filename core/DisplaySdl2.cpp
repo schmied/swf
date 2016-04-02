@@ -20,8 +20,8 @@
 #include <utility>
 
 #ifdef __FreeBSD__
-#include <freetype2/ft2build.h>
-#include <freetype2/freetype.h>
+#include <ft2build.h>
+#include <freetype/freetype.h>
 #endif
 #ifdef WIN32
 #include <ft2build.h>
