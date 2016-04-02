@@ -62,19 +62,18 @@ DisplayGdi::~DisplayGdi() {
  */
 
 void* DisplayGdi::eventPoll() {
-	if (!PeekMessage(currentEvent, window, 0, 0, 0))
+	if (!PeekMessage(&currentEvent, window, 0, 0, PM_REMOVE))
 		return nullptr;
-	getContext()->log(Context::LOG_WARN, LOG_FACILITY, "eventPoll", "win32 get message error:");
-	TranslateMessage(currentEvent);
+	TranslateMessage(&currentEvent);
 	return &currentEvent;
 }
 
 void* DisplayGdi::eventWait() {
-	if (GetMessage(currentEvent, window, 0, 0) == -1) {
+	if (GetMessage(&currentEvent, window, 0, 0) == -1) {
 		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "eventWait", "win32 get message error: %d", GetLastError());
 		return nullptr;
 	}
-	TranslateMessage(currentEvent);
+	TranslateMessage(&currentEvent);
 	return &currentEvent;
 }
 
@@ -92,6 +91,15 @@ long DisplayGdi::gameEventTicks() const {
  */
 
 
+ /*
+ * getter
+ */
+
+HDC DisplayGdi::getWindowContext() const {
+	return windowContext;
+}
+
+
 /*
  * drawing
  */
@@ -99,15 +107,16 @@ long DisplayGdi::gameEventTicks() const {
 void DisplayGdi::draw(const Position &pos, const Style &stl, const std::basic_string<char> &text) const {
 //	DHC c;
 	PAINTSTRUCT ps; 
-	BeginPaint(window, &ps); 
+//	BeginPaint(window, &ps); 
 	TextOut(windowContext, pos.textX, pos.textY, text.c_str(), text.length()); 
-	EndPaint(window, &ps); 
+//	EndPaint(window, &ps); 
 }
 
 std::pair<int,int> DisplayGdi::screenDimension() const {
 	RECT r;
-	GetWindowRect(window, &r);
-	return {r.right - r.left, r.bottom - r.top - 50};
+	//GetWindowRect(window, &r);
+	GetClientRect(window, &r);
+	return {r.right - r.left, r.bottom - r.top};
 }
 
 std::pair<int,int> DisplayGdi::fontDimension() const {
@@ -122,9 +131,17 @@ std::pair<int,int> DisplayGdi::fontDimension() const {
 void DisplayGdi::handleEvent(void *event) const {
 	if (event == nullptr)
 		return;
-	const LPMSG e = *(const LPMSG*) event;
-//	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "char %d", c);
-	switch (e->lParam) {
+	const MSG *e = (const MSG*) event;
+	switch (e->message) {
+	case WM_KEYDOWN:
+		switch (e->wParam) {
+		case VK_RETURN:
+			break;
+		default:
+			break;
+		}
+		getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "key %d %d", e->lParam, e->wParam);
+		break;
 	default:
 		break;
 	}
@@ -135,7 +152,8 @@ void DisplayGdi::handleEvent(void *event) const {
  * gdi helper
  */
 
-HWND DisplayGdi::initWindow(HINSTANCE hInstance, const char *name) {
+HWND DisplayGdi::initWindow(const char *name) {
+	//HINSTANCE hInstance = GetModuleHandle(NULL);
 	WNDCLASSEX wcex;
 	wcex.cbSize         = sizeof(WNDCLASSEX);
 	wcex.style          = CS_NOCLOSE;
@@ -153,7 +171,7 @@ HWND DisplayGdi::initWindow(HINSTANCE hInstance, const char *name) {
 		messageBox(GetLastError(), "%s initWindow() win32 register class ex", LOG_FACILITY.c_str());
 		return nullptr;
 	}
-	HWND w = CreateWindow(name, name, WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, 0 /*hinstance*/, NULL);
+	HWND w = CreateWindow(name, name, WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, 0 /*hInstance*/, NULL);
 	if (w == nullptr) {
 		messageBox(GetLastError(), "%s initWindow() win32 create window", LOG_FACILITY.c_str());
 		return nullptr;

@@ -31,7 +31,7 @@ private:
 	HFONT font;
 
 	// event handling
-	LPMSG currentEvent;
+	MSG currentEvent;
 	void* eventPoll() override;
 	void* eventWait() override;
 	void gameEventSleep() const override;
@@ -40,6 +40,9 @@ private:
 public:
 	DisplayGdi(Context&, HWND);
 	~DisplayGdi();
+
+	// getter
+	HDC getWindowContext() const;
 
 	// drawing
 //	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
@@ -53,7 +56,7 @@ public:
 	void handleEvent(void*) const override;
 
 	// gdi helper
-	static HWND initWindow(HINSTANCE, const char*);
+	static HWND initWindow(const char*);
 	static int messageBox(const int, const char*...);
 
 };

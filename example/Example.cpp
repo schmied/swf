@@ -37,7 +37,6 @@
 #ifdef _WINDOWS
 #define SWF_HAS_GDI
 #include <windows.h>
-static HINSTANCE globalHInstance;
 #endif
 
 static const std::basic_string<char> LOG_FACILITY = "EXAMPLE";
@@ -262,7 +261,7 @@ static int onEventGdi(const bool isFinal, void *event, void *data) {
 	Env *env = (Env*) data;
 	Context *context = env->context;
 //	const DisplayGdi *display = (const DisplayGdi*) context->getDisplay();
-	const LPMSG e = *(const LPMSG*) event;
+	const MSG *e = (const MSG*) event;
 //	context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventGdi", "%d %c", c, c);
 	switch (e->message) {
 	case WM_KEYDOWN:
@@ -270,7 +269,15 @@ static int onEventGdi(const bool isFinal, void *event, void *data) {
 		case VK_ESCAPE:
 			return ExitCode::QUIT;
 		case VK_F12:
+		case 0x44:
+//		case 'd':
 			return ExitCode::NEXT_DISPLAY;
+		case VK_OEM_PLUS:
+			addBoxes(*env);
+			break;
+		case VK_OEM_MINUS:
+			removeBoxes(*env);
+			break;
 		default:
 			break;
 		}
@@ -287,14 +294,20 @@ static void onDrawGdi(const bool isFinal, void *data) {
 	const Env *env = (const Env*) data;
 	Context *context = env->context;
 	const DisplayGdi *display = (const DisplayGdi*) context->getDisplay();
+	const HDC hdc = display->getWindowContext();
 	const std::pair<int,int> scrDim = display->screenDimension();
 	Box boxScr;
 	for (auto &box : env->boxes) {
+		if (!scaleBox(*box, boxScr, scrDim))
+			continue;
+		const int x1 = boxScr.offset.first;
+		const int y1 = boxScr.offset.second;
+		Rectangle(hdc, x1, y1, x1 + boxScr.dimension.first, y1 + boxScr.dimension.second);
 	}
 }
 
 static int startGdi(Env &env) {
-	HWND w = DisplayGdi::initWindow(globalHInstance, "swfexample");
+	HWND w = DisplayGdi::initWindow("swfexample");
 	DisplayGdi display = {*env.context, w};
 	env.initData.push_back(w);
 	return display.gameEventLoop(60, true, onEventGdi, onRender, onDrawGdi, &env);
@@ -304,7 +317,8 @@ static int startGdi(Env &env) {
 static void finishGdi(Env &env) {
 	if (env.initData.size() > 0 && !DestroyWindow((HWND) env.initData.back()))
 		env.context->log(Context::LOG_WARN, LOG_FACILITY, "finishGdi", "win32 destroy windows error: %d", GetLastError());
-	UnregisterClass("swfexample", globalHInstance);
+	//HINSTANCE hInstance = GetModuleHandle(NULL);
+	UnregisterClass("swfexample", 0 /*hInstance*/);
 	env.initData.pop_back();
 }
 
