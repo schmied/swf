@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2015, Michael Schmiedgen
+ * Copyright (c) 2014, 2015, 2016, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -19,7 +19,7 @@
 #include "Container.hpp"
 
 #include "Context.hpp"
-#include "Display.hpp"
+//#include "Display.hpp"
 
 
 static const std::basic_string<char> LOG_FACILITY = "CONTAINER";
@@ -29,7 +29,7 @@ static const std::basic_string<char> LOG_FACILITY = "CONTAINER";
  * constructor, destructor
  */
 
-Container::Container(Context *p) : Component(p) {
+Container::Container(Context *ctx) : Component(ctx) {
 };
 
 Container::Container(Container *c) : Component(c) {

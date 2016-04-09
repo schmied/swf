@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, 2015, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, 2015, 2016, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -17,13 +17,17 @@
 #include <cstdarg>
 #include <string>
 
+#include "Context.hpp"
+
 #include "Component.hpp"
 #include "Container.hpp"
-#include "Context.hpp"
-#include "Display.hpp"
+#include "FrontendIn.hpp"
+#include "FrontendOut.hpp"
+/*
 #ifdef _WINDOWS
 #include "DisplayGdi.hpp"
 #endif
+*/
 
 
 static const std::basic_string<char> LOG_FACILITY = "CONTEXT";
@@ -34,7 +38,8 @@ static const std::basic_string<char> LOG_FACILITY = "CONTEXT";
 
 Context::Context() {	
 	log(LOG_DEBUG, LOG_FACILITY, "<init>", nullptr);
-	display = nullptr;
+	frontendIn = nullptr;
+	frontendOut = nullptr;
 	rootContainer = nullptr;
 }
 
@@ -55,12 +60,12 @@ Context::~Context() {
  */
 
 void Context::onDraw(Component *c, void *userData) {
-	Display *display = (Display*) userData;
-	if (display == nullptr) {
-		std::printf("%s onDraw() no display\n", LOG_FACILITY.c_str());
+	FrontendOut *out = (FrontendOut*) userData;
+	if (out == nullptr) {
+		std::printf("%s onDraw() no frontend\n", LOG_FACILITY.c_str());
 		return;
 	}
-	c->onDraw(display);
+	c->onDraw(out);
 }
 
 
@@ -73,14 +78,25 @@ void Context::onDraw(Component *c, void *userData) {
  * getter / setter
  */
 
-const Display* Context::getDisplay() {
-	if (display == nullptr)
-		log(LOG_WARN, LOG_FACILITY, "getDisplay", "no display");
-	return display;
+const FrontendIn* Context::getFrontendIn() {
+	if (frontendIn == nullptr)
+		log(LOG_WARN, LOG_FACILITY, "getFrontendIn", "no frontendIn");
+	return frontendIn;
 }
 
-void Context::setDisplay(Display &d) {
-	display = &d;
+void Context::setFrontendIn(FrontendIn &in) {
+	frontendIn = &in;
+	rootContainer->invalidatePosition();
+}
+
+const FrontendOut* Context::getFrontendOut() {
+	if (frontendOut == nullptr)
+		log(LOG_WARN, LOG_FACILITY, "getFrontendOut", "no frontendOut");
+	return frontendOut;
+}
+
+void Context::setFrontendOut(FrontendOut &out) {
+	frontendOut = &out;
 	rootContainer->invalidatePosition();
 }
 
@@ -100,11 +116,11 @@ void Context::setRootContainer(Container &r) {
  */
 
 void Context::draw() {
-	Component::traverse((Component*) rootContainer, Context::onDraw, display);
+	Component::traverse((Component*) rootContainer, Context::onDraw, frontendOut);
 
-	if (display != nullptr) {
-		const std::pair<int,int> fontDimension = display->fontDimension();
-		const std::pair<int,int> screenDimension = display->screenDimension();
+	if (frontendOut != nullptr) {
+		const std::pair<int,int> fontDimension = frontendOut->fontDimension();
+		const std::pair<int,int> screenDimension = frontendOut->screenDimension();
 		// draw log
 		if (logs.size() > 0) {
 //			const std::pair<int,int> logDimension { screenDimension.first / 2 - 2 * fontDimension.first,
@@ -118,13 +134,13 @@ void Context::draw() {
 			Style stl {0, 0};
 			for (const auto log : logs) {
 				//display->draw(logOffset, logDimension, *log);
-				display->draw(pos, stl, *log);
+				frontendOut->draw(pos, stl, *log);
 				pos.y += fontDimension.second;
 				pos.textY = pos.y;
 			}
 		}
 		// draw fps stats
-		const std::pair<int,int> frameStat = display->getFpsStat();
+		const std::pair<int,int> frameStat = frontendOut->getFpsStat();
 		if (frameStat.first > 0 && frameStat.second > 0) {
 			char buf[100];
 			std::snprintf(buf, 100, "%7dcycl %3dms %3dfps", frameStat.second, frameStat.first, 1000 / frameStat.first);
@@ -135,10 +151,68 @@ void Context::draw() {
 	//		display->draw(statOffset, statDimension, buf);
 			const Position pos {x, y, w, fontDimension.second, x, y};
 			Style stl {0, 0};
-			display->draw(pos, stl, buf);
+			frontendOut->draw(pos, stl, buf);
 		}
 	}
 }
+
+
+/*
+ * loop
+ */
+
+int Context::gameEventLoop(const int targetFps, const bool isSleepy, int (*onEvent)(const bool, void*, void*),
+	   void (*onRender)(void*), void (*onDraw)(const bool, void*), void* userData) {
+	log(Context::LOG_INFO, LOG_FACILITY, "gameEventLoop", "entering loop");
+	for (;;) {
+		const long ticks = frontendIn->gameEventTicks();
+		const bool isElapsed = frontendOut->fpsIsTicksElapsed(ticks, targetFps);
+		if (isElapsed) {
+			frontendOut->fpsResetTicks(ticks);
+			void *e = frontendIn->eventPoll();
+			int exitCode = 0;
+			if (e != nullptr) {
+				exitCode = onEvent(false, e, userData);
+				if (!exitCode) {
+					frontendIn->handleEvent(e);
+					exitCode = onEvent(true, e, userData);
+				}
+			}
+			frontendIn->eventFree(e);
+			if (exitCode)
+				return exitCode;
+		}
+		if (isElapsed || !isSleepy)
+			onRender(userData);
+		if (isElapsed) {
+			onDraw(false, userData);
+			draw();
+			onDraw(true, userData);
+		}
+		if (!isElapsed && isSleepy) 
+			frontendIn->gameEventSleep();
+	}
+}
+
+//int Display::applicationEventLoop(bool (*isQuitEvent)(void*, void*), int (*onEvent)(void*, void*), void* userData) {
+int Context::applicationEventLoop(int (*onEvent)(const bool, void*, void*), void* userData) {
+	void *e;
+	for (;;) {
+		e = frontendIn->eventWait();
+		if (e == nullptr)
+			continue;
+		int exitCode = 0;
+		exitCode = onEvent(false, e, userData);
+		if (!exitCode) {
+			frontendIn->handleEvent(e);
+			exitCode = onEvent(true, e, userData);
+		}
+		if (exitCode)
+			return exitCode;
+		draw();
+	}
+}
+
 
 
 /*
@@ -176,7 +250,7 @@ void Context::log(const int level, const std::basic_string<char> &facility, cons
 
 	logs.push_back(s);
 
-	if (display == nullptr || level == Context::LOG_WARN)
+	if (frontendOut == nullptr || level == Context::LOG_WARN)
 		std::printf("%s\n", s->c_str());
 #ifdef _WINDOWS
 	if (display == nullptr && level == Context::LOG_WARN)

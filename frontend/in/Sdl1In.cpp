@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, 2015, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, 2015, 2016, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -29,24 +29,26 @@
 #endif
 #include <SDL/SDL.h>
 
-#include "DisplaySdl.hpp"
+#include "Sdl1In.hpp"
 
-#include "Component.hpp"
-#include "Context.hpp"
+//#include "Component.hpp"
+#include "../../core/Context.hpp"
 
 
 // used in drawLine()
 #define DRAW_LINE_YSTEP err += dy; if (err << 1 >= dx) { y += ystep; err -= dx; }
 
-static const std::basic_string<char> LOG_FACILITY = "DISPLAY_SDL";
+static const std::basic_string<char> LOG_FACILITY = "SDL1_IN";
 
 
 /*
  * ******************************************************** constructor
  */
 
-DisplaySdl::DisplaySdl(Context &ctx, SDL_Surface *srf) : Display(ctx) {
+//Sdl1In::Sdl1In(Context &ctx, SDL_Surface *srf) : FrontendIn(ctx) {
+Sdl1In::Sdl1In(Context &ctx) : FrontendIn(ctx) {
 
+/*
 	surface = srf;
 
 	int error = FT_Init_FreeType(&fontLibrary);
@@ -79,13 +81,14 @@ DisplaySdl::DisplaySdl(Context &ctx, SDL_Surface *srf) : Display(ctx) {
 			if (fontHeight >= targetFontSize)
 				break;
 		}
-/*
+///
 		error = FT_Set_Pixel_Sizes(fontFace, fontWidth, fontHeight);
 		if (error) {
 			getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "freetype set pixel sizes error: %d", error);
 			return;
 		}
 */
+/*
 	}
 	if (fontHeight == 0 || fontSize == 0) {
 		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "cannot determine font size");
@@ -144,9 +147,11 @@ DisplaySdl::DisplaySdl(Context &ctx, SDL_Surface *srf) : Display(ctx) {
 		drawGlyph(fontPanel, fontFace->glyph, x, 0, SDL_MapRGB(fontPanel->format, 0xff, 0xff, 0xff));
 		drawGlyph(surface, fontFace->glyph, x, 200, SDL_MapRGB(fontPanel->format, 255, 255, 0));
 	}
+*/
 }
 
-DisplaySdl::~DisplaySdl() {
+Sdl1In::~Sdl1In() {
+/*
 	SDL_FreeSurface(fontPanel);
 	int error = FT_Done_Face(fontFace);
 	if (error) {
@@ -156,6 +161,7 @@ DisplaySdl::~DisplaySdl() {
 	if (error) {
 		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<free>", "freetype done freetype error: %d", error);
 	}
+*/
 	getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<free>", nullptr);
 }
 
@@ -168,7 +174,7 @@ DisplaySdl::~DisplaySdl() {
 /*
  * font panel
  */
-
+/*
 bool DisplaySdl::isFontPanelChar(const int c, SDL_Rect *dimension) const {
 	if (c < fontPanelFirstChar || c > fontPanelLastChar)
 		return false;
@@ -182,12 +188,13 @@ bool DisplaySdl::isFontPanelChar(const int c, SDL_Rect *dimension) const {
 	dimension->h = fontPanel->h;
 	return true;
 }
+*/
 
 
 /*
  * drawing
  */
-
+/*
 inline void DisplaySdl::drawPoint(SDL_Surface *dst, const int x, const int y, const Uint32 color) {
 	int bpp = dst->format->BytesPerPixel;
 	void *pos = (Uint8*) dst->pixels + (y * dst->pitch + x * bpp);
@@ -323,20 +330,20 @@ void DisplaySdl::drawGlyph(SDL_Surface *dst, const FT_GlyphSlot glyph, const int
 //	drawPoint(dst, offsetX, offsetY + fontHeight - 1, 0x00ff0000);
 	SDL_UnlockSurface(dst);
 }
-
+*/
 
 /*
  * event handling
  */
 
-void* DisplaySdl::eventPoll() {
+void* Sdl1In::eventPoll() {
 	const int i = SDL_PollEvent(&currentEvent);
 	if (!i)
 		return nullptr;
 	return &currentEvent;
 }
 
-void* DisplaySdl::eventWait() {
+void* Sdl1In::eventWait() {
 	const int i = SDL_WaitEvent(&currentEvent);
 	if (!i) {
 		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "eventWait", "sdl wait event error");
@@ -345,11 +352,11 @@ void* DisplaySdl::eventWait() {
 	return &currentEvent;
 }
 
-void DisplaySdl::gameEventSleep() const {
+void Sdl1In::gameEventSleep() const {
 	SDL_Delay(1);	
 }
 
-long DisplaySdl::gameEventTicks() const {
+long Sdl1In::gameEventTicks() const {
 	return SDL_GetTicks();
 }
 
@@ -363,9 +370,11 @@ long DisplaySdl::gameEventTicks() const {
  * getter
  */
 
-struct SDL_Surface* DisplaySdl::getSurface() const {
+/*
+struct SDL_Surface* Sdl1In::getSurface() const {
 	return surface;
 }
+*/
 
 
 /*
@@ -401,7 +410,8 @@ void DisplaySdl::drawBorder(const std::pair<int,int> &offset, const std::pair<in
 }
 */
 
-void DisplaySdl::draw(const Position &pos, const Style &stl, const std::basic_string<char> &text) const {
+/*
+void Sdl1In::draw(const Position &pos, const Style &stl, const std::basic_string<char> &text) const {
 
 	SDL_Rect screenRect, fontPanelRect;
 
@@ -453,18 +463,19 @@ void DisplaySdl::draw(const Position &pos, const Style &stl, const std::basic_st
 	drawPoint(surface, pos.x + pos.w - 1, pos.y + pos.h - 1, 0x80808080);
 	SDL_UnlockSurface(surface);
 
-/*
+
 	// fill rect to the end of dimension width
-	if (screenRect.x < offset.first + dimension.first) {
-		screenRect.w = offset.first + dimension.first - screenRect.x;
-		if (screenRect.w > 0 && SDL_FillRect(screen, &screenRect, 0x000ff000) == -1)
-			getContext()->log(Context::LOG_WARN, LOG_FACILITY, "drawText", "sdl fill rect error: %s", SDL_GetError());
-	}
-*/
+//	if (screenRect.x < offset.first + dimension.first) {
+//		screenRect.w = offset.first + dimension.first - screenRect.x;
+//		if (screenRect.w > 0 && SDL_FillRect(screen, &screenRect, 0x000ff000) == -1)
+//			getContext()->log(Context::LOG_WARN, LOG_FACILITY, "drawText", "sdl fill rect error: %s", SDL_GetError());
+//	}
+
 
 //	SDL_UpdateRect(screen, offset.first, offset.second, dimension.first, dimension.second);
 }
-
+*/
+/*
 std::pair<int,int> DisplaySdl::screenDimension() const {
 	return { surface->w, surface->h };
 }
@@ -472,13 +483,14 @@ std::pair<int,int> DisplaySdl::screenDimension() const {
 std::pair<int,int> DisplaySdl::fontDimension() const {
 	return { fontWidthAvg, fontHeight };
 }
+*/
 
 
 /*
  * event handling
  */
 
-void DisplaySdl::handleEvent(void *event) const {
+void Sdl1In::handleEvent(void *event) const {
 	if (event == nullptr)
 		return;
 	const SDL_Event *e = (const SDL_Event*) event;
@@ -506,6 +518,7 @@ void DisplaySdl::handleEvent(void *event) const {
  * sdl helper
  */
 
+/*
 SDL_Surface* DisplaySdl::initSurface() {
 	if (SDL_Init(SDL_INIT_VIDEO) == -1) {
 		std::printf("%s initScreen() sdl init error: %s\n", LOG_FACILITY.c_str(), SDL_GetError());
@@ -520,4 +533,5 @@ SDL_Surface* DisplaySdl::initSurface() {
 	SDL_FillRect(scr, NULL, 0x00000000);
 	return scr;
 }
+*/
 

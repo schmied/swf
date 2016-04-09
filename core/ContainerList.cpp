@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Michael Schmiedgen
+ * Copyright (c) 2015, 2016, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -20,7 +20,7 @@
 
 //#include "Container.hpp"
 #include "Context.hpp"
-#include "Display.hpp"
+#include "FrontendOut.hpp"
 
 
 static const std::basic_string<char> LOG_FACILITY = "CONTAINER_LIST";
@@ -51,7 +51,7 @@ void ContainerList::calculatePosition(const int childIndex, const Style &childSt
 	const Position *pos = getPosition();
 	const Style *stl = getStyle();
 	const int space = stl->margin + stl->padding;
-	const int fontHeight = ctx->getDisplay()->fontDimension().second;
+	const int fontHeight = ctx->getFrontendOut()->fontDimension().second;
 	childPos->w = pos->w - 2 * space;
 	if (childPos->w < 1)
 		childPos->w = 1;

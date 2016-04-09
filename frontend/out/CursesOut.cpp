@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2015, Michael Schmiedgen
+ * Copyright (c) 2014, 2015, 2016, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,28 +14,28 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include "DisplayCurses.hpp"
-
 #include <iostream>
 
 #include <curses.h>
 
-#include "Component.hpp"
-#include "Context.hpp"
+#include "CursesOut.hpp"
+
+//#include "Component.hpp"
+#include "../../core/Context.hpp"
 
 
-static const std::basic_string<char> LOG_FACILITY = "DISPLAY_CURSES";
+static const std::basic_string<char> LOG_FACILITY = "CURSES_OUT";
 
 
 /*
  * ******************************************************** constructor / destructor
  */
 
-DisplayCurses::DisplayCurses(Context &c, WINDOW *w) : Display(c) {
+CursesOut::CursesOut(Context &ctx, WINDOW *w) : FrontendOut(ctx) {
 	window = w;
 }
 
-DisplayCurses::~DisplayCurses() {
+CursesOut::~CursesOut() {
 	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", nullptr);
 //	endwin();
 }
@@ -50,6 +50,7 @@ DisplayCurses::~DisplayCurses() {
  * event handling
  */
 
+/*
 void* DisplayCurses::eventPoll() {
 	currentEvent = getch();
 	if (currentEvent == ERR)
@@ -77,6 +78,7 @@ long DisplayCurses::gameEventTicks() const {
 		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "fpsTicks", "clock gettime error");
 	return 1000L * ts.tv_sec + ts.tv_nsec / 1000L / 1000L;
 }
+*/
 
 
 /*
@@ -88,7 +90,7 @@ long DisplayCurses::gameEventTicks() const {
  * drawing
  */
 
-void DisplayCurses::draw(const Position &pos, const Style &stl, const std::basic_string<char> &text) const {
+void CursesOut::draw(const Position &pos, const Style &stl, const std::basic_string<char> &text) const {
 	if ((int) text.length() > pos.w) {
 		auto s = text.substr(0, pos.w);
 		mvaddstr(pos.textY, pos.textX, s.c_str());
@@ -102,7 +104,7 @@ void DisplayCurses::draw(const Position &pos, const Style &stl, const std::basic
 	}
 }
 
-std::pair<int,int> DisplayCurses::screenDimension() const {
+std::pair<int,int> CursesOut::screenDimension() const {
 	int x, y;
 	getmaxyx(window, y, x);
 	return { x, y };
@@ -110,7 +112,7 @@ std::pair<int,int> DisplayCurses::screenDimension() const {
 
 static const std::pair<int,int> fontDim { 1, 1 };
 
-std::pair<int,int> DisplayCurses::fontDimension() const {
+std::pair<int,int> CursesOut::fontDimension() const {
 	return fontDim;
 }
 
@@ -118,8 +120,8 @@ std::pair<int,int> DisplayCurses::fontDimension() const {
 /*
  * event handling
  */
-
-void DisplayCurses::handleEvent(void *event) const {
+/*
+void CursesOut::handleEvent(void *event) const {
 	((Component*) getContext()->getRootContainer())->invalidatePosition();
 	if (event == nullptr)
 		return;
@@ -151,13 +153,13 @@ void DisplayCurses::handleEvent(void *event) const {
 		break;
 	}
 }
-
+*/
 
 /*
  * curses helper
  */
 
-WINDOW* DisplayCurses::initWindow() {
+WINDOW* CursesOut::initWindow() {
 	WINDOW *w = initscr();
 	start_color();
 	use_default_colors();

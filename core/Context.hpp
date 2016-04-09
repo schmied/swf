@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, 2015, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, 2015, 2016, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -22,8 +22,9 @@
 #include <string>
 
 class Component;
-class Display;
 class Container;
+class FrontendIn;
+class FrontendOut;
 
 //enum LogLevel { LOG_DEBUG, LOG_INFO, LOG_WARN };
 
@@ -121,7 +122,8 @@ Site::~Site() {
 class Context {
 
 private:
-	Display *display;
+	FrontendIn *frontendIn;
+	FrontendOut *frontendOut;
 	Container *rootContainer;
 
 	std::deque<std::basic_string<char>*> logs;
@@ -136,13 +138,18 @@ public:
 	~Context();
 
 	// getter / setter
-	const Display* getDisplay();
-	void setDisplay(Display&);
+	const FrontendIn* getFrontendIn();
+	void setFrontendIn(FrontendIn&);
+	const FrontendOut* getFrontendOut();
+	void setFrontendOut(FrontendOut&);
 	const Container* getRootContainer();
 	void setRootContainer(Container&);
 
 	// drawing
 	void draw();
+
+	int gameEventLoop(const int, const bool, int (*)(const bool, void*, void*), void (*)(void*), void (*)(const bool, void*), void*);
+	int applicationEventLoop(int (*)(const bool, void*, void*), void*);
 
 	// logging
 	void log(const int, const std::basic_string<char>&, const std::basic_string<char>&, const char*...);

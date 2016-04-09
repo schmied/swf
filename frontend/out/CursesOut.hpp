@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2015, Michael Schmiedgen
+ * Copyright (c) 2014, 2015, 2016, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,30 +14,32 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef SWF_CORE_DISPLAY_CURSES
-#define SWF_CORE_DISPLAY_CURSES
+#ifndef SWF_FRONTEND_OUT_CURSES
+#define SWF_FRONTEND_OUT_CURSES
 
 #include <curses.h>
 
-#include "Display.hpp"
+#include "../../core/FrontendOut.hpp"
 
 class Component;
 
-class DisplayCurses : public Display {
+class CursesOut : public FrontendOut {
 
 private:
 	WINDOW *window;
 
+/*
 	// event handling
 	int currentEvent;
 	void* eventPoll() override;
 	void* eventWait() override;
 	void gameEventSleep() const override;
 	long gameEventTicks() const override;
+*/
 
 public:
-	DisplayCurses(Context&, WINDOW*);
-	~DisplayCurses();
+	CursesOut(Context&, WINDOW*);
+	~CursesOut();
 
 	// drawing
 //	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
@@ -47,13 +49,15 @@ public:
 	std::pair<int,int> screenDimension() const override;
 	std::pair<int,int> fontDimension() const override;
 
+/*
 	// event handling
 	void handleEvent(void*) const override;
+*/
 
 	// curses helper
 	static WINDOW* initWindow();
 
 };
 
-#endif // SWF_CORE_DISPLAY_CURSES
+#endif // SWF_FRONTEND_OUT_CURSES
 

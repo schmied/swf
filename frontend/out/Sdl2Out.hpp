@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, 2015, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, 2015, 2016, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,8 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef SWF_CORE_DISPLAY_SDL2
-#define SWF_CORE_DISPLAY_SDL2
+#ifndef SWF_FRONTEND_OUT_SDL2
+#define SWF_FRONTEND_OUT_SDL2
 
 #include <string>
 #include <utility>
@@ -30,10 +30,10 @@
 #endif
 #include <SDL2/SDL.h>
 
-#include "Display.hpp"
+#include "../../core/FrontendOut.hpp"
 
 
-class DisplaySdl2 : public Display {
+class Sdl2Out : public FrontendOut {
 
 private:
 	SDL_Window *window;
@@ -57,16 +57,18 @@ private:
 	static void drawLine(SDL_Surface*, int, int, int, int, const Uint32);
 	static void drawGlyph(SDL_Surface*, const FT_GlyphSlot, const int, const int, const Uint32);
 
+/*
 	// event handling
 	SDL_Event currentEvent;
 	void* eventPoll() override;
 	void* eventWait() override;
 	void gameEventSleep() const override;
 	long gameEventTicks() const override;
+*/
 
 public:
-	DisplaySdl2(Context&, SDL_Window*, SDL_Renderer*);
-	~DisplaySdl2();
+	Sdl2Out(Context&, SDL_Window*, SDL_Renderer*);
+	~Sdl2Out();
 
 	// getter
 	SDL_Window* getWindow() const;
@@ -80,7 +82,7 @@ public:
 	std::pair<int,int> fontDimension() const override;
 
 	// event handling
-	void handleEvent(void*) const override;
+//	void handleEvent(void*) const override;
 
 	// sdl helper
 	static SDL_Window* initWindow();
@@ -88,4 +90,4 @@ public:
 
 };
 
-#endif // SWF_CORE_DISPLAY_SDL2
+#endif // SWF_FRONTEND_OUT_SDL2

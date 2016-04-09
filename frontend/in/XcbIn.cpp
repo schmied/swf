@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, 2015, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, 2015, 2016, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -20,26 +20,30 @@
 #include <xcb/xcb.h>
 #include <xcb/xcb_keysyms.h>
 
-#include "DisplayXcb.hpp"
+#include "XcbIn.hpp"
 
-#include "Component.hpp"
-#include "Context.hpp"
+//#include "Component.hpp"
+#include "../../core/Context.hpp"
 
 
-static const std::basic_string<char> LOG_FACILITY = "DISPLAY_XCB";
+static const std::basic_string<char> LOG_FACILITY = "XCB_IN";
 
 
 /*
  * ******************************************************** constructor / destructor
  */
 
-DisplayXcb::DisplayXcb(Context &c, xcb_connection_t* cn, xcb_screen_t *scr, const xcb_window_t win, const xcb_font_t fn) : Display(c) {
+//DisplayXcb::DisplayXcb(Context &c, xcb_connection_t* cn, xcb_screen_t *scr, const xcb_window_t win, const xcb_font_t fn) : Display(c) {
+XcbIn::XcbIn(Context &ctx, xcb_connection_t* cn) : FrontendIn(ctx) {
 
 	connection = cn;
+/*
 	screen = scr;
 	window = win;
 	font = fn;
+*/
 
+/*
 	gcontext = xcb_generate_id(connection);
 //	const uint32_t valueListGContext[] { screen->black_pixel, screen->white_pixel, font, 0 };
 	const uint32_t valueListGContext[] { screen->black_pixel, screen->white_pixel, 0 };
@@ -51,14 +55,17 @@ DisplayXcb::DisplayXcb(Context &c, xcb_connection_t* cn, xcb_screen_t *scr, cons
 	const uint32_t valueListGContextInverse[] { screen->white_pixel, screen->black_pixel, 0 };
 	xcb_create_gc(connection, gcontextInverse, screen->root, XCB_GC_FOREGROUND | XCB_GC_BACKGROUND
 	    | XCB_GC_GRAPHICS_EXPOSURES, valueListGContextInverse);
+*/
 
 }
 
-DisplayXcb::~DisplayXcb() {
+XcbIn::~XcbIn() {
+/*
 	if (connection != nullptr) {
 		xcb_close_font(connection, font);
 		xcb_disconnect(connection);
 	}
+*/
 	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", nullptr);
 }
 
@@ -72,29 +79,29 @@ DisplayXcb::~DisplayXcb() {
  * event handling
  */
 
-void* DisplayXcb::eventPoll() {
+void* XcbIn::eventPoll() {
 	return xcb_poll_for_event(connection);
 }
 
-void* DisplayXcb::eventWait() {
+void* XcbIn::eventWait() {
 	return xcb_poll_for_event(connection);
 }
 
-void DisplayXcb::gameEventSleep() const {
+void XcbIn::gameEventSleep() const {
 	timespec ts;
 	ts.tv_sec = 0;
 	ts.tv_nsec = 1000 * 1000;
 	nanosleep(&ts, NULL);
 }
 
-long DisplayXcb::gameEventTicks() const {
+long XcbIn::gameEventTicks() const {
 	timespec ts;
 	if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0)
 		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "fpsTicks", "clock gettime error");
 	return 1000L * ts.tv_sec + ts.tv_nsec / 1000L / 1000L;
 }
 
-void DisplayXcb::eventFree(void *event) {
+void XcbIn::eventFree(void *event) {
 	free(event);
 }
 
@@ -108,10 +115,11 @@ void DisplayXcb::eventFree(void *event) {
  * getter
  */
 
-xcb_connection_t* DisplayXcb::getConnection() const {
+xcb_connection_t* XcbIn::getConnection() const {
 	return connection;
 }
 
+/*
 xcb_screen_t* DisplayXcb::getScreen() const {
 	return screen;
 }
@@ -127,13 +135,14 @@ xcb_gcontext_t DisplayXcb::getGContext() const {
 xcb_gcontext_t DisplayXcb::getGContextInverse() const {
 	return gcontextInverse;
 }
+*/
 
 
 /*
  * drawing
  */
 
-static xcb_rectangle_t rectBorder;
+//static xcb_rectangle_t rectBorder;
 
 /*
 void DisplayXcb::drawBorder(const std::pair<int,int> &offset, const std::pair<int,int> &dimension) const {
@@ -146,6 +155,7 @@ void DisplayXcb::drawBorder(const std::pair<int,int> &offset, const std::pair<in
 }
 */
 
+/*
 //void DisplayXcb::drawText(const std::pair<int,int> &offset, const std::pair<int,int> &dimension,
 //	    const std::basic_string<char> &text) const {
 void DisplayXcb::draw(const Position &pos, const Style &stl, const std::basic_string<char> &text) const {
@@ -164,13 +174,14 @@ std::pair<int,int> DisplayXcb::screenDimension() const {
 std::pair<int,int> DisplayXcb::fontDimension() const {
 	return { 10, 14 };
 }
+*/
 
 
 /*
  * event handling
  */
 
-void DisplayXcb::handleEvent(void *event) const {
+void XcbIn::handleEvent(void *event) const {
 	if (event == nullptr)
 		return;
 	const xcb_generic_event_t *e = (const xcb_generic_event_t*) event;
@@ -206,7 +217,7 @@ void DisplayXcb::handleEvent(void *event) const {
  * xcb helper
  */
 
-xcb_keysym_t DisplayXcb::keysym(xcb_keycode_t code) const {
+xcb_keysym_t XcbIn::keysym(xcb_keycode_t code) const {
 	xcb_key_symbols_t *symbols = xcb_key_symbols_alloc(connection);
 //	xcb_keysym_t sym = xcb_key_press_lookup_keysym(symbols, kpe, kpe->state);
 	xcb_keysym_t sym = xcb_key_symbols_get_keysym(symbols, code, 0);
@@ -214,7 +225,7 @@ xcb_keysym_t DisplayXcb::keysym(xcb_keycode_t code) const {
 	return sym;
 }
 
-xcb_connection_t* DisplayXcb::initConnection() {
+xcb_connection_t* XcbIn::initConnection() {
 	int n;
 	xcb_connection_t *cn = xcb_connect(NULL, &n);
 	if (cn == NULL) {
@@ -229,6 +240,7 @@ xcb_connection_t* DisplayXcb::initConnection() {
 	return cn;
 }
 
+/*
 xcb_screen_t* DisplayXcb::initScreen(xcb_connection_t *cn) {
 	xcb_screen_t *scr = NULL;
 	xcb_screen_iterator_t it = xcb_setup_roots_iterator(xcb_get_setup(cn));
@@ -281,4 +293,5 @@ xcb_font_t DisplayXcb::initFont(xcb_connection_t *cn) {
 	xcb_open_font(cn, fn, 9, "Helvetica");
 	return fn;
 }
+*/
 

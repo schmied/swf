@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, 2015, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, 2015, 2016, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,8 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef SWF_CORE_DISPLAY_SDL2
-#define SWF_CORE_DISPLAY_SDL2
+#ifndef SWF_FRONTEND_IN_SDL2
+#define SWF_FRONTEND_IN_SDL2
 
 #include <string>
 #include <utility>
@@ -30,12 +30,13 @@
 #endif
 #include <SDL2/SDL.h>
 
-#include "Display.hpp"
+#include "../../core/FrontendIn.hpp"
 
 
-class DisplaySdl2 : public Display {
+class Sdl2In : public FrontendIn {
 
 private:
+/*
 	SDL_Window *window;
 	SDL_Renderer *renderer;
 
@@ -56,6 +57,7 @@ private:
 	inline static void drawPoint(SDL_Surface*, const int, const int, const Uint32);
 	static void drawLine(SDL_Surface*, int, int, int, int, const Uint32);
 	static void drawGlyph(SDL_Surface*, const FT_GlyphSlot, const int, const int, const Uint32);
+*/
 
 	// event handling
 	SDL_Event currentEvent;
@@ -65,27 +67,35 @@ private:
 	long gameEventTicks() const override;
 
 public:
-	DisplaySdl2(Context&, SDL_Window*, SDL_Renderer*);
-	~DisplaySdl2();
+//	Sdl2In(Context&, SDL_Window*, SDL_Renderer*);
+	Sdl2In(Context&);
+	~Sdl2In();
 
+/*
 	// getter
 	SDL_Window* getWindow() const;
 	SDL_Renderer* getRenderer() const;
+*/
 
 	// drawing
 //	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
 //	void drawText(const std::pair<int,int>&, const std::pair<int,int>&, const std::basic_string<char>&) const override;
+
+/*
 	void draw(const Position&, const Style&, const std::basic_string<char>&) const override;
 	std::pair<int,int> screenDimension() const override;
 	std::pair<int,int> fontDimension() const override;
+*/
 
 	// event handling
 	void handleEvent(void*) const override;
 
+/*
 	// sdl helper
 	static SDL_Window* initWindow();
 	static SDL_Renderer* initRenderer(SDL_Window*);
+*/
 
 };
 
-#endif // SWF_CORE_DISPLAY_SDL2
+#endif // SWF_FRONTEND_IN_SDL2

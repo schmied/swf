@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, 2015, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, 2015, 2016, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -20,10 +20,10 @@
 #include <xcb/xcb.h>
 #include <xcb/xcb_keysyms.h>
 
-#include "DisplayXcb.hpp"
+#include "XcbOut.hpp"
 
-#include "Component.hpp"
-#include "Context.hpp"
+//#include "Component.hpp"
+#include "../../core/Context.hpp"
 
 
 static const std::basic_string<char> LOG_FACILITY = "DISPLAY_XCB";
@@ -33,7 +33,7 @@ static const std::basic_string<char> LOG_FACILITY = "DISPLAY_XCB";
  * ******************************************************** constructor / destructor
  */
 
-DisplayXcb::DisplayXcb(Context &c, xcb_connection_t* cn, xcb_screen_t *scr, const xcb_window_t win, const xcb_font_t fn) : Display(c) {
+XcbOut::XcbOut(Context &ctx, xcb_connection_t* cn, xcb_screen_t *scr, const xcb_window_t win, const xcb_font_t fn) : FrontendOut(ctx) {
 
 	connection = cn;
 	screen = scr;
@@ -54,12 +54,15 @@ DisplayXcb::DisplayXcb(Context &c, xcb_connection_t* cn, xcb_screen_t *scr, cons
 
 }
 
-DisplayXcb::~DisplayXcb() {
+XcbOut::~XcbOut() {
+	// XXX close this in application
+/*
 	if (connection != nullptr) {
 		xcb_close_font(connection, font);
 		xcb_disconnect(connection);
 	}
 	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", nullptr);
+*/
 }
 
 
@@ -71,7 +74,7 @@ DisplayXcb::~DisplayXcb() {
 /*
  * event handling
  */
-
+/*
 void* DisplayXcb::eventPoll() {
 	return xcb_poll_for_event(connection);
 }
@@ -97,7 +100,7 @@ long DisplayXcb::gameEventTicks() const {
 void DisplayXcb::eventFree(void *event) {
 	free(event);
 }
-
+*/
 
 /*
  * ******************************************************** public
@@ -108,23 +111,27 @@ void DisplayXcb::eventFree(void *event) {
  * getter
  */
 
-xcb_connection_t* DisplayXcb::getConnection() const {
+xcb_connection_t* XcbOut::getConnection() const {
 	return connection;
 }
 
-xcb_screen_t* DisplayXcb::getScreen() const {
+xcb_screen_t* XcbOut::getScreen() const {
 	return screen;
 }
 
-xcb_window_t DisplayXcb::getWindow() const {
+xcb_window_t XcbOut::getWindow() const {
 	return window;
 }
 
-xcb_gcontext_t DisplayXcb::getGContext() const {
+xcb_font_t XcbOut::getFont() const {
+	return font;
+}
+
+xcb_gcontext_t XcbOut::getGContext() const {
 	return gcontext;
 }
 
-xcb_gcontext_t DisplayXcb::getGContextInverse() const {
+xcb_gcontext_t XcbOut::getGContextInverse() const {
 	return gcontextInverse;
 }
 
@@ -148,12 +155,12 @@ void DisplayXcb::drawBorder(const std::pair<int,int> &offset, const std::pair<in
 
 //void DisplayXcb::drawText(const std::pair<int,int> &offset, const std::pair<int,int> &dimension,
 //	    const std::basic_string<char> &text) const {
-void DisplayXcb::draw(const Position &pos, const Style &stl, const std::basic_string<char> &text) const {
+void XcbOut::draw(const Position &pos, const Style &stl, const std::basic_string<char> &text) const {
 	xcb_image_text_8(connection, text.size(), window, gcontext, pos.textX + 1, pos.textY + 12, text.c_str());
 //	xcb_flush(connection);
 }
 
-std::pair<int,int> DisplayXcb::screenDimension() const {
+std::pair<int,int> XcbOut::screenDimension() const {
 	xcb_get_geometry_cookie_t cookie = xcb_get_geometry(connection, window);
 	xcb_get_geometry_reply_t *geometry = xcb_get_geometry_reply(connection, cookie, NULL);
 	const std::pair<int,int> dimension = { geometry->width, geometry->height };
@@ -161,7 +168,7 @@ std::pair<int,int> DisplayXcb::screenDimension() const {
 	return dimension;
 }
 
-std::pair<int,int> DisplayXcb::fontDimension() const {
+std::pair<int,int> XcbOut::fontDimension() const {
 	return { 10, 14 };
 }
 
@@ -169,8 +176,8 @@ std::pair<int,int> DisplayXcb::fontDimension() const {
 /*
  * event handling
  */
-
-void DisplayXcb::handleEvent(void *event) const {
+/*
+void XcbOut::handleEvent(void *event) const {
 	if (event == nullptr)
 		return;
 	const xcb_generic_event_t *e = (const xcb_generic_event_t*) event;
@@ -200,12 +207,12 @@ void DisplayXcb::handleEvent(void *event) const {
 		break;
 	}
 }
-
+*/
 
 /*
  * xcb helper
  */
-
+/*
 xcb_keysym_t DisplayXcb::keysym(xcb_keycode_t code) const {
 	xcb_key_symbols_t *symbols = xcb_key_symbols_alloc(connection);
 //	xcb_keysym_t sym = xcb_key_press_lookup_keysym(symbols, kpe, kpe->state);
@@ -228,8 +235,8 @@ xcb_connection_t* DisplayXcb::initConnection() {
 	}
 	return cn;
 }
-
-xcb_screen_t* DisplayXcb::initScreen(xcb_connection_t *cn) {
+*/
+xcb_screen_t* XcbOut::initScreen(xcb_connection_t *cn) {
 	xcb_screen_t *scr = NULL;
 	xcb_screen_iterator_t it = xcb_setup_roots_iterator(xcb_get_setup(cn));
 	for (; it.rem; xcb_screen_next(&it)) {
@@ -245,7 +252,7 @@ xcb_screen_t* DisplayXcb::initScreen(xcb_connection_t *cn) {
 	return scr;
 }
 
-xcb_window_t DisplayXcb::initWindow(xcb_connection_t *cn, xcb_screen_t *scr, const std::pair<int,int> *offset,
+xcb_window_t XcbOut::initWindow(xcb_connection_t *cn, xcb_screen_t *scr, const std::pair<int,int> *offset,
 	    const std::pair<int,int> *dimension) {
 
 	std::pair<int,int> off { 0, 0 };
@@ -276,7 +283,7 @@ xcb_window_t DisplayXcb::initWindow(xcb_connection_t *cn, xcb_screen_t *scr, con
 	return win;
 }
 
-xcb_font_t DisplayXcb::initFont(xcb_connection_t *cn) {
+xcb_font_t XcbOut::initFont(xcb_connection_t *cn) {
 	xcb_font_t fn = xcb_generate_id(cn);
 	xcb_open_font(cn, fn, 9, "Helvetica");
 	return fn;

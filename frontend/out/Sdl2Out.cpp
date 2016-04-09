@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, 2015, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, 2015, 2016, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -29,23 +29,23 @@
 #endif
 #include <SDL2/SDL.h>
 
-#include "DisplaySdl2.hpp"
+#include "Sdl2Out.hpp"
 
-#include "Component.hpp"
-#include "Context.hpp"
+//#include "Component.hpp"
+#include "../../core/Context.hpp"
 
 
 // used in drawLine()
 #define DRAW_LINE_YSTEP err += dy; if (err << 1 >= dx) { y += ystep; err -= dx; }
 
-static const std::basic_string<char> LOG_FACILITY = "DISPLAY_SDL";
+static const std::basic_string<char> LOG_FACILITY = "SDL2_OUT";
 
 
 /*
  * ******************************************************** constructor
  */
 
-DisplaySdl2::DisplaySdl2(Context &ctx, SDL_Window *win, SDL_Renderer *rnd) : Display(ctx) {
+Sdl2Out::Sdl2Out(Context &ctx, SDL_Window *win, SDL_Renderer *rnd) : FrontendOut(ctx) {
 
 	window = win;
 	renderer = rnd;
@@ -155,7 +155,7 @@ DisplaySdl2::DisplaySdl2(Context &ctx, SDL_Window *win, SDL_Renderer *rnd) : Dis
 	SDL_FreeSurface(fontPanelSrf);
 }
 
-DisplaySdl2::~DisplaySdl2() {
+Sdl2Out::~Sdl2Out() {
 	SDL_DestroyTexture(fontPanel);
 	int error = FT_Done_Face(fontFace);
 	if (error) {
@@ -178,7 +178,7 @@ DisplaySdl2::~DisplaySdl2() {
  * font panel
  */
 
-bool DisplaySdl2::isFontPanelChar(const int c, SDL_Rect *dimension) const {
+bool Sdl2Out::isFontPanelChar(const int c, SDL_Rect *dimension) const {
 	if (c < fontPanelFirstChar || c > fontPanelLastChar)
 		return false;
 	const int idx = c - fontPanelFirstChar;
@@ -197,7 +197,7 @@ bool DisplaySdl2::isFontPanelChar(const int c, SDL_Rect *dimension) const {
  * drawing
  */
 
-inline void DisplaySdl2::drawPoint(SDL_Surface *dst, const int x, const int y, const Uint32 color) {
+inline void Sdl2Out::drawPoint(SDL_Surface *dst, const int x, const int y, const Uint32 color) {
 	int bpp = dst->format->BytesPerPixel;
 	void *pos = (Uint8*) dst->pixels + (y * dst->pitch + x * bpp);
 	switch (bpp) {
@@ -216,7 +216,7 @@ inline void DisplaySdl2::drawPoint(SDL_Surface *dst, const int x, const int y, c
 	}
 }
 
-void DisplaySdl2::drawLine(SDL_Surface *dst, int x0, int y0, int x1, int y1, const Uint32 color) {
+void Sdl2Out::drawLine(SDL_Surface *dst, int x0, int y0, int x1, int y1, const Uint32 color) {
 	const bool steep = std::abs(y1 - y0) > std::abs(x1 - x0);
 	int tmp;
 	if (steep) {
@@ -300,7 +300,7 @@ void DisplaySdl2::drawLine(SDL_Surface *dst, int x0, int y0, int x1, int y1, con
 	SDL_UnlockSurface(dst);
 }
 
-void DisplaySdl2::drawGlyph(SDL_Surface *dst, const FT_GlyphSlot glyph, const int offsetX, const int offsetY,
+void Sdl2Out::drawGlyph(SDL_Surface *dst, const FT_GlyphSlot glyph, const int offsetX, const int offsetY,
 	    const Uint32 color) {
 	const FT_Bitmap bitmap = glyph->bitmap;
 	const int width = bitmap.width;
@@ -338,7 +338,8 @@ void DisplaySdl2::drawGlyph(SDL_Surface *dst, const FT_GlyphSlot glyph, const in
  * event handling
  */
 
-void* DisplaySdl2::eventPoll() {
+/*
+void* Sdl2Out::eventPoll() {
 	const int i = SDL_PollEvent(&currentEvent);
 	if (!i)
 		return nullptr;
@@ -361,6 +362,7 @@ void DisplaySdl2::gameEventSleep() const {
 long DisplaySdl2::gameEventTicks() const {
 	return SDL_GetTicks();
 }
+*/
 
 
 /*
@@ -372,11 +374,11 @@ long DisplaySdl2::gameEventTicks() const {
  * getter
  */
 
-SDL_Window* DisplaySdl2::getWindow() const {
+SDL_Window* Sdl2Out::getWindow() const {
 	return window;
 }
 
-SDL_Renderer* DisplaySdl2::getRenderer() const {
+SDL_Renderer* Sdl2Out::getRenderer() const {
 	return renderer;
 }
 
@@ -416,7 +418,7 @@ void DisplaySdl2::drawBorder(const std::pair<int,int> &offset, const std::pair<i
 
 //void DisplaySdl2::drawText(const std::pair<int,int> &offset, const std::pair<int,int> &dimension,
 //	    const std::basic_string<char> &text) const {
-void DisplaySdl2::draw(const Position &pos, const Style& stl, const std::basic_string<char> &text) const {
+void Sdl2Out::draw(const Position &pos, const Style& stl, const std::basic_string<char> &text) const {
 //	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "drawText", "%d+%d '%s'", offset.first, offset.second, text.c_str());
 
 	SDL_Rect screenRect, fontPanelRect;
@@ -487,13 +489,13 @@ void DisplaySdl2::draw(const Position &pos, const Style& stl, const std::basic_s
 //	SDL_UpdateRect(screen, offset.first, offset.second, dimension.first, dimension.second);
 }
 
-std::pair<int,int> DisplaySdl2::screenDimension() const {
+std::pair<int,int> Sdl2Out::screenDimension() const {
 	int w, h;
 	SDL_GetWindowSize(window, &w, &h);
 	return { w, h };
 }
 
-std::pair<int,int> DisplaySdl2::fontDimension() const {
+std::pair<int,int> Sdl2Out::fontDimension() const {
 	return { fontWidthAvg, fontHeight };
 }
 
@@ -502,6 +504,7 @@ std::pair<int,int> DisplaySdl2::fontDimension() const {
  * event handling
  */
 
+/*
 void DisplaySdl2::handleEvent(void *event) const {
 	if (event == nullptr)
 		return;
@@ -524,13 +527,13 @@ void DisplaySdl2::handleEvent(void *event) const {
 		break;
 	}
 }
-
+*/
 
 /*
  * sdl helper
  */
 
-SDL_Window* DisplaySdl2::initWindow() {
+SDL_Window* Sdl2Out::initWindow() {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 		std::printf("%s initScreen() sdl2 init error: %s\n", LOG_FACILITY.c_str(), SDL_GetError());
 		return nullptr;
@@ -543,7 +546,7 @@ SDL_Window* DisplaySdl2::initWindow() {
 	return scr;
 }
 
-SDL_Renderer* DisplaySdl2::initRenderer(SDL_Window *win) {
+SDL_Renderer* Sdl2Out::initRenderer(SDL_Window *win) {
 	SDL_Renderer *rnd = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if (rnd == NULL) {
 		std::printf("%s initRenderer() sdl2 create renderer error: %s\n", LOG_FACILITY.c_str(), SDL_GetError());

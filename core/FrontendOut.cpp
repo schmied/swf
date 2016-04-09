@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, 2015, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, 2015, 2016, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,29 +14,28 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include "Display.hpp"
-
+#include "FrontendOut.hpp"
 
 #include "Component.hpp"
 #include "Context.hpp"
 
-static const std::basic_string<char> LOG_FACILITY = "DISPLAY";
+static const std::basic_string<char> LOG_FACILITY = "FRONTEND_OUT";
 
 
 /*
  * ******************************************************** constructor / destructor
  */
 
-Display::Display(Context &c) {
-	context = &c;
-	context->setDisplay(*this);
+FrontendOut::FrontendOut(Context &ctx) {
+	context = &ctx;
+	context->setFrontendOut(*this);
 
 	fpsTicksPrevious = 0;
 	fpsFrameMillis = 0;
 	fpsCyclesPerFrame = 0;
 }
 
-Display::~Display() {
+FrontendOut::~FrontendOut() {
 }
 
 
@@ -49,7 +48,7 @@ Display::~Display() {
  * fps statistics
  */
 
-bool Display::fpsIsTicksElapsed(const long ticksCurrent, const long targetFps) {
+bool FrontendOut::fpsIsTicksElapsed(const long ticksCurrent, const long targetFps) {
 	fpsCyclesPerFrameCounter++;
 	// over 2/3 of target millis is elapsed
 	if (ticksCurrent - fpsTicksPrevious > 2000 / (3 * targetFps))
@@ -57,7 +56,7 @@ bool Display::fpsIsTicksElapsed(const long ticksCurrent, const long targetFps) {
 	return false;
 }
 
-void Display::fpsResetTicks(const long ticksCurrent) {
+void FrontendOut::fpsResetTicks(const long ticksCurrent) {
 	if (fpsTicksPrevious)
 		fpsFrameMillis = (int) (ticksCurrent - fpsTicksPrevious);
 	fpsTicksPrevious = ticksCurrent;
@@ -70,9 +69,11 @@ void Display::fpsResetTicks(const long ticksCurrent) {
  * event handling
  */
 
+/*
 // override e.g. to implement freeing allocated events, defaults to do nothing
 void Display::eventFree(void *event) {
 }
+*/
 
 
 /*
@@ -84,14 +85,14 @@ void Display::eventFree(void *event) {
  * getter
  */
 
-Context* Display::getContext() const {
+Context* FrontendOut::getContext() const {
 	if (context == nullptr)
 		std::printf("%s getContext() no context\n", LOG_FACILITY.c_str());
 	return context;
 }
 
 
-std::pair<int,int> Display::getFpsStat() const {
+std::pair<int,int> FrontendOut::getFpsStat() const {
 	return {fpsFrameMillis, fpsCyclesPerFrame};
 }
 
@@ -100,6 +101,7 @@ std::pair<int,int> Display::getFpsStat() const {
  * event handling
  */
 
+/*
 int Display::gameEventLoop(const int targetFps, const bool isSleepy, int (*onEvent)(const bool, void*, void*),
 	   void (*onRender)(void*), void (*onDraw)(const bool, void*), void* userData) {
 	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "gameEventLoop", "entering loop");
@@ -132,7 +134,9 @@ int Display::gameEventLoop(const int targetFps, const bool isSleepy, int (*onEve
 			gameEventSleep();
 	}
 }
+*/
 
+/*
 //int Display::applicationEventLoop(bool (*isQuitEvent)(void*, void*), int (*onEvent)(void*, void*), void* userData) {
 int Display::applicationEventLoop(int (*onEvent)(const bool, void*, void*), void* userData) {
 	void *e;
@@ -151,4 +155,5 @@ int Display::applicationEventLoop(int (*onEvent)(const bool, void*, void*), void
 		getContext()->draw();
 	}
 }
+*/
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2015, Michael Schmiedgen
+ * Copyright (c) 2014, 2015, 2016, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,28 +14,29 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include "DisplayCurses.hpp"
-
 #include <iostream>
 
 #include <curses.h>
 
-#include "Component.hpp"
-#include "Context.hpp"
+#include "CursesIn.hpp"
+
+//#include "Component.hpp"
+#include "../../core/Context.hpp"
 
 
-static const std::basic_string<char> LOG_FACILITY = "DISPLAY_CURSES";
+static const std::basic_string<char> LOG_FACILITY = "CURSES_IN";
 
 
 /*
  * ******************************************************** constructor / destructor
  */
 
-DisplayCurses::DisplayCurses(Context &c, WINDOW *w) : Display(c) {
-	window = w;
+//CursesIn::CursesIn(Context &ctx, WINDOW *w) : FrontendIn(ctx) {
+CursesIn::CursesIn(Context &ctx) : FrontendIn(ctx) {
+//	window = w;
 }
 
-DisplayCurses::~DisplayCurses() {
+CursesIn::~CursesIn() {
 	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", nullptr);
 //	endwin();
 }
@@ -50,28 +51,28 @@ DisplayCurses::~DisplayCurses() {
  * event handling
  */
 
-void* DisplayCurses::eventPoll() {
+void* CursesIn::eventPoll() {
 	currentEvent = getch();
 	if (currentEvent == ERR)
 		return nullptr;
 	return &currentEvent;
 }
 
-void* DisplayCurses::eventWait() {
+void* CursesIn::eventWait() {
 	currentEvent = getch();
 	if (currentEvent == ERR)
 		return nullptr;
 	return &currentEvent;
 }
 
-void DisplayCurses::gameEventSleep() const {
+void CursesIn::gameEventSleep() const {
 	timespec ts;
 	ts.tv_sec = 0;
 	ts.tv_nsec = 1000 * 1000;
 	nanosleep(&ts, NULL);
 }
 
-long DisplayCurses::gameEventTicks() const {
+long CursesIn::gameEventTicks() const {
 	timespec ts;
 	if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0)
 		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "fpsTicks", "clock gettime error");
@@ -88,6 +89,7 @@ long DisplayCurses::gameEventTicks() const {
  * drawing
  */
 
+/*
 void DisplayCurses::draw(const Position &pos, const Style &stl, const std::basic_string<char> &text) const {
 	if ((int) text.length() > pos.w) {
 		auto s = text.substr(0, pos.w);
@@ -113,13 +115,14 @@ static const std::pair<int,int> fontDim { 1, 1 };
 std::pair<int,int> DisplayCurses::fontDimension() const {
 	return fontDim;
 }
+*/
 
 
 /*
  * event handling
  */
 
-void DisplayCurses::handleEvent(void *event) const {
+void CursesIn::handleEvent(void *event) const {
 	((Component*) getContext()->getRootContainer())->invalidatePosition();
 	if (event == nullptr)
 		return;
@@ -157,7 +160,7 @@ void DisplayCurses::handleEvent(void *event) const {
  * curses helper
  */
 
-WINDOW* DisplayCurses::initWindow() {
+WINDOW* CursesIn::initWindow() {
 	WINDOW *w = initscr();
 	start_color();
 	use_default_colors();

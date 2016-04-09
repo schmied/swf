@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, 2015, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, 2015, 2016, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -22,7 +22,7 @@
 
 class Container;
 class Context;
-class Display;
+class FrontendOut;
 
 struct Position {
 	int x, y, w, h, textX, textY;
@@ -65,7 +65,7 @@ public:
 	void invalidatePosition();
 	virtual std::vector<Component*>* contents() = 0;
 //	virtual void onDraw(const Display*) = 0;
-	void onDraw(const Display*);
+	void onDraw(const FrontendOut*);
 
 	/* component traversing */
 	static void traverse(Component*, void (*)(Component*, void*), void*);

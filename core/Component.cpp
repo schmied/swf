@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, 2015, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, 2015, 2016, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -22,7 +22,7 @@
 
 #include "Container.hpp"
 #include "Context.hpp"
-#include "Display.hpp"
+#include "FrontendOut.hpp"
 
 
 static const std::basic_string<char> LOG_FACILITY = "COMPONENT";
@@ -32,14 +32,14 @@ static const std::basic_string<char> LOG_FACILITY = "COMPONENT";
  * ******************************************************** constructor / destructor
  */
 
-Component::Component(Context* c) {
+Component::Component(Context* ctx) {
 //	std::printf("%s <init> context\n", LOG_FACILITY.c_str());
-	if (c == nullptr) {
+	if (ctx == nullptr) {
 		std::printf("%s <init> no context\n", LOG_FACILITY.c_str());
 		return;
 	}
 	parent = nullptr;
-	context = c;
+	context = ctx;
 	style = {0, 0};
 	onInvalidatePosition(this, nullptr);
 	context->setRootContainer(*(Container*) this);
@@ -112,16 +112,16 @@ Context* Component::getContext() {
 const Position* Component::getPosition() {
 	if (isPositionValid())
 		return &position;
-	const Display *display = getContext()->getDisplay();
-	if (display == nullptr) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "getPosition", "no display");
+	const FrontendOut *out = getContext()->getFrontendOut();
+	if (out == nullptr) {
+		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "getPosition", "no frontendOut");
 		return nullptr;
 	}
 	if (parent == nullptr) {
 		position.x = 0;
 		position.y = 0;
-		position.w = display->screenDimension().first;
-		position.h = display->screenDimension().second;
+		position.w = out->screenDimension().first;
+		position.h = out->screenDimension().second;
 		position.textX = 0;
 		position.textY = 0;
 		return &position;
@@ -173,13 +173,13 @@ void Component::invalidatePosition() {
 	traverse(this, onInvalidatePosition, nullptr);
 }
 
-void Component::onDraw(const Display *display) {
+void Component::onDraw(const FrontendOut *out) {
 	// do not draw root container
 	if (parent == nullptr)
 		return;
 	const Position *p = getPosition();
 	const Style *s = getStyle();
-	display->draw(*p, *s, "blaau");
+	out->draw(*p, *s, "blaau");
 }
 
 /*

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, 2015, Michael Schmiedgen
+ * Copyright (c) 2013, 2014, 2015, 2016, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,8 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef SWF_CORE_DISPLAY_SDL
-#define SWF_CORE_DISPLAY_SDL
+#ifndef SWF_FRONTEND_IN_SDL1
+#define SWF_FRONTEND_IN_SDL1
 
 #include <string>
 #include <utility>
@@ -31,14 +31,15 @@
 #include <SDL/SDL.h>
 
 
-#include "Display.hpp"
+#include "../../core/FrontendIn.hpp"
 
 
-class DisplaySdl : public Display {
+class Sdl1In : public FrontendIn {
 
 private:
-	struct SDL_Surface *surface;
+//	struct SDL_Surface *surface;
 
+/*
 	// font panel, caches often used chars for blitting
 	static const int fontPanelFirstChar = 0x20;		// first char: space
 	static const int fontPanelLastChar = 0x7e;		// last char: tilde
@@ -51,11 +52,14 @@ private:
 	int fontSize;
 	int fontWidthAvg;
 	bool isFontPanelChar(const int c, SDL_Rect*) const;	// lookup char in font panel cache
+*/
 
+/*
 	// drawing
 	inline static void drawPoint(SDL_Surface*, const int, const int, const Uint32);
 	static void drawLine(SDL_Surface*, int, int, int, int, const Uint32);
 	void drawGlyph(SDL_Surface*, const FT_GlyphSlot, const int, const int, const Uint32) const;
+*/
 
 	// event handling
 	SDL_Event currentEvent;
@@ -65,26 +69,30 @@ private:
 	long gameEventTicks() const override;
 
 public:
-	DisplaySdl(Context&, SDL_Surface*);
-	~DisplaySdl();
+//	Sdl1In(Context&, SDL_Surface*);
+	Sdl1In(Context&);
+	~Sdl1In();
 
 	// getter
-	struct SDL_Surface* getSurface() const;
+//	struct SDL_Surface* getSurface() const;
 
 	// drawing
 //	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
 //	void drawText(const std::pair<int,int>&, const std::pair<int,int>&, const std::basic_string<char>&) const override;
+
+/*
 	void draw(const Position&, const Style&, const std::basic_string<char>&) const override;
 	std::pair<int,int> screenDimension() const override;
 	std::pair<int,int> fontDimension() const override;
+*/
 
 	// event handling
 	void handleEvent(void*) const override;
 
 	// sdl helper
-	static SDL_Surface* initSurface();
+//	static SDL_Surface* initSurface();
 
 };
 
-#endif // SWF_CORE_DISPLAY_SDL
+#endif // SWF_FRONTEND_IN_SDL1
 
