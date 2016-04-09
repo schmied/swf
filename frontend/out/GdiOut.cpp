@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Michael Schmiedgen
+ * Copyright (c) 2015, 2016, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,24 +14,24 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include "DisplayGdi.hpp"
-
 #include <iostream>
 
 #include <windows.h>
 
-#include "Component.hpp"
-#include "Context.hpp"
+#include "GdiOut.hpp"
+
+//#include "Component.hpp"
+#include "../../core/Context.hpp"
 
 
-static const std::basic_string<char> LOG_FACILITY = "DISPLAY_GDI";
+static const std::basic_string<char> LOG_FACILITY = "GDI_OUT";
 
 
 /*
  * ******************************************************** constructor / destructor
  */
 
-DisplayGdi::DisplayGdi(Context &c, HWND win) : Display(c) {
+GdiOut::GdiOut(Context &ctx, HWND win) : FrontendOut(ctx) {
 	window = win;
 	windowContext = GetDC(win);
 	font = CreateFont(-12, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
@@ -43,7 +43,7 @@ DisplayGdi::DisplayGdi(Context &c, HWND win) : Display(c) {
 	SelectObject(windowContext, font);
 }
 
-DisplayGdi::~DisplayGdi() {
+GdiOut::~GdiOut() {
 	if (!DeleteObject(font))
 		getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", "win32 delete object (font) error");
 	if (!ReleaseDC(window, windowContext)) 
@@ -58,35 +58,6 @@ DisplayGdi::~DisplayGdi() {
 
 
 /*
- * event handling
- */
-
-void* DisplayGdi::eventPoll() {
-	if (!PeekMessage(&currentEvent, window, 0, 0, PM_REMOVE))
-		return nullptr;
-	TranslateMessage(&currentEvent);
-	return &currentEvent;
-}
-
-void* DisplayGdi::eventWait() {
-	if (GetMessage(&currentEvent, window, 0, 0) == -1) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "eventWait", "win32 get message error: %d", GetLastError());
-		return nullptr;
-	}
-	TranslateMessage(&currentEvent);
-	return &currentEvent;
-}
-
-void DisplayGdi::gameEventSleep() const {
-	Sleep(1);
-}
-
-long DisplayGdi::gameEventTicks() const {
-	return GetTickCount64();
-}
-
-
-/*
  * ******************************************************** public
  */
 
@@ -95,7 +66,11 @@ long DisplayGdi::gameEventTicks() const {
  * getter
  */
 
-HDC DisplayGdi::getWindowContext() const {
+HWND GdiOut::getWindow() const {
+	return window;
+}
+
+HDC GdiOut::getWindowContext() const {
 	return windowContext;
 }
 
@@ -104,7 +79,7 @@ HDC DisplayGdi::getWindowContext() const {
  * drawing
  */
 
-void DisplayGdi::draw(const Position &pos, const Style &stl, const std::basic_string<char> &text) const {
+void GdiOut::draw(const Position &pos, const Style &stl, const std::basic_string<char> &text) const {
 //	DHC c;
 	PAINTSTRUCT ps; 
 //	BeginPaint(window, &ps); 
@@ -112,39 +87,15 @@ void DisplayGdi::draw(const Position &pos, const Style &stl, const std::basic_st
 //	EndPaint(window, &ps); 
 }
 
-std::pair<int,int> DisplayGdi::screenDimension() const {
+std::pair<int,int> GdiOut::screenDimension() const {
 	RECT r;
 	//GetWindowRect(window, &r);
 	GetClientRect(window, &r);
 	return {r.right - r.left, r.bottom - r.top};
 }
 
-std::pair<int,int> DisplayGdi::fontDimension() const {
+std::pair<int,int> GdiOut::fontDimension() const {
 	return {10, 14};
-}
-
-
-/*
- * event handling
- */
-
-void DisplayGdi::handleEvent(void *event) const {
-	if (event == nullptr)
-		return;
-	const MSG *e = (const MSG*) event;
-	switch (e->message) {
-	case WM_KEYDOWN:
-		switch (e->wParam) {
-		case VK_RETURN:
-			break;
-		default:
-			break;
-		}
-		getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "key %d %d", e->lParam, e->wParam);
-		break;
-	default:
-		break;
-	}
 }
 
 
@@ -152,7 +103,7 @@ void DisplayGdi::handleEvent(void *event) const {
  * gdi helper
  */
 
-HWND DisplayGdi::initWindow(const char *name) {
+HWND GdiOut::initWindow(const char *name) {
 	//HINSTANCE hInstance = GetModuleHandle(NULL);
 	WNDCLASSEX wcex;
 	wcex.cbSize         = sizeof(WNDCLASSEX);
@@ -182,7 +133,7 @@ HWND DisplayGdi::initWindow(const char *name) {
 const static std::size_t bufSize = 1000;
 static char buf[bufSize];
 
-int DisplayGdi::messageBox(const int error, const char *format...) {
+int GdiOut::messageBox(const int error, const char *format...) {
 	std::basic_string<char> s;
 	if (format != nullptr) {
 		va_list arg;

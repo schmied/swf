@@ -14,34 +14,29 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef SWF_CORE_DISPLAY_GDI
-#define SWF_CORE_DISPLAY_GDI
+#ifndef SWF_FRONTEND_OUT_GDI
+#define SWF_FRONTEND_OUT_GDI
 
 #include <windows.h>
 
-#include "Display.hpp"
+#include "../../core/FrontendOut.hpp"
 
-class Component;
+//class Component;
 
-class DisplayGdi : public Display {
+
+class GdiOut : public FrontendOut {
 
 private:
 	HWND window;
 	HDC windowContext;
 	HFONT font;
 
-	// event handling
-	MSG currentEvent;
-	void* eventPoll() override;
-	void* eventWait() override;
-	void gameEventSleep() const override;
-	long gameEventTicks() const override;
-
 public:
-	DisplayGdi(Context&, HWND);
-	~DisplayGdi();
+	GdiOut(Context&, HWND);
+	~GdiOut();
 
 	// getter
+	HWND getWindow() const;
 	HDC getWindowContext() const;
 
 	// drawing
@@ -52,14 +47,11 @@ public:
 	std::pair<int,int> screenDimension() const override;
 	std::pair<int,int> fontDimension() const override;
 
-	// event handling
-	void handleEvent(void*) const override;
-
 	// gdi helper
 	static HWND initWindow(const char*);
 	static int messageBox(const int, const char*...);
 
 };
 
-#endif // SWF_CORE_DISPLAY_CURSES
+#endif // SWF_FRONTEND_OUT_GDI
 

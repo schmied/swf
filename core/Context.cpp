@@ -23,11 +23,9 @@
 #include "Container.hpp"
 #include "FrontendIn.hpp"
 #include "FrontendOut.hpp"
-/*
 #ifdef _WINDOWS
-#include "DisplayGdi.hpp"
+#include "../frontend/out/GdiOut.hpp"
 #endif
-*/
 
 
 static const std::basic_string<char> LOG_FACILITY = "CONTEXT";
@@ -253,8 +251,8 @@ void Context::log(const int level, const std::basic_string<char> &facility, cons
 	if (frontendOut == nullptr || level == Context::LOG_WARN)
 		std::printf("%s\n", s->c_str());
 #ifdef _WINDOWS
-	if (display == nullptr && level == Context::LOG_WARN)
-		DisplayGdi::messageBox(0, s->c_str());
+	if (frontendOut == nullptr && level == Context::LOG_WARN)
+		GdiOut::messageBox(0, s->c_str());
 #endif
 }
 

@@ -297,8 +297,8 @@ static void onDrawGdi(const bool isFinal, void *data) {
 	const Env *env = (const Env*) data;
 	Context *context = env->context;
 	const GdiOut *out = (const GdiOut*) context->getFrontendOut();
-	const HDC hdc = display->getWindowContext();
-	const std::pair<int,int> scrDim = display->screenDimension();
+	const HDC hdc = out->getWindowContext();
+	const std::pair<int,int> scrDim = out->screenDimension();
 	Box boxScr;
 	for (auto &box : env->boxes) {
 		if (!scaleBox(*box, boxScr, scrDim))
@@ -310,19 +310,19 @@ static void onDrawGdi(const bool isFinal, void *data) {
 }
 
 static int startGdi(Env &env) {
-	HWND w = DisplayGdi::initWindow("swfexample");
-	DisplayGdi display = {*env.context, w};
-	env.initData.push_back(w);
+	HWND win = GdiOut::initWindow("swfexample");
+	GdiIn in = {*env.context, win};
+	GdiOut out = {*env.context, win};
 	return env.context->gameEventLoop(60, true, onEventGdi, onRender, onDrawGdi, &env);
 //	display.applicationEventLoop(isQuitEventCurses, onEventCurses, &env);
 }
 
 static void finishGdi(Env &env) {
-	if (env.initData.size() > 0 && !DestroyWindow((HWND) env.initData.back()))
+	const GdiOut *out = (const GdiOut*) env.context->getFrontendOut();
+	if (!DestroyWindow(out->getWindow()))
 		env.context->log(Context::LOG_WARN, LOG_FACILITY, "finishGdi", "win32 destroy windows error: %d", GetLastError());
 	//HINSTANCE hInstance = GetModuleHandle(NULL);
 	UnregisterClass("swfexample", 0 /*hInstance*/);
-	env.initData.pop_back();
 }
 
 #endif // SWF_HAS_GDI

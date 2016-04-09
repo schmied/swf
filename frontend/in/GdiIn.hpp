@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Michael Schmiedgen
+ * Copyright (c) 2015, 2016, Michael Schmiedgen
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,21 +14,22 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef SWF_CORE_DISPLAY_GDI
-#define SWF_CORE_DISPLAY_GDI
+#ifndef SWF_FRONTEND_IN_GDI
+#define SWF_FRONTEND_IN_GDI
 
 #include <windows.h>
 
-#include "Display.hpp"
+#include "../../core/FrontendIn.hpp"
+
 
 class Component;
 
-class DisplayGdi : public Display {
+class GdiIn : public FrontendIn {
 
 private:
 	HWND window;
-	HDC windowContext;
-	HFONT font;
+//	HDC windowContext;
+//	HFONT font;
 
 	// event handling
 	MSG currentEvent;
@@ -38,28 +39,16 @@ private:
 	long gameEventTicks() const override;
 
 public:
-	DisplayGdi(Context&, HWND);
-	~DisplayGdi();
+	GdiIn(Context&, HWND);
+	~GdiIn();
 
 	// getter
-	HDC getWindowContext() const;
-
-	// drawing
-//	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
-//	void drawText(const std::pair<int,int>&, const std::pair<int,int>&, const std::basic_string<char>&) const override;
-//	void draw(const std::pair<int,int>&, const std::pair<int,int>&, const std::basic_string<char>&) const override;
-	void draw(const Position&, const Style&, const std::basic_string<char>&) const override;
-	std::pair<int,int> screenDimension() const override;
-	std::pair<int,int> fontDimension() const override;
+	HWND getWindow() const;
 
 	// event handling
 	void handleEvent(void*) const override;
 
-	// gdi helper
-	static HWND initWindow(const char*);
-	static int messageBox(const int, const char*...);
-
 };
 
-#endif // SWF_CORE_DISPLAY_CURSES
+#endif // SWF_FRONTEND_IN_GDI
 
