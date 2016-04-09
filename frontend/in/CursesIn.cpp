@@ -14,13 +14,14 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <iostream>
+//#include <iostream>
+
+#include <time.h>
 
 #include <curses.h>
 
 #include "CursesIn.hpp"
 
-//#include "Component.hpp"
 #include "../../core/Context.hpp"
 
 
@@ -31,14 +32,11 @@ static const std::basic_string<char> LOG_FACILITY = "CURSES_IN";
  * ******************************************************** constructor / destructor
  */
 
-//CursesIn::CursesIn(Context &ctx, WINDOW *w) : FrontendIn(ctx) {
 CursesIn::CursesIn(Context &ctx) : FrontendIn(ctx) {
-//	window = w;
 }
 
 CursesIn::~CursesIn() {
 	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", nullptr);
-//	endwin();
 }
 
 
@@ -83,39 +81,6 @@ long CursesIn::gameEventTicks() const {
 /*
  * ******************************************************** public
  */
-
-
-/*
- * drawing
- */
-
-/*
-void DisplayCurses::draw(const Position &pos, const Style &stl, const std::basic_string<char> &text) const {
-	if ((int) text.length() > pos.w) {
-		auto s = text.substr(0, pos.w);
-		mvaddstr(pos.textY, pos.textX, s.c_str());
-		return;
-	}
-	mvaddstr(pos.textY, pos.textX, text.c_str());
-	if ((int) text.length() < pos.w) {
-		std::basic_string<char> s;
-		s.append(pos.w - text.length(), ' ');
-		mvaddstr(pos.textY, pos.textX + text.length(), s.c_str());
-	}
-}
-
-std::pair<int,int> DisplayCurses::screenDimension() const {
-	int x, y;
-	getmaxyx(window, y, x);
-	return { x, y };
-}
-
-static const std::pair<int,int> fontDim { 1, 1 };
-
-std::pair<int,int> DisplayCurses::fontDimension() const {
-	return fontDim;
-}
-*/
 
 
 /*

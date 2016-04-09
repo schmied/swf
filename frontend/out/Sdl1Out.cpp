@@ -326,35 +326,6 @@ void Sdl1Out::drawGlyph(SDL_Surface *dst, const FT_GlyphSlot glyph, const int of
 
 
 /*
- * event handling
- */
-/*
-void* Sdl1Out::eventPoll() {
-	const int i = SDL_PollEvent(&currentEvent);
-	if (!i)
-		return nullptr;
-	return &currentEvent;
-}
-
-void* DisplaySdl::eventWait() {
-	const int i = SDL_WaitEvent(&currentEvent);
-	if (!i) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "eventWait", "sdl wait event error");
-		return nullptr;
-	}
-	return &currentEvent;
-}
-
-void DisplaySdl::gameEventSleep() const {
-	SDL_Delay(1);	
-}
-
-long DisplaySdl::gameEventTicks() const {
-	return SDL_GetTicks();
-}
-*/
-
-/*
  * ******************************************************** public
  */
 
@@ -473,35 +444,6 @@ std::pair<int,int> Sdl1Out::fontDimension() const {
 	return { fontWidthAvg, fontHeight };
 }
 
-
-/*
- * event handling
- */
-
-/*
-void Sdl1Out::handleEvent(void *event) const {
-	if (event == nullptr)
-		return;
-	const SDL_Event *e = (const SDL_Event*) event;
-	switch (e->type) {
-	case SDL_KEYDOWN:
-//		getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "typ %d sym %d", e->type, e->key.keysym.sym);
-		switch (e->key.keysym.sym) {
-		case SDLK_RETURN:
-			break;
-		case SDLK_UP:
-			break;
-		case SDLK_DOWN:
-			break;
-		default:
-			break;
-		}
-		break;
-	default:
-		break;
-	}
-}
-*/
 
 /*
  * sdl helper

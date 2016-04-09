@@ -26,7 +26,7 @@
 #include "../../core/Context.hpp"
 
 
-static const std::basic_string<char> LOG_FACILITY = "DISPLAY_XCB";
+static const std::basic_string<char> LOG_FACILITY = "XCB_OUT";
 
 
 /*
@@ -70,37 +70,6 @@ XcbOut::~XcbOut() {
  * ******************************************************** private
  */
 
-
-/*
- * event handling
- */
-/*
-void* DisplayXcb::eventPoll() {
-	return xcb_poll_for_event(connection);
-}
-
-void* DisplayXcb::eventWait() {
-	return xcb_poll_for_event(connection);
-}
-
-void DisplayXcb::gameEventSleep() const {
-	timespec ts;
-	ts.tv_sec = 0;
-	ts.tv_nsec = 1000 * 1000;
-	nanosleep(&ts, NULL);
-}
-
-long DisplayXcb::gameEventTicks() const {
-	timespec ts;
-	if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0)
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "fpsTicks", "clock gettime error");
-	return 1000L * ts.tv_sec + ts.tv_nsec / 1000L / 1000L;
-}
-
-void DisplayXcb::eventFree(void *event) {
-	free(event);
-}
-*/
 
 /*
  * ******************************************************** public
@@ -174,53 +143,10 @@ std::pair<int,int> XcbOut::fontDimension() const {
 
 
 /*
- * event handling
- */
-/*
-void XcbOut::handleEvent(void *event) const {
-	if (event == nullptr)
-		return;
-	const xcb_generic_event_t *e = (const xcb_generic_event_t*) event;
-	switch (e->response_type & ~0x80) {
-	case XCB_EXPOSE: {
-		xcb_expose_event_t *ee = (xcb_expose_event_t *) event;
-		getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "expose");
-		((Component*)getContext()->getRootContainer())->invalidatePosition();
-		break;
-	}
-	case XCB_BUTTON_PRESS: {
-		xcb_button_press_event_t *bpe = (xcb_button_press_event_t*) event;
-		getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "button press %dx%d", bpe->event_x, bpe->event_y);
-		break;
-	}
-	case XCB_KEY_PRESS: {
-		xcb_key_press_event_t *kpe = (xcb_key_press_event_t*) event;
-		xcb_keysym_t sym = keysym(kpe->detail);
-//		getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "key press %c %d", sym, sym);
-		switch (sym) {
-		default:
-			break;
-		}
-		break;
-	}
-	default:
-		break;
-	}
-}
-*/
-
-/*
  * xcb helper
  */
-/*
-xcb_keysym_t DisplayXcb::keysym(xcb_keycode_t code) const {
-	xcb_key_symbols_t *symbols = xcb_key_symbols_alloc(connection);
-//	xcb_keysym_t sym = xcb_key_press_lookup_keysym(symbols, kpe, kpe->state);
-	xcb_keysym_t sym = xcb_key_symbols_get_keysym(symbols, code, 0);
-	xcb_key_symbols_free(symbols);
-	return sym;
-}
 
+/*
 xcb_connection_t* DisplayXcb::initConnection() {
 	int n;
 	xcb_connection_t *cn = xcb_connect(NULL, &n);
@@ -236,6 +162,7 @@ xcb_connection_t* DisplayXcb::initConnection() {
 	return cn;
 }
 */
+
 xcb_screen_t* XcbOut::initScreen(xcb_connection_t *cn) {
 	xcb_screen_t *scr = NULL;
 	xcb_screen_iterator_t it = xcb_setup_roots_iterator(xcb_get_setup(cn));

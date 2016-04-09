@@ -23,16 +23,14 @@
 
 class Component;
 
+
 class CursesIn : public FrontendIn {
 
 private:
-//	WINDOW *window;
-
 	// event handling
 	int currentEvent;
 
 public:
-//	CursesIn(Context&, WINDOW*);
 	CursesIn(Context&);
 	~CursesIn();
 
@@ -40,15 +38,6 @@ public:
 	void* eventWait() override;
 	void gameEventSleep() const override;
 	long gameEventTicks() const override;
-
-	// drawing
-//	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
-//	void drawText(const std::pair<int,int>&, const std::pair<int,int>&, const std::basic_string<char>&) const override;
-//	void draw(const std::pair<int,int>&, const std::pair<int,int>&, const std::basic_string<char>&) const override;
-
-//	void draw(const Position&, const Style&, const std::basic_string<char>&) const override;
-//	std::pair<int,int> screenDimension() const override;
-//	std::pair<int,int> fontDimension() const override;
 
 	// event handling
 	void handleEvent(void*) const override;

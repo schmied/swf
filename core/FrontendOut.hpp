@@ -34,17 +34,6 @@ private:
 	int fpsCyclesPerFrame;				// number of event loop cycles per frame
 	int fpsCyclesPerFrameCounter;
 	int fpsFrameMillis;				// duration of a frame
-//	bool fpsIsTicksElapsed(const long, const long);
-//	void fpsResetTicks(const long);
-
-/*
-	// event handling
-	virtual void* eventPoll() = 0;
-	virtual void* eventWait() = 0;
-	virtual void gameEventSleep() const = 0;		// gives cpu voluntary
-	virtual long gameEventTicks() const = 0;		// must return ticks in milliseconds
-	virtual void eventFree(void*);				// some stupid apis allocate events and leave to the user
-*/
 
 protected:
 
@@ -67,12 +56,6 @@ public:
 	virtual std::pair<int,int> screenDimension() const = 0;
 	virtual std::pair<int,int> fontDimension() const = 0;
 
-/*
-	// event handling
-	virtual void handleEvent(void*) const = 0;
-	int gameEventLoop(const int, const bool, int (*)(const bool, void*, void*), void (*)(void*), void (*)(const bool, void*), void*);
-	int applicationEventLoop(int (*)(const bool, void*, void*), void*);
-*/
 };
 
 #endif // SWF_CORE_FRONTEND_OUT

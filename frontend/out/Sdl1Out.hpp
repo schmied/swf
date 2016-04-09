@@ -57,15 +57,6 @@ private:
 	static void drawLine(SDL_Surface*, int, int, int, int, const Uint32);
 	void drawGlyph(SDL_Surface*, const FT_GlyphSlot, const int, const int, const Uint32) const;
 
-/*
-	// event handling
-	SDL_Event currentEvent;
-	void* eventPoll() override;
-	void* eventWait() override;
-	void gameEventSleep() const override;
-	long gameEventTicks() const override;
-*/
-
 public:
 	Sdl1Out(Context&, SDL_Surface*);
 	~Sdl1Out();
@@ -79,9 +70,6 @@ public:
 	void draw(const Position&, const Style&, const std::basic_string<char>&) const override;
 	std::pair<int,int> screenDimension() const override;
 	std::pair<int,int> fontDimension() const override;
-
-	// event handling
-//	void handleEvent(void*) const override;
 
 	// sdl helper
 	static SDL_Surface* initSurface();

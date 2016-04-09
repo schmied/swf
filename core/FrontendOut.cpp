@@ -19,6 +19,7 @@
 #include "Component.hpp"
 #include "Context.hpp"
 
+
 static const std::basic_string<char> LOG_FACILITY = "FRONTEND_OUT";
 
 
@@ -66,17 +67,6 @@ void FrontendOut::fpsResetTicks(const long ticksCurrent) {
 
 
 /*
- * event handling
- */
-
-/*
-// override e.g. to implement freeing allocated events, defaults to do nothing
-void Display::eventFree(void *event) {
-}
-*/
-
-
-/*
  * ******************************************************** public
  */
 
@@ -95,65 +85,4 @@ Context* FrontendOut::getContext() const {
 std::pair<int,int> FrontendOut::getFpsStat() const {
 	return {fpsFrameMillis, fpsCyclesPerFrame};
 }
-
-
-/*
- * event handling
- */
-
-/*
-int Display::gameEventLoop(const int targetFps, const bool isSleepy, int (*onEvent)(const bool, void*, void*),
-	   void (*onRender)(void*), void (*onDraw)(const bool, void*), void* userData) {
-	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "gameEventLoop", "entering loop");
-	for (;;) {
-		const long ticks = gameEventTicks();
-		const bool isElapsed = fpsIsTicksElapsed(ticks, targetFps);
-		if (isElapsed) {
-			fpsResetTicks(ticks);
-			void *e = eventPoll();
-			int exitCode = 0;
-			if (e != nullptr) {
-				exitCode = onEvent(false, e, userData);
-				if (!exitCode) {
-					handleEvent(e);
-					exitCode = onEvent(true, e, userData);
-				}
-			}
-			eventFree(e);
-			if (exitCode)
-				return exitCode;
-		}
-		if (isElapsed || !isSleepy)
-			onRender(userData);
-		if (isElapsed) {
-			onDraw(false, userData);
-			getContext()->draw();
-			onDraw(true, userData);
-		}
-		if (!isElapsed && isSleepy) 
-			gameEventSleep();
-	}
-}
-*/
-
-/*
-//int Display::applicationEventLoop(bool (*isQuitEvent)(void*, void*), int (*onEvent)(void*, void*), void* userData) {
-int Display::applicationEventLoop(int (*onEvent)(const bool, void*, void*), void* userData) {
-	void *e;
-	for (;;) {
-		e = eventWait();
-		if (e == nullptr)
-			continue;
-		int exitCode = 0;
-		exitCode = onEvent(false, e, userData);
-		if (!exitCode) {
-			handleEvent(e);
-			exitCode = onEvent(true, e, userData);
-		}
-		if (exitCode)
-			return exitCode;
-		getContext()->draw();
-	}
-}
-*/
 

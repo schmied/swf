@@ -35,15 +35,6 @@ private:
 	xcb_gcontext_t gcontext;
 	xcb_gcontext_t gcontextInverse;		// for background fill
 
-/*
-	// event handling
-	void* eventPoll() override;
-	void* eventWait() override;
-	void gameEventSleep() const override;
-	long gameEventTicks() const override;
-	void eventFree(void*) override;
-*/
-
 public:
 	XcbOut(Context&, xcb_connection_t*, xcb_screen_t*, const xcb_window_t, const xcb_font_t);
 	~XcbOut();
@@ -64,11 +55,7 @@ public:
 	std::pair<int,int> screenDimension() const override;
 	std::pair<int,int> fontDimension() const override;
 
-	// event handling
-//	void handleEvent(void*) const override;
-
 	// xcb helper
-//	xcb_keysym_t keysym(xcb_keycode_t) const;
 //	static xcb_connection_t* initConnection();
 	static xcb_screen_t* initScreen(xcb_connection_t*);
 	static xcb_window_t initWindow(xcb_connection_t*, xcb_screen_t*, const std::pair<int,int>*, const std::pair<int,int>*);

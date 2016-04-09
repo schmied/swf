@@ -17,17 +17,9 @@
 #ifndef SWF_FRONTEND_IN_SDL2
 #define SWF_FRONTEND_IN_SDL2
 
-#include <string>
-#include <utility>
+//#include <string>
+//#include <utility>
 
-#ifdef __FreeBSD__
-#include <ft2build.h>
-#include <freetype/freetype.h>
-#endif
-#ifdef WIN32
-#include <ft2build.h>
-#include <freetype/freetype.h>
-#endif
 #include <SDL2/SDL.h>
 
 #include "../../core/FrontendIn.hpp"
@@ -36,29 +28,6 @@
 class Sdl2In : public FrontendIn {
 
 private:
-/*
-	SDL_Window *window;
-	SDL_Renderer *renderer;
-
-	// font panel, caches often used chars for blitting
-	static const int fontPanelFirstChar = 0x20;		// first char: space
-	static const int fontPanelLastChar = 0x7e;		// last char: tilde
-	static const int fontPanelCharCount = fontPanelLastChar - fontPanelFirstChar + 1;
-	struct SDL_Texture *fontPanel;
-	FT_Library fontLibrary;
-	FT_Face fontFace;
-	int fontPanelOffsets[fontPanelCharCount];
-	int fontHeight;
-	int fontSize;
-	int fontWidthAvg;
-	bool isFontPanelChar(const int c, SDL_Rect*) const;	// lookup char in font panel cache
-
-	// drawing
-	inline static void drawPoint(SDL_Surface*, const int, const int, const Uint32);
-	static void drawLine(SDL_Surface*, int, int, int, int, const Uint32);
-	static void drawGlyph(SDL_Surface*, const FT_GlyphSlot, const int, const int, const Uint32);
-*/
-
 	// event handling
 	SDL_Event currentEvent;
 	void* eventPoll() override;
@@ -67,34 +36,11 @@ private:
 	long gameEventTicks() const override;
 
 public:
-//	Sdl2In(Context&, SDL_Window*, SDL_Renderer*);
 	Sdl2In(Context&);
 	~Sdl2In();
 
-/*
-	// getter
-	SDL_Window* getWindow() const;
-	SDL_Renderer* getRenderer() const;
-*/
-
-	// drawing
-//	void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const override;
-//	void drawText(const std::pair<int,int>&, const std::pair<int,int>&, const std::basic_string<char>&) const override;
-
-/*
-	void draw(const Position&, const Style&, const std::basic_string<char>&) const override;
-	std::pair<int,int> screenDimension() const override;
-	std::pair<int,int> fontDimension() const override;
-*/
-
 	// event handling
 	void handleEvent(void*) const override;
-
-/*
-	// sdl helper
-	static SDL_Window* initWindow();
-	static SDL_Renderer* initRenderer(SDL_Window*);
-*/
 
 };
 

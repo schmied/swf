@@ -37,48 +37,12 @@ CursesOut::CursesOut(Context &ctx, WINDOW *w) : FrontendOut(ctx) {
 
 CursesOut::~CursesOut() {
 	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", nullptr);
-//	endwin();
 }
 
 
 /*
  * ******************************************************** private
  */
-
-
-/*
- * event handling
- */
-
-/*
-void* DisplayCurses::eventPoll() {
-	currentEvent = getch();
-	if (currentEvent == ERR)
-		return nullptr;
-	return &currentEvent;
-}
-
-void* DisplayCurses::eventWait() {
-	currentEvent = getch();
-	if (currentEvent == ERR)
-		return nullptr;
-	return &currentEvent;
-}
-
-void DisplayCurses::gameEventSleep() const {
-	timespec ts;
-	ts.tv_sec = 0;
-	ts.tv_nsec = 1000 * 1000;
-	nanosleep(&ts, NULL);
-}
-
-long DisplayCurses::gameEventTicks() const {
-	timespec ts;
-	if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0)
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "fpsTicks", "clock gettime error");
-	return 1000L * ts.tv_sec + ts.tv_nsec / 1000L / 1000L;
-}
-*/
 
 
 /*
@@ -116,44 +80,6 @@ std::pair<int,int> CursesOut::fontDimension() const {
 	return fontDim;
 }
 
-
-/*
- * event handling
- */
-/*
-void CursesOut::handleEvent(void *event) const {
-	((Component*) getContext()->getRootContainer())->invalidatePosition();
-	if (event == nullptr)
-		return;
-	const int c = *(const int*) event;
-//	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "char %d", c);
-	switch (c) {
-	case 8:			// BS (backspace)
-		break;
-	case 10:		// NL (newline)
-	case 13:		// CR (carriage return)
-		break;
-	case 19:		// control+s
-		break;
-//	case 27:		// ESC (escape)
-//		break;
-	case 127:		// DEL (delete)
-		break;
-	case KEY_DC:
-		break;
-	case KEY_LEFT:		// cursor left
-		break;
-	case KEY_RIGHT:		// cursor right
-		break;
-	case KEY_UP:		// cursor up
-		break;
-	case KEY_DOWN:		// cursor down
-		break;
-	default:
-		break;
-	}
-}
-*/
 
 /*
  * curses helper

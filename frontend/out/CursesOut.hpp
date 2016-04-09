@@ -17,25 +17,20 @@
 #ifndef SWF_FRONTEND_OUT_CURSES
 #define SWF_FRONTEND_OUT_CURSES
 
+#include <string>
+#include <utility>
+
 #include <curses.h>
 
 #include "../../core/FrontendOut.hpp"
 
 class Component;
 
+
 class CursesOut : public FrontendOut {
 
 private:
 	WINDOW *window;
-
-/*
-	// event handling
-	int currentEvent;
-	void* eventPoll() override;
-	void* eventWait() override;
-	void gameEventSleep() const override;
-	long gameEventTicks() const override;
-*/
 
 public:
 	CursesOut(Context&, WINDOW*);
@@ -48,11 +43,6 @@ public:
 	void draw(const Position&, const Style&, const std::basic_string<char>&) const override;
 	std::pair<int,int> screenDimension() const override;
 	std::pair<int,int> fontDimension() const override;
-
-/*
-	// event handling
-	void handleEvent(void*) const override;
-*/
 
 	// curses helper
 	static WINDOW* initWindow();
