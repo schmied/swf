@@ -8,7 +8,7 @@ INCLUDEDIRS	= -I/usr/local/include -I/usr/local/include/freetype2
 
 all: swfexample
 
-clean: clean-example clean-core
+clean: clean-example clean-lib
 
 #.c.o:
 #	$(CC) $(CFLAGS) $(INCLUDEDIRS) -c $*.c -o $*.o
@@ -23,49 +23,59 @@ clean: clean-example clean-core
 # windows sdl2: Winmm.lib, Imm32.lib, version.lib
 
 EXAMPLELDIRS	= -L. -L/usr/lib -L/usr/local/lib
-EXAMPLELIBS	= -lc++ -lswfcore -lxcb -lxcb-keysyms -lcurses -lSDL2 -lfreetype
+EXAMPLELIBS	= -lc++ -lswf -lxcb -lxcb-keysyms -lcurses -lSDL2 -lfreetype
 EXAMPLESRCS	= \
 	example/Example.cpp
 
-swfexample: libswfcore.a $(EXAMPLESRCS:.cpp=.o)
+swfexample: libswf.a $(EXAMPLESRCS:.cpp=.o)
 	$(CPP) -o $@ $(EXAMPLESRCS:.cpp=.o) $(EXAMPLELDIRS) $(EXAMPLELIBS)
 
 clean-example:
 	rm -f swfexample $(EXAMPLESRCS:.cpp=.o)
 
-################################### core
+################################### lib
 
-CORESRCS	= \
+LIBSRCS	= \
 	core/Button.cpp \
 	core/Component.cpp \
 	core/Container.cpp \
 	core/ContainerList.cpp \
 	core/Context.cpp \
-	core/Display.cpp \
-	core/DisplayCurses.cpp \
-	core/DisplaySdl.cpp \
-	core/DisplaySdl2.cpp \
-	core/DisplayXcb.cpp \
-	core/Widget.cpp
+	core/FrontendIn.cpp \
+	core/FrontendOut.cpp \
+	core/Widget.cpp \
+	frontend/in/CursesIn.cpp \
+	frontend/in/Sdl1In.cpp \
+	frontend/in/Sdl2In.cpp \
+	frontend/in/XcbIn.cpp \
+	frontend/out/CursesOut.cpp \
+	frontend/out/Sdl1Out.cpp \
+	frontend/out/Sdl2Out.cpp \
+	frontend/out/XcbOut.cpp
 
-COREHDRS	= \
+LIBHDRS	= \
 	core/Button.hpp \
 	core/Component.hpp \
 	core/Container.hpp \
 	core/ContainerList.hpp \
 	core/Context.hpp \
-	core/Display.hpp \
-	core/DisplayCurses.hpp \
-	core/DisplaySdl.hpp \
-	core/DisplaySdl2.hpp \
-	core/DisplayXcb.hpp \
-	core/Widget.hpp
+	core/FrontendIn.hpp \
+	core/FrontendOut.hpp \
+	core/Widget.hpp \
+	frontend/in/CursesIn.hpp \
+	frontend/in/Sdl1In.hpp \
+	frontend/in/Sdl2In.hpp \
+	frontend/in/XcbIn.hpp \
+	frontend/out/CursesOut.hpp \
+	frontend/out/Sdl1Out.hpp \
+	frontend/out/Sdl2Out.hpp \
+	frontend/out/XcbOut.hpp
 
-libswfcore.a: $(CORESRCS:.cpp=.o)
-	ar -c -r $@ $(CORESRCS:.cpp=.o)
+libswf.a: $(LIBSRCS:.cpp=.o)
+	ar -c -r $@ $(LIBSRCS:.cpp=.o)
 
-$(CORESRCS:.cpp=.o): $(COREHDRS)
+$(LIBSRCS:.cpp=.o): $(LIBHDRS)
 
-clean-core:
-	rm -f *.core libswfcore.a $(CORESRCS:.cpp=.o)
+clean-lib:
+	rm -f *.core libswf.a $(LIBSRCS:.cpp=.o)
 
