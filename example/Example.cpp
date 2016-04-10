@@ -97,7 +97,6 @@ static bool scaleBox(const Box &box, Box &boxScr, const std::pair<int,int> &scrD
 
 struct Env {
 	Context *context;
-//	std::vector<void*>initData;
 	std::vector<std::pair<int (*)(Env&),void(*)(Env&)>> startFunctions;
 	std::vector<std::unique_ptr<Box>> boxes;
 };
@@ -179,7 +178,6 @@ static int onEventCurses(const bool isFinal, void *event, void *data) {
 		return 0;
 	Env *env = (Env*) data;
 	Context *ctx = env->context;
-//	const DisplayXcb *display = (const DisplayXcb*) context->getDisplay();
 	const int c = *(const int*) event;
 	if (c == ERR) {
 		ctx->log(Context::LOG_WARN, LOG_FACILITY, "onEventCurses", "input char == ERR");
@@ -237,7 +235,6 @@ static int startCurses(Env &env) {
 	CursesIn in = { *env.context };
 	CursesOut out = { *env.context, w };
 	return env.context->gameEventLoop(60, true, onEventCurses, onRender, onDrawCurses, &env);
-//	display.applicationEventLoop(isQuitEventCurses, onEventCurses, &env);
 }
 
 static void finishCurses(Env &env) {
@@ -263,7 +260,6 @@ static int onEventGdi(void *event, void *data) {
 		return 0;
 	Env *env = (Env*) data;
 //	Context *ctx = env->context;
-//	const DisplayGdi *display = (const DisplayGdi*) context->getDisplay();
 	const MSG *e = (const MSG*) event;
 //	context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventGdi", "%d %c", c, c);
 	switch (e->message) {
@@ -311,7 +307,6 @@ static int startGdi(Env &env) {
 	GdiIn in = {*env.context, win};
 	GdiOut out = {*env.context, win};
 	return env.context->gameLoop(60, true, onEventGdi, onRender, onDrawGdi, &env);
-//	display.applicationEventLoop(isQuitEventCurses, onEventCurses, &env);
 }
 
 static void finishGdi(Env &env) {
@@ -341,7 +336,6 @@ static int onEventSdl(const bool isFinal, void *event, void *data) {
 		return 0;
 	Env *env = (Env*) data;
 	Context *ctx = env->context;
-//	const DisplaySdl *display = (const DisplaySdl*) context->getDisplay();
 	const SDL_Event *e = (const SDL_Event*) event;
 	switch (e->type) {
 	case SDL_KEYDOWN:
@@ -395,9 +389,7 @@ static void onDrawSdl(const bool isFinal, void *data) {
 static int startSdl(Env &env) {
 	SDL_Surface *scr = Sdl1Out::initSurface();
 	Sdl1Out out { *env.context, scr };
-	return env.context->gameEventLoop(60, true, onEventSdl, onRender, onDrawSdl, &env);
-//	display.applicationEventLoop(isQuitEventSdl, onEventSdl, &env);
-//	env.initData.push_back(scr);
+	return env.context->gameLoop(60, true, onEventSdl, onRender, onDrawSdl, &env);
 }
 
 static void finishSdl(Env &env) {
@@ -424,7 +416,6 @@ static int onEventSdl2(void *event, void *data) {
 		return 0;
 	Env *env = (Env*) data;
 	Context *ctx = env->context;
-//	const DisplaySdl2 *display = (const DisplaySdl2*) context->getDisplay();
 	const SDL_Event *e = (const SDL_Event*) event;
 	switch (e->type) {
 	case SDL_KEYDOWN:
@@ -576,7 +567,6 @@ static int startXcb(Env &env) {
 	XcbIn in { *env.context, cn };
 	XcbOut out { *env.context, cn, scr, win, fn };
 	return env.context->gameEventLoop(60, true, onEventXcb, onRender, onDrawXcb, &env);
-//	display.applicationEventLoop(isQuitEventXcb, onEventXcb, &display);
 }
 
 static void finishXcb(Env &env) {
