@@ -29,7 +29,7 @@ static const std::basic_string<char> LOG_FACILITY = "FRONTEND_OUT";
 
 FrontendOut::FrontendOut(Context &ctx) {
 	context = &ctx;
-	context->setFrontendOut(*this);
+	context->setFrontendOut(this);
 }
 
 FrontendOut::~FrontendOut() {

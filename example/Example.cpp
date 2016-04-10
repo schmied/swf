@@ -234,6 +234,9 @@ static int startCurses(Env &env) {
 }
 
 static void finishCurses(Env &env) {
+	Context *ctx = env.context;
+	ctx->setFrontendIn(nullptr);
+	ctx->setFrontendOut(nullptr);
 	endwin();
 }
 
@@ -306,8 +309,12 @@ static int startGdi(Env &env) {
 }
 
 static void finishGdi(Env &env) {
-	const GdiOut *out = (const GdiOut*) env.context->getFrontendOut();
-	if (!DestroyWindow(out->getWindow()))
+	Context *ctx = env.context;
+	const GdiOut *out = (const GdiOut*) ctx->getFrontendOut();
+	HWND win = out->getWindow();
+	ctx.setFrontendIn(nullptr);
+	ctx.setFrontendOut(nullptr);
+	if (!DestroyWindow(win))
 		SWFLOG(env.context, LOG_WARN, "win32 destroy windows error: %d", GetLastError());
 	//HINSTANCE hInstance = GetModuleHandle(NULL);
 	UnregisterClass("swfexample", 0 /*hInstance*/);
@@ -386,8 +393,12 @@ static int startSdl1(Env &env) {
 }
 
 static void finishSdl1(Env &env) {
-	const Sdl1Out *out = (const Sdl1Out*) env.context->getFrontendOut();
-	SDL_FreeSurface(out->getSurface());
+	Context *ctx = env.context;
+	const Sdl1Out *out = (const Sdl1Out*) ctx->getFrontendOut();
+	SDL_Surface *srf = out->getSurface();
+	ctx->setFrontendIn(nullptr);
+	ctx->setFrontendOut(nullptr);
+	SDL_FreeSurface(srf);
 	SDL_Quit();
 }
 
@@ -466,13 +477,16 @@ static int startSdl2(Env &env) {
 }
 
 static void finishSdl2(Env &env) {
-	const Sdl2Out *out = (const Sdl2Out*) env.context->getFrontendOut();
+	Context *ctx = env.context;
+	const Sdl2Out *out = (const Sdl2Out*) ctx->getFrontendOut();
+	SDL_Window *win = out->getWindow();
 	SDL_Renderer *rnd = out->getRenderer();
+	ctx->setFrontendIn(nullptr);
+	ctx->setFrontendOut(nullptr);
 	if (rnd != NULL)
 		SDL_DestroyRenderer(rnd);
-	SDL_Window *win = out->getWindow();
-//	if (win != NULL)
-//		SDL_DestroyWindow(win); // XXX win32 crash
+	if (win != NULL)
+		SDL_DestroyWindow(win); // XXX win32 crash
 	SDL_Quit();
 }
 
@@ -553,16 +567,22 @@ static int startXcb(Env &env) {
 	xcb_connection_t *cn = XcbIn::initConnection();
 	xcb_screen_t *scr = XcbOut::initScreen(cn);
 	xcb_window_t win = XcbOut::initWindow(cn, scr, nullptr, nullptr);
-	xcb_font_t fn = XcbOut::initFont(cn);
+	xcb_font_t fnt = XcbOut::initFont(cn);
 	XcbIn in { *env.context, cn };
-	XcbOut out { *env.context, cn, scr, win, fn };
+	XcbOut out { *env.context, cn, scr, win, fnt };
 	return env.context->gameLoop(60, true, onEventXcb, onRender, onDrawXcb, &env);
 }
 
 static void finishXcb(Env &env) {
-	const XcbOut *out = (const XcbOut*) env.context->getFrontendOut();
+	Context *ctx = env.context;
+	const XcbOut *out = (const XcbOut*) ctx->getFrontendOut();
 	xcb_connection_t *cn = out->getConnection();
-	xcb_close_font(cn, out->getFont());
+	xcb_screen_t *scr = out->getScreen();
+	xcb_window_t win = out->getWindow();
+	xcb_font_t fnt = out->getFont();
+	ctx->setFrontendIn(nullptr);
+	ctx->setFrontendOut(nullptr);
+	xcb_close_font(cn, fnt);
 	xcb_disconnect(cn);
 }
 

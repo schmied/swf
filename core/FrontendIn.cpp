@@ -28,13 +28,7 @@ static const std::basic_string<char> LOG_FACILITY = "FRONTEND_IN";
 
 FrontendIn::FrontendIn(Context &ctx) {
 	context = &ctx;
-	context->setFrontendIn(*this);
-
-/*
-	fpsTicksPrevious = 0;
-	fpsFrameMillis = 0;
-	fpsCyclesPerFrame = 0;
-*/
+	context->setFrontendIn(this);
 }
 
 FrontendIn::~FrontendIn() {

@@ -150,11 +150,11 @@ public:
 	// getter / setter
 	std::pair<int,int> getFpsStat() const;
 	const FrontendIn* getFrontendIn();
-	void setFrontendIn(FrontendIn&);
+	void setFrontendIn(FrontendIn*);
 	const FrontendOut* getFrontendOut();
-	void setFrontendOut(FrontendOut&);
+	void setFrontendOut(FrontendOut*);
 	const Container* getRootContainer();
-	void setRootContainer(Container&);
+	void setRootContainer(Container*);
 
 	// drawing
 	void draw();

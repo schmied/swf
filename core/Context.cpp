@@ -30,6 +30,7 @@
 
 static const std::basic_string<char> LOG_FACILITY = "CONTEXT";
 
+
 /*
  * ******************************************************** constructor / destructor
  */
@@ -107,9 +108,8 @@ const FrontendIn* Context::getFrontendIn() {
 	return frontendIn;
 }
 
-void Context::setFrontendIn(FrontendIn &in) {
-	frontendIn = &in;
-	rootContainer->invalidatePosition();
+void Context::setFrontendIn(FrontendIn *in) {
+	frontendIn = in;
 }
 
 const FrontendOut* Context::getFrontendOut() {
@@ -118,8 +118,8 @@ const FrontendOut* Context::getFrontendOut() {
 	return frontendOut;
 }
 
-void Context::setFrontendOut(FrontendOut &out) {
-	frontendOut = &out;
+void Context::setFrontendOut(FrontendOut *out) {
+	frontendOut = out;
 	rootContainer->invalidatePosition();
 }
 
@@ -129,8 +129,8 @@ const Container* Context::getRootContainer() {
 	return rootContainer;
 }
 
-void Context::setRootContainer(Container &r) {
-	rootContainer = &r;
+void Context::setRootContainer(Container *rc) {
+	rootContainer = rc;
 }
 
 

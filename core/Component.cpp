@@ -42,7 +42,7 @@ Component::Component(Context* ctx) {
 	context = ctx;
 	style = {0, 0};
 	onInvalidatePosition(this, nullptr);
-	context->setRootContainer(*(Container*) this);
+	context->setRootContainer((Container*) this);
 }
 
 Component::Component(Container* p) {
