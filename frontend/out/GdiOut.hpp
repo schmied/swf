@@ -46,6 +46,7 @@ public:
 	void draw(const Position&, const Style&, const std::basic_string<char>&) const override;
 	std::pair<int,int> screenDimension() const override;
 	std::pair<int,int> fontDimension() const override;
+	void gameLoopDrawFinish() const override;
 
 	// gdi helper
 	static HWND initWindow(const char*);

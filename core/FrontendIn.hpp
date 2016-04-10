@@ -46,7 +46,7 @@ public:
 	// event handling
 	virtual void* eventPoll() = 0;
 	virtual void* eventWait() = 0;
-	virtual void eventFree(void*);				// some stupid apis allocate events and leave to the user
+	virtual void eventFree(void*);			// some stupid apis allocate events and leave to the user
 
 	// event handling
 	virtual void handleEvent(void*) const = 0;

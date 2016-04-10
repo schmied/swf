@@ -159,7 +159,7 @@ public:
 	// drawing
 	void draw();
 
-	int gameLoop(const int, const bool, int (*)(const bool, void*, void*), void (*)(void*), void (*)(const bool, void*), void*);
+	int gameLoop(const int, const bool, int (*)(void*, void*), void (*)(void*), void (*)(void*), void*);
 	int applicationLoop(int (*)(const bool, void*, void*), void*);
 
 	// logging

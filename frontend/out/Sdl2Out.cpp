@@ -468,6 +468,10 @@ std::pair<int,int> Sdl2Out::fontDimension() const {
 	return { fontWidthAvg, fontHeight };
 }
 
+void Sdl2Out::gameLoopDrawFinish() const {
+	SDL_RenderPresent(renderer);
+}
+
 
 /*
  * sdl helper

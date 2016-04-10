@@ -45,6 +45,7 @@ public:
 	virtual void draw(const Position&, const Style&, const std::basic_string<char>&) const = 0;
 	virtual std::pair<int,int> screenDimension() const = 0;
 	virtual std::pair<int,int> fontDimension() const = 0;
+	virtual void gameLoopDrawFinish() const = 0;
 
 };
 

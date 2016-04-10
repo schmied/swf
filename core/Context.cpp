@@ -184,8 +184,8 @@ void Context::draw() {
  * loop
  */
 
-int Context::gameLoop(const int targetFps, const bool isSleepy, int (*onEvent)(const bool, void*, void*),
-	   void (*onRender)(void*), void (*onDraw)(const bool, void*), void* userData) {
+int Context::gameLoop(const int targetFps, const bool isSleepy, int (*onEvent)(void*, void*),
+	   void (*onRender)(void*), void (*onDraw)(void*), void* userData) {
 	SWFLOG(this, LOG_INFO, "enter loop");
 
 	fpsTicksPrevious = 0;
@@ -200,11 +200,9 @@ int Context::gameLoop(const int targetFps, const bool isSleepy, int (*onEvent)(c
 			void *e = frontendIn->eventPoll();
 			int exitCode = 0;
 			if (e != nullptr) {
-				exitCode = onEvent(false, e, userData);
-				if (!exitCode) {
+				exitCode = onEvent(e, userData);
+				if (!exitCode)
 					frontendIn->handleEvent(e);
-					exitCode = onEvent(true, e, userData);
-				}
 			}
 			frontendIn->eventFree(e);
 			if (exitCode)
@@ -213,9 +211,9 @@ int Context::gameLoop(const int targetFps, const bool isSleepy, int (*onEvent)(c
 		if (isElapsed || !isSleepy)
 			onRender(userData);
 		if (isElapsed) {
-			onDraw(false, userData);
+			onDraw(userData);
 			draw();
-			onDraw(true, userData);
+			frontendOut->gameLoopDrawFinish();
 		}
 		if (!isElapsed && isSleepy) 
 			frontendIn->gameLoopSleep();

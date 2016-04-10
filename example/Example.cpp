@@ -258,8 +258,8 @@ static void finishCurses(Env &env) {
 #include "../frontend/in/GdiIn.hpp"
 #include "../frontend/out/GdiOut.hpp"
 
-static int onEventGdi(const bool isFinal, void *event, void *data) {
-	if (!isFinal || event == nullptr || data == nullptr)
+static int onEventGdi(void *event, void *data) {
+	if (event == nullptr || data == nullptr)
 		return 0;
 	Env *env = (Env*) data;
 //	Context *ctx = env->context;
@@ -290,10 +290,7 @@ static int onEventGdi(const bool isFinal, void *event, void *data) {
 	return 0;
 }
 
-static void onDrawGdi(const bool isFinal, void *data) {
-	if (isFinal) {
-		return;
-	}
+static void onDrawGdi(void *data) {
 	const Env *env = (const Env*) data;
 	Context *context = env->context;
 	const GdiOut *out = (const GdiOut*) context->getFrontendOut();
@@ -422,8 +419,8 @@ static void finishSdl(Env &env) {
 #include "../frontend/in/Sdl2In.hpp"
 #include "../frontend/out/Sdl2Out.hpp"
 
-static int onEventSdl2(const bool isFinal, void *event, void *data) {
-	if (!isFinal || event == nullptr || data == nullptr)
+static int onEventSdl2(void *event, void *data) {
+	if (event == nullptr || data == nullptr)
 		return 0;
 	Env *env = (Env*) data;
 	Context *ctx = env->context;
@@ -454,15 +451,11 @@ static int onEventSdl2(const bool isFinal, void *event, void *data) {
 	return 0;
 }
 
-static void onDrawSdl2(const bool isFinal, void *data) {
+static void onDrawSdl2(void *data) {
 	const Env *env = (const Env*) data;
 	Context *ctx = env->context;
 	const Sdl2Out *out = (const Sdl2Out*) ctx->getFrontendOut();
 	SDL_Renderer *rnd = out->getRenderer();
-	if (isFinal) {
-		SDL_RenderPresent(rnd);
-		return;
-	}
 	SDL_SetRenderDrawColor(rnd, 0, 0, 0, 0);
 	SDL_RenderClear(rnd);
 	const std::pair<int,int> scrDim = out->screenDimension();

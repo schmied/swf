@@ -79,22 +79,20 @@ HDC GdiOut::getWindowContext() const {
  */
 
 void GdiOut::draw(const Position &pos, const Style &stl, const std::basic_string<char> &text) const {
-//	DHC c;
-	PAINTSTRUCT ps; 
-//	BeginPaint(window, &ps); 
 	TextOut(windowContext, pos.textX, pos.textY, text.c_str(), text.length()); 
-//	EndPaint(window, &ps); 
 }
 
 std::pair<int,int> GdiOut::screenDimension() const {
 	RECT r;
-	//GetWindowRect(window, &r);
 	GetClientRect(window, &r);
-	return {r.right - r.left, r.bottom - r.top};
+	return { r.right - r.left, r.bottom - r.top };
 }
 
 std::pair<int,int> GdiOut::fontDimension() const {
-	return {10, 14};
+	return { 10, 14 };
+}
+
+void GdiOut::gameLoopDrawFinish() const {
 }
 
 
@@ -116,7 +114,7 @@ HWND GdiOut::initWindow(const char *name) {
 	wcex.hbrBackground  = NULL;//GetStockObject(WHITE_BRUSH);
 	wcex.lpszMenuName   = NULL;
 	wcex.lpszClassName  = name;
-	wcex.hIconSm        = NULL;//LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
+	wcex.hIconSm        = NULL;
 	if (!RegisterClassEx(&wcex)) {
 		messageBox(GetLastError(), "%s initWindow() win32 register class ex", LOG_FACILITY.c_str());
 		return nullptr;
