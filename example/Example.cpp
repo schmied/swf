@@ -125,7 +125,7 @@ static void addBoxes(Env &e) {
 		box->velocity.second = std::rand() % (boxMaxVel - 1) + 1;
 		e.boxes.push_back(std::move(b));
 	}
-	e.context->log(Context::LOG_DEBUG, LOG_FACILITY, "addBoxes", "box count %d", e.boxes.size());
+	SWFLOG(e.context, LOG_DEBUG, "box count %d", e.boxes.size());
 }
 
 static void removeBoxes(Env &e) {
@@ -137,7 +137,7 @@ static void removeBoxes(Env &e) {
 		cnt = 1;
 	for (int i = 0; i < cnt; i++)
 		e.boxes.pop_back();
-	e.context->log(Context::LOG_DEBUG, LOG_FACILITY, "removeBoxes", "box count %d", e.boxes.size());
+	SWFLOG(e.context, LOG_DEBUG, "box count %d", e.boxes.size());
 }
 
 
@@ -313,14 +313,14 @@ static int startGdi(Env &env) {
 	HWND win = GdiOut::initWindow("swfexample");
 	GdiIn in = {*env.context, win};
 	GdiOut out = {*env.context, win};
-	return env.context->gameEventLoop(60, true, onEventGdi, onRender, onDrawGdi, &env);
+	return env.context->gameLoop(60, true, onEventGdi, onRender, onDrawGdi, &env);
 //	display.applicationEventLoop(isQuitEventCurses, onEventCurses, &env);
 }
 
 static void finishGdi(Env &env) {
 	const GdiOut *out = (const GdiOut*) env.context->getFrontendOut();
 	if (!DestroyWindow(out->getWindow()))
-		env.context->log(Context::LOG_WARN, LOG_FACILITY, "finishGdi", "win32 destroy windows error: %d", GetLastError());
+		SWFLOG(env.context, LOG_WARN, "win32 destroy windows error: %d", GetLastError());
 	//HINSTANCE hInstance = GetModuleHandle(NULL);
 	UnregisterClass("swfexample", 0 /*hInstance*/);
 }
@@ -443,7 +443,7 @@ static int onEventSdl2(const bool isFinal, void *event, void *data) {
 			removeBoxes(*env);
 			break;
 		default:
-			ctx->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventSdl2", "key press %c %d",
+			SWFLOG(ctx, LOG_DEBUG, "key press %c %d",
 			    e->key.keysym.sym, e->key.keysym.sym);
 			break;
 		}
@@ -484,7 +484,7 @@ static int startSdl2(Env &env) {
 	SDL_Renderer *rnd = Sdl2Out::initRenderer(win);
 	Sdl2In in { *env.context };
 	Sdl2Out out { *env.context, win, rnd };
-	return env.context->gameEventLoop(60, true, onEventSdl2, onRender, onDrawSdl2, &env);
+	return env.context->gameLoop(60, true, onEventSdl2, onRender, onDrawSdl2, &env);
 }
 
 static void finishSdl2(Env &env) {
@@ -636,7 +636,7 @@ int main(int argc, char **argv) {
 #endif
 
 	if (env.startFunctions.empty()) {
-		context.log(Context::LOG_WARN, LOG_FACILITY, "main", "no start functions");
+		SWFLOG(&context, LOG_WARN, "no start functions");
 		return -1;
 	}
 

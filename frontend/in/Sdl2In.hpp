@@ -32,8 +32,9 @@ private:
 	SDL_Event currentEvent;
 	void* eventPoll() override;
 	void* eventWait() override;
-	void gameEventSleep() const override;
-	long gameEventTicks() const override;
+
+	void gameLoopSleep() const override;
+	long gameLoopTicks() const override;
 
 public:
 	Sdl2In(Context&);

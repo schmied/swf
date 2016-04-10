@@ -26,6 +26,8 @@ class Container;
 class FrontendIn;
 class FrontendOut;
 
+#define SWFLOG(X, Y, FMT, ...) (X)->log(Context::Y, LOG_FACILITY, __func__, FMT, ##__VA_ARGS__)
+
 //enum LogLevel { LOG_DEBUG, LOG_INFO, LOG_WARN };
 
 /*
@@ -131,6 +133,14 @@ private:
 	// drawing
 	static void onDraw(Component*, void*);
 
+	// fps statistics
+	long fpsTicksPrevious;				// need to remember for elapsed ticks calculation
+	int fpsCyclesPerFrame;				// number of event loop cycles per frame
+	int fpsCyclesPerFrameCounter;
+	int fpsFrameMillis;				// duration of a frame
+	bool fpsIsTicksElapsed(const long, const long);
+	void fpsResetTicks(const long);
+
 public:
 	enum LogLevel { LOG_DEBUG, LOG_INFO, LOG_WARN };
 
@@ -138,6 +148,7 @@ public:
 	~Context();
 
 	// getter / setter
+	std::pair<int,int> getFpsStat() const;
 	const FrontendIn* getFrontendIn();
 	void setFrontendIn(FrontendIn&);
 	const FrontendOut* getFrontendOut();
@@ -148,8 +159,8 @@ public:
 	// drawing
 	void draw();
 
-	int gameEventLoop(const int, const bool, int (*)(const bool, void*, void*), void (*)(void*), void (*)(const bool, void*), void*);
-	int applicationEventLoop(int (*)(const bool, void*, void*), void*);
+	int gameLoop(const int, const bool, int (*)(const bool, void*, void*), void (*)(void*), void (*)(const bool, void*), void*);
+	int applicationLoop(int (*)(const bool, void*, void*), void*);
 
 	// logging
 	void log(const int, const std::basic_string<char>&, const std::basic_string<char>&, const char*...);

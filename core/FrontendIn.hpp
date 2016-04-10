@@ -38,13 +38,14 @@ public:
 
 	// getter
 	Context* getContext() const;
-//	std::pair<int,int> getFpsStat() const;
+
+	// game loop
+	virtual void gameLoopSleep() const = 0;		// gives cpu voluntary
+	virtual long gameLoopTicks() const = 0;		// must return ticks in milliseconds
 
 	// event handling
 	virtual void* eventPoll() = 0;
 	virtual void* eventWait() = 0;
-	virtual void gameEventSleep() const = 0;		// gives cpu voluntary
-	virtual long gameEventTicks() const = 0;		// must return ticks in milliseconds
 	virtual void eventFree(void*);				// some stupid apis allocate events and leave to the user
 
 	// event handling

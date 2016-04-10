@@ -32,12 +32,12 @@ static std::vector<Component*> noContents {};
  */
 
 Widget::Widget(Container *c) : Component(c) {
-	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "<init>", nullptr);
+	SWFLOG(getContext(), LOG_DEBUG, nullptr);
 	style = {3, 3};
 }
 
 Widget::~Widget() {
-	getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<free>", nullptr);
+	SWFLOG(getContext(), LOG_WARN, nullptr);
 }
 
 
@@ -46,7 +46,7 @@ Widget::~Widget() {
  */
 
 void Widget::addToContents(Component *c) {
-	getContext()->log(Context::LOG_WARN, LOG_FACILITY, "addToContents", "cannot add contents to a widget");
+	SWFLOG(getContext(), LOG_WARN, "cannot add contents to a widget");
 }
 
 /*

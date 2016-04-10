@@ -35,7 +35,7 @@ static const std::basic_string<char> LOG_FACILITY = "CONTEXT";
  */
 
 Context::Context() {	
-	log(LOG_DEBUG, LOG_FACILITY, "<init>", nullptr);
+	SWFLOG(this, LOG_DEBUG, nullptr);
 	frontendIn = nullptr;
 	frontendOut = nullptr;
 	rootContainer = nullptr;
@@ -44,7 +44,7 @@ Context::Context() {
 Context::~Context() {
 //	for (auto log : logs)
 //		delete log
-	log(LOG_WARN, LOG_FACILITY, "<free>", nullptr);
+	SWFLOG(this, LOG_WARN, nullptr);
 }
 
 
@@ -68,6 +68,27 @@ void Context::onDraw(Component *c, void *userData) {
 
 
 /*
+ * fps statistics
+ */
+
+bool Context::fpsIsTicksElapsed(const long ticksCurrent, const long targetFps) {
+	fpsCyclesPerFrameCounter++;
+	// over 2/3 of target millis is elapsed
+	if (ticksCurrent - fpsTicksPrevious > 2000 / (3 * targetFps))
+		return true;
+	return false;
+}
+
+void Context::fpsResetTicks(const long ticksCurrent) {
+	if (fpsTicksPrevious)
+		fpsFrameMillis = (int) (ticksCurrent - fpsTicksPrevious);
+	fpsTicksPrevious = ticksCurrent;
+	fpsCyclesPerFrame = fpsCyclesPerFrameCounter;
+	fpsCyclesPerFrameCounter = 0;
+}
+
+
+/*
  * ******************************************************** public
  */
 
@@ -76,9 +97,13 @@ void Context::onDraw(Component *c, void *userData) {
  * getter / setter
  */
 
+std::pair<int,int> Context::getFpsStat() const {
+	return { fpsFrameMillis, fpsCyclesPerFrame };
+}
+
 const FrontendIn* Context::getFrontendIn() {
 	if (frontendIn == nullptr)
-		log(LOG_WARN, LOG_FACILITY, "getFrontendIn", "no frontendIn");
+		SWFLOG(this, LOG_WARN, "no frontendIn");
 	return frontendIn;
 }
 
@@ -89,7 +114,7 @@ void Context::setFrontendIn(FrontendIn &in) {
 
 const FrontendOut* Context::getFrontendOut() {
 	if (frontendOut == nullptr)
-		log(LOG_WARN, LOG_FACILITY, "getFrontendOut", "no frontendOut");
+		SWFLOG(this, LOG_WARN, "no frontendOut");
 	return frontendOut;
 }
 
@@ -100,7 +125,7 @@ void Context::setFrontendOut(FrontendOut &out) {
 
 const Container* Context::getRootContainer() {
 	if (rootContainer == nullptr)
-		log(LOG_WARN, LOG_FACILITY, "getRootContainer", "no root container");
+		SWFLOG(this, LOG_WARN, "no root container");
 	return rootContainer;
 }
 
@@ -138,7 +163,7 @@ void Context::draw() {
 			}
 		}
 		// draw fps stats
-		const std::pair<int,int> frameStat = frontendOut->getFpsStat();
+		const std::pair<int,int> frameStat = getFpsStat();
 		if (frameStat.first > 0 && frameStat.second > 0) {
 			char buf[100];
 			std::snprintf(buf, 100, "%7dcycl %3dms %3dfps", frameStat.second, frameStat.first, 1000 / frameStat.first);
@@ -159,14 +184,19 @@ void Context::draw() {
  * loop
  */
 
-int Context::gameEventLoop(const int targetFps, const bool isSleepy, int (*onEvent)(const bool, void*, void*),
+int Context::gameLoop(const int targetFps, const bool isSleepy, int (*onEvent)(const bool, void*, void*),
 	   void (*onRender)(void*), void (*onDraw)(const bool, void*), void* userData) {
-	log(Context::LOG_INFO, LOG_FACILITY, "gameEventLoop", "entering loop");
+	SWFLOG(this, LOG_INFO, "enter loop");
+
+	fpsTicksPrevious = 0;
+	fpsFrameMillis = 0;
+	fpsCyclesPerFrame = 0;
+
 	for (;;) {
-		const long ticks = frontendIn->gameEventTicks();
-		const bool isElapsed = frontendOut->fpsIsTicksElapsed(ticks, targetFps);
+		const long ticks = frontendIn->gameLoopTicks();
+		const bool isElapsed = fpsIsTicksElapsed(ticks, targetFps);
 		if (isElapsed) {
-			frontendOut->fpsResetTicks(ticks);
+			fpsResetTicks(ticks);
 			void *e = frontendIn->eventPoll();
 			int exitCode = 0;
 			if (e != nullptr) {
@@ -188,12 +218,11 @@ int Context::gameEventLoop(const int targetFps, const bool isSleepy, int (*onEve
 			onDraw(true, userData);
 		}
 		if (!isElapsed && isSleepy) 
-			frontendIn->gameEventSleep();
+			frontendIn->gameLoopSleep();
 	}
 }
 
-//int Display::applicationEventLoop(bool (*isQuitEvent)(void*, void*), int (*onEvent)(void*, void*), void* userData) {
-int Context::applicationEventLoop(int (*onEvent)(const bool, void*, void*), void* userData) {
+int Context::applicationLoop(int (*onEvent)(const bool, void*, void*), void* userData) {
 	void *e;
 	for (;;) {
 		e = frontendIn->eventWait();
@@ -255,4 +284,3 @@ void Context::log(const int level, const std::basic_string<char> &facility, cons
 		GdiOut::messageBox(0, s->c_str());
 #endif
 }
-

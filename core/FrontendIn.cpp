@@ -16,7 +16,7 @@
 
 #include "FrontendIn.hpp"
 
-#include "Component.hpp"
+//#include "Component.hpp"
 #include "Context.hpp"
 
 static const std::basic_string<char> LOG_FACILITY = "FRONTEND_IN";
@@ -47,28 +47,6 @@ FrontendIn::~FrontendIn() {
 
 
 /*
- * fps statistics
- */
-
-/*
-bool FrontendIn::fpsIsTicksElapsed(const long ticksCurrent, const long targetFps) {
-	fpsCyclesPerFrameCounter++;
-	// over 2/3 of target millis is elapsed
-	if (ticksCurrent - fpsTicksPrevious > 2000 / (3 * targetFps))
-		return true;
-	return false;
-}
-
-void FrontendIn::fpsResetTicks(const long ticksCurrent) {
-	if (fpsTicksPrevious)
-		fpsFrameMillis = (int) (ticksCurrent - fpsTicksPrevious);
-	fpsTicksPrevious = ticksCurrent;
-	fpsCyclesPerFrame = fpsCyclesPerFrameCounter;
-	fpsCyclesPerFrameCounter = 0;
-}
-*/
-
-/*
  * event handling
  */
 
@@ -95,63 +73,5 @@ Context* FrontendIn::getContext() const {
 /*
 std::pair<int,int> Display::getFpsStat() const {
 	return {fpsFrameMillis, fpsCyclesPerFrame};
-}
-*/
-
-
-/*
- * event handling
- */
-/*
-int FrontendIn::gameEventLoop(const int targetFps, const bool isSleepy, int (*onEvent)(const bool, void*, void*),
-	   void (*onRender)(void*), void (*onDraw)(const bool, void*), void* userData) {
-	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "gameEventLoop", "entering loop");
-	for (;;) {
-		const long ticks = gameEventTicks();
-		const bool isElapsed = fpsIsTicksElapsed(ticks, targetFps);
-		if (isElapsed) {
-			fpsResetTicks(ticks);
-			void *e = eventPoll();
-			int exitCode = 0;
-			if (e != nullptr) {
-				exitCode = onEvent(false, e, userData);
-				if (!exitCode) {
-					handleEvent(e);
-					exitCode = onEvent(true, e, userData);
-				}
-			}
-			eventFree(e);
-			if (exitCode)
-				return exitCode;
-		}
-		if (isElapsed || !isSleepy)
-			onRender(userData);
-		if (isElapsed) {
-			onDraw(false, userData);
-			getContext()->draw();
-			onDraw(true, userData);
-		}
-		if (!isElapsed && isSleepy) 
-			gameEventSleep();
-	}
-}
-
-//int Display::applicationEventLoop(bool (*isQuitEvent)(void*, void*), int (*onEvent)(void*, void*), void* userData) {
-int FrontendIn::applicationEventLoop(int (*onEvent)(const bool, void*, void*), void* userData) {
-	void *e;
-	for (;;) {
-		e = eventWait();
-		if (e == nullptr)
-			continue;
-		int exitCode = 0;
-		exitCode = onEvent(false, e, userData);
-		if (!exitCode) {
-			handleEvent(e);
-			exitCode = onEvent(true, e, userData);
-		}
-		if (exitCode)
-			return exitCode;
-		getContext()->draw();
-	}
 }
 */

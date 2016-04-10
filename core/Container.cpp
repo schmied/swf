@@ -45,7 +45,7 @@ Container::~Container() {
 
 void Container::addToContents(Component *c) {
 	components.push_back(c);
-	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "addToContents", "new size %ld", contents()->size());
+	SWFLOG(getContext(), LOG_DEBUG, "new size %ld", contents()->size());
 }
 
 

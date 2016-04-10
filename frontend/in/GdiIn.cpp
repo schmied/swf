@@ -20,7 +20,6 @@
 
 #include "GdiIn.hpp"
 
-//#include "Component.hpp"
 #include "../../core/Context.hpp"
 
 
@@ -33,26 +32,10 @@ static const std::basic_string<char> LOG_FACILITY = "GDI_IN";
 
 GdiIn::GdiIn(Context &ctx, HWND win) : FrontendIn(ctx) {
 	window = win;
-/*
-	windowContext = GetDC(win);
-	font = CreateFont(-12, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-	    NONANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Courier New");
-	if (font == NULL) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "win32 create font error");
-		return;
-	}
-	SelectObject(windowContext, font);
-*/
 }
 
 GdiIn::~GdiIn() {
-/*
-	if (!DeleteObject(font))
-		getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", "win32 delete object (font) error");
-	if (!ReleaseDC(window, windowContext)) 
-		getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", "win32 release dc error");
-*/
-	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", nullptr);
+	SWFLOG(getContext(), LOG_INFO, nullptr);
 }
 
 
@@ -74,18 +57,18 @@ void* GdiIn::eventPoll() {
 
 void* GdiIn::eventWait() {
 	if (GetMessage(&currentEvent, window, 0, 0) == -1) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "eventWait", "win32 get message error: %d", GetLastError());
+		SWFLOG(getContext(), LOG_WARN, "win32 get message error: %d", GetLastError());
 		return nullptr;
 	}
 	TranslateMessage(&currentEvent);
 	return &currentEvent;
 }
 
-void GdiIn::gameEventSleep() const {
+void GdiIn::gameLoopSleep() const {
 	Sleep(1);
 }
 
-long GdiIn::gameEventTicks() const {
+long GdiIn::gameLoopTicks() const {
 	return GetTickCount64();
 }
 
@@ -120,7 +103,7 @@ void GdiIn::handleEvent(void *event) const {
 		default:
 			break;
 		}
-		getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "key %d %d", e->lParam, e->wParam);
+		SWFLOG(getContext(), LOG_DEBUG, "key %d %d", e->lParam, e->wParam);
 		break;
 	default:
 		break;

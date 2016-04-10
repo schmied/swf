@@ -20,7 +20,6 @@
 
 #include "GdiOut.hpp"
 
-//#include "Component.hpp"
 #include "../../core/Context.hpp"
 
 
@@ -37,7 +36,7 @@ GdiOut::GdiOut(Context &ctx, HWND win) : FrontendOut(ctx) {
 	font = CreateFont(-12, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
 	    NONANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Courier New");
 	if (font == NULL) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "win32 create font error");
+		SWFLOG(getContext(), LOG_WARN, "win32 create font error");
 		return;
 	}
 	SelectObject(windowContext, font);
@@ -45,10 +44,10 @@ GdiOut::GdiOut(Context &ctx, HWND win) : FrontendOut(ctx) {
 
 GdiOut::~GdiOut() {
 	if (!DeleteObject(font))
-		getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", "win32 delete object (font) error");
+		SWFLOG(getContext(), LOG_INFO, "win32 delete object (font) error");
 	if (!ReleaseDC(window, windowContext)) 
-		getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", "win32 release dc error");
-	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", nullptr);
+		SWFLOG(getContext(), LOG_INFO, "win32 release dc error");
+	SWFLOG(getContext(), LOG_INFO, nullptr);
 }
 
 

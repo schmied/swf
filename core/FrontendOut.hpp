@@ -29,12 +29,6 @@ class FrontendOut {
 private:
 	Context *context;
 
-	// fps statistics
-	long fpsTicksPrevious;				// need to remember for elapsed ticks calculation
-	int fpsCyclesPerFrame;				// number of event loop cycles per frame
-	int fpsCyclesPerFrameCounter;
-	int fpsFrameMillis;				// duration of a frame
-
 protected:
 
 public:
@@ -43,10 +37,6 @@ public:
 
 	// getter
 	Context* getContext() const;
-	std::pair<int,int> getFpsStat() const;
-
-	bool fpsIsTicksElapsed(const long, const long);
-	void fpsResetTicks(const long);
 
 	// drawing
 //	virtual void drawBorder(const std::pair<int,int>&, const std::pair<int,int>&) const = 0;

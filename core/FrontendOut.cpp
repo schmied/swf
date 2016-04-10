@@ -30,10 +30,6 @@ static const std::basic_string<char> LOG_FACILITY = "FRONTEND_OUT";
 FrontendOut::FrontendOut(Context &ctx) {
 	context = &ctx;
 	context->setFrontendOut(*this);
-
-	fpsTicksPrevious = 0;
-	fpsFrameMillis = 0;
-	fpsCyclesPerFrame = 0;
 }
 
 FrontendOut::~FrontendOut() {
@@ -43,27 +39,6 @@ FrontendOut::~FrontendOut() {
 /*
  * ******************************************************** private
  */
-
-
-/*
- * fps statistics
- */
-
-bool FrontendOut::fpsIsTicksElapsed(const long ticksCurrent, const long targetFps) {
-	fpsCyclesPerFrameCounter++;
-	// over 2/3 of target millis is elapsed
-	if (ticksCurrent - fpsTicksPrevious > 2000 / (3 * targetFps))
-		return true;
-	return false;
-}
-
-void FrontendOut::fpsResetTicks(const long ticksCurrent) {
-	if (fpsTicksPrevious)
-		fpsFrameMillis = (int) (ticksCurrent - fpsTicksPrevious);
-	fpsTicksPrevious = ticksCurrent;
-	fpsCyclesPerFrame = fpsCyclesPerFrameCounter;
-	fpsCyclesPerFrameCounter = 0;
-}
 
 
 /*
@@ -79,10 +54,5 @@ Context* FrontendOut::getContext() const {
 	if (context == nullptr)
 		std::printf("%s getContext() no context\n", LOG_FACILITY.c_str());
 	return context;
-}
-
-
-std::pair<int,int> FrontendOut::getFpsStat() const {
-	return {fpsFrameMillis, fpsCyclesPerFrame};
 }
 

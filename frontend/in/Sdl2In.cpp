@@ -45,7 +45,7 @@ Sdl2In::Sdl2In(Context &ctx) : FrontendIn(ctx) {
 }
 
 Sdl2In::~Sdl2In() {
-	getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<free>", nullptr);
+	SWFLOG(getContext(), LOG_WARN, nullptr);
 }
 
 
@@ -68,17 +68,17 @@ void* Sdl2In::eventPoll() {
 void* Sdl2In::eventWait() {
 	const int i = SDL_WaitEvent(&currentEvent);
 	if (!i) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "eventWait", "sdl wait event error");
+		SWFLOG(getContext(), LOG_WARN, "sdl wait event error");
 		return nullptr;
 	}
 	return &currentEvent;
 }
 
-void Sdl2In::gameEventSleep() const {
+void Sdl2In::gameLoopSleep() const {
 	SDL_Delay(1);	
 }
 
-long Sdl2In::gameEventTicks() const {
+long Sdl2In::gameLoopTicks() const {
 	return SDL_GetTicks();
 }
 
@@ -98,7 +98,7 @@ void Sdl2In::handleEvent(void *event) const {
 	const SDL_Event *e = (const SDL_Event*) event;
 	switch (e->type) {
 	case SDL_KEYDOWN:
-//		getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "typ %d sym %d", e->type, e->key.keysym.sym);
+//		SWFLOG(getContext(), LOG_DEBUG, "typ %d sym %d", e->type, e->key.keysym.sym);
 		switch (e->key.keysym.sym) {
 		case SDLK_RETURN:
 			break;

@@ -52,13 +52,13 @@ Sdl2Out::Sdl2Out(Context &ctx, SDL_Window *win, SDL_Renderer *rnd) : FrontendOut
 
 	int error = FT_Init_FreeType(&fontLibrary);
 	if (error) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "freetype init error: %d", error);
+		SWFLOG(getContext(), LOG_WARN, "freetype init error: %d", error);
 		return;
 	}
 
 	error = FT_New_Face(fontLibrary, "term14.pcf.gz", 0, &fontFace);
 	if (error) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "freetype new face error: %d", error);
+		SWFLOG(getContext(), LOG_WARN, "freetype new face error: %d", error);
 		return;
 	}
 
@@ -73,7 +73,7 @@ Sdl2Out::Sdl2Out(Context &ctx, SDL_Window *win, SDL_Renderer *rnd) : FrontendOut
 	const FT_Bitmap_Size *sizes = fontFace->available_sizes;
 	const FT_Int sizesCount = fontFace->num_fixed_sizes;
 	if (sizes != NULL && sizesCount > 0) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "look for bitmap sizes");
+		SWFLOG(getContext(), LOG_WARN, "look for bitmap sizes");
 		int fontWidth = 0;
 		for (int i = 0; i < sizesCount; i++) {
 			fontWidth = sizes[i].width;
@@ -91,10 +91,10 @@ Sdl2Out::Sdl2Out(Context &ctx, SDL_Window *win, SDL_Renderer *rnd) : FrontendOut
 */
 	}
 	if (fontHeight == 0 || fontSize == 0) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "cannot determine font size");
+		SWFLOG(getContext(), LOG_WARN, "cannot determine font size");
 		return;
 	}
-	getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "font: %s, height: %d, size: %d", fontFace->family_name, fontHeight, fontSize);
+	SWFLOG(getContext(), LOG_WARN, "font: %s, height: %d, size: %d", fontFace->family_name, fontHeight, fontSize);
 
 	// determine font panel offsets
 	int lastXOffset = 0;
@@ -102,7 +102,7 @@ Sdl2Out::Sdl2Out(Context &ctx, SDL_Window *win, SDL_Renderer *rnd) : FrontendOut
 		const char c = fontPanelFirstChar + (char) i;
 		error = FT_Load_Char(fontFace, c, FT_LOAD_RENDER);
 		if (error) {
-			getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "freetype load char error: %d", error);
+			SWFLOG(getContext(), LOG_WARN, "freetype load char error: %d", error);
 			continue;
 		}
 		const FT_GlyphSlot glyph = fontFace->glyph;
@@ -113,7 +113,7 @@ Sdl2Out::Sdl2Out(Context &ctx, SDL_Window *win, SDL_Renderer *rnd) : FrontendOut
 			lastXOffset += std::lround(glyph->metrics.horiAdvance / 64.00);
 			break;
 		default:
-			getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "freetype unknown glyph format");
+			SWFLOG(getContext(), LOG_WARN, "freetype unknown glyph format");
 			return;
 		}
 		if (i == fontPanelCharCount - 1)
@@ -125,22 +125,22 @@ Sdl2Out::Sdl2Out(Context &ctx, SDL_Window *win, SDL_Renderer *rnd) : FrontendOut
 	// create font panel surface
 	SDL_Surface *fontPanelSrf = SDL_CreateRGBSurface(0, fontPanelWidth, fontHeight, 32, 0, 0, 0, 0);
 	if (fontPanelSrf == NULL) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "sdl2 create rgb surface error: %s", SDL_GetError());
+		SWFLOG(getContext(), LOG_WARN, "sdl2 create rgb surface error: %s", SDL_GetError());
 		return;
 	}
 	if (SDL_FillRect(fontPanelSrf, NULL, 0x000000) == -1) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "sdl2 fill rect error: %s", SDL_GetError());
+		SWFLOG(getContext(), LOG_WARN, "sdl2 fill rect error: %s", SDL_GetError());
 		return;
 	}
 	if (SDL_SetColorKey(fontPanelSrf, SDL_TRUE, 0x00000000) == -1)
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "sdl2 set color key error: %s", SDL_GetError());
+		SWFLOG(getContext(), LOG_WARN, "sdl2 set color key error: %s", SDL_GetError());
 
 	// populate font panel
 	for (int i = 0; i < fontPanelCharCount; i++) {
 		const char c = fontPanelFirstChar + i;
 		error = FT_Load_Char(fontFace, c, FT_LOAD_RENDER);
 		if (error) {
-			getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "freetype load char error: %d", error);
+			SWFLOG(getContext(), LOG_WARN, "freetype load char error: %d", error);
 			continue;
 		}
 		int x = 0;
@@ -159,13 +159,13 @@ Sdl2Out::~Sdl2Out() {
 	SDL_DestroyTexture(fontPanel);
 	int error = FT_Done_Face(fontFace);
 	if (error) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<free>", "freetype done face error: %d", error);
+		SWFLOG(getContext(), LOG_WARN, "freetype done face error: %d", error);
 	}
 	error = FT_Done_FreeType(fontLibrary);
 	if (error) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<free>", "freetype done freetype error: %d", error);
+		SWFLOG(getContext(), LOG_WARN, "freetype done freetype error: %d", error);
 	}
-	getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<free>", nullptr);
+	SWFLOG(getContext(), LOG_WARN, nullptr);
 }
 
 
@@ -400,7 +400,7 @@ void Sdl2Out::draw(const Position &pos, const Style& stl, const std::basic_strin
 	// fill background
 	SDL_SetRenderDrawColor(renderer, 100, 100, 100, 0);
 	if (SDL_RenderFillRect(renderer, &screenRect) != 0) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "draw", "sdl2 render fill rect error: %s", SDL_GetError());
+		SWFLOG(getContext(), LOG_WARN, "sdl2 render fill rect error: %s", SDL_GetError());
 		return;
 	}
 
@@ -411,7 +411,7 @@ void Sdl2Out::draw(const Position &pos, const Style& stl, const std::basic_strin
 		} else {
 			const int error = FT_Load_Char(fontFace, c, FT_LOAD_RENDER);
 			if (error) {
-				getContext()->log(Context::LOG_WARN, LOG_FACILITY, "draw", "freetype load char error: %d", error);
+				SWFLOG(getContext(), LOG_WARN, "freetype load char error: %d", error);
 				continue;
 			}
 			screenRect.w = fontFace->glyph->bitmap.width;

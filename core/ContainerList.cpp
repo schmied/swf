@@ -66,8 +66,7 @@ void ContainerList::calculatePosition(const int childIndex, const Style &childSt
 	childPos->w = pos->w / size;
 	childPos->h = getContext()->getDisplay()->fontDimension().second;
 */
-	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "calculatePosition", "%d+%d %dx%d", childPos->x, childPos->y,
-	    childPos->w, childPos->h);
+	SWFLOG(getContext(), LOG_DEBUG, "%d+%d %dx%d", childPos->x, childPos->y, childPos->w, childPos->h);
 }
 
 

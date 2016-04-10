@@ -32,11 +32,11 @@ static std::vector<Component*> noContents {};
  */
 
 Button::Button(Container *c) : Widget(c) {
-	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "<init>", nullptr);
+	SWFLOG(getContext(), LOG_DEBUG, nullptr);
 }
 
 Button::~Button() {
-	getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<free>", nullptr);
+	SWFLOG(getContext(), LOG_WARN, nullptr);
 }
 
 
