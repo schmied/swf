@@ -489,8 +489,12 @@ static int startSdl2(Env &env) {
 
 static void finishSdl2(Env &env) {
 	const Sdl2Out *out = (const Sdl2Out*) env.context->getFrontendOut();
-	SDL_DestroyRenderer(out->getRenderer());
-	SDL_DestroyWindow(out->getWindow());
+	SDL_Renderer *rnd = out->getRenderer();
+	if (rnd != NULL)
+		SDL_DestroyRenderer(rnd);
+	SDL_Window *win = out->getWindow();
+//	if (win != NULL)
+//		SDL_DestroyWindow(win); // XXX win32 crash
 	SDL_Quit();
 }
 
