@@ -55,14 +55,7 @@ XcbOut::XcbOut(Context &ctx, xcb_connection_t* cn, xcb_screen_t *scr, const xcb_
 }
 
 XcbOut::~XcbOut() {
-	// XXX close this in application
-/*
-	if (connection != nullptr) {
-		xcb_close_font(connection, font);
-		xcb_disconnect(connection);
-	}
-	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", nullptr);
-*/
+	SWFLOG(getContext(), LOG_INFO, nullptr);
 }
 
 
@@ -139,6 +132,10 @@ std::pair<int,int> XcbOut::screenDimension() const {
 
 std::pair<int,int> XcbOut::fontDimension() const {
 	return { 10, 14 };
+}
+
+void XcbOut::gameLoopDrawFinish() const {
+	xcb_flush(connection);
 }
 
 

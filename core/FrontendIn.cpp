@@ -70,8 +70,3 @@ Context* FrontendIn::getContext() const {
 	return context;
 }
 
-/*
-std::pair<int,int> Display::getFpsStat() const {
-	return {fpsFrameMillis, fpsCyclesPerFrame};
-}
-*/

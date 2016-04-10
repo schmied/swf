@@ -36,12 +36,17 @@ CursesIn::CursesIn(Context &ctx) : FrontendIn(ctx) {
 }
 
 CursesIn::~CursesIn() {
-	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", nullptr);
+	SWFLOG(getContext(), LOG_INFO, nullptr);
 }
 
 
 /*
  * ******************************************************** private
+ */
+
+
+/*
+ * ******************************************************** public
  */
 
 
@@ -63,36 +68,12 @@ void* CursesIn::eventWait() {
 	return &currentEvent;
 }
 
-void CursesIn::gameEventSleep() const {
-	timespec ts;
-	ts.tv_sec = 0;
-	ts.tv_nsec = 1000 * 1000;
-	nanosleep(&ts, NULL);
-}
-
-long CursesIn::gameEventTicks() const {
-	timespec ts;
-	if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0)
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "fpsTicks", "clock gettime error");
-	return 1000L * ts.tv_sec + ts.tv_nsec / 1000L / 1000L;
-}
-
-
-/*
- * ******************************************************** public
- */
-
-
-/*
- * event handling
- */
-
-void CursesIn::handleEvent(void *event) const {
+void CursesIn::in(void *event) const {
 	((Component*) getContext()->getRootContainer())->invalidatePosition();
 	if (event == nullptr)
 		return;
 	const int c = *(const int*) event;
-//	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "char %d", c);
+//	SWFLOG(getContext(), LOG_DEBUG, "char %d", c);
 	switch (c) {
 	case 8:			// BS (backspace)
 		break;
@@ -118,6 +99,25 @@ void CursesIn::handleEvent(void *event) const {
 	default:
 		break;
 	}
+}
+
+
+/*
+ * game loop
+ */
+
+void CursesIn::gameLoopSleep() const {
+	timespec ts;
+	ts.tv_sec = 0;
+	ts.tv_nsec = 1000 * 1000;
+	nanosleep(&ts, NULL);
+}
+
+long CursesIn::gameLoopTicks() const {
+	timespec ts;
+	if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0)
+		SWFLOG(getContext(), LOG_WARN, "clock gettime error");
+	return 1000L * ts.tv_sec + ts.tv_nsec / 1000L / 1000L;
 }
 
 

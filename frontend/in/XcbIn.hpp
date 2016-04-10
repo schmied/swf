@@ -30,13 +30,6 @@ class XcbIn : public FrontendIn {
 private:
 	xcb_connection_t *connection;
 
-	// event handling
-	void* eventPoll() override;
-	void* eventWait() override;
-	void gameEventSleep() const override;
-	long gameEventTicks() const override;
-	void eventFree(void*) override;
-
 public:
 	XcbIn(Context&, xcb_connection_t*);
 	~XcbIn();
@@ -45,7 +38,14 @@ public:
 	xcb_connection_t* getConnection() const;
 
 	// event handling
-	void handleEvent(void*) const override;
+	void eventFree(void*) override;
+	void* eventPoll() override;
+	void* eventWait() override;
+	void in(void*) const override;
+
+	// game loop
+	void gameLoopSleep() const override;
+	long gameLoopTicks() const override;
 
 	// xcb helper
 	xcb_keysym_t keysym(xcb_keycode_t) const;

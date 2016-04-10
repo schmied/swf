@@ -22,7 +22,6 @@
 
 #include "XcbIn.hpp"
 
-//#include "Component.hpp"
 #include "../../core/Context.hpp"
 
 
@@ -33,77 +32,18 @@ static const std::basic_string<char> LOG_FACILITY = "XCB_IN";
  * ******************************************************** constructor / destructor
  */
 
-//DisplayXcb::DisplayXcb(Context &c, xcb_connection_t* cn, xcb_screen_t *scr, const xcb_window_t win, const xcb_font_t fn) : Display(c) {
 XcbIn::XcbIn(Context &ctx, xcb_connection_t* cn) : FrontendIn(ctx) {
-
 	connection = cn;
-/*
-	screen = scr;
-	window = win;
-	font = fn;
-*/
-
-/*
-	gcontext = xcb_generate_id(connection);
-//	const uint32_t valueListGContext[] { screen->black_pixel, screen->white_pixel, font, 0 };
-	const uint32_t valueListGContext[] { screen->black_pixel, screen->white_pixel, 0 };
-	xcb_create_gc(connection, gcontext, screen->root, XCB_GC_FOREGROUND | XCB_GC_BACKGROUND
-	    | XCB_GC_GRAPHICS_EXPOSURES, valueListGContext);
-//	    | XCB_GC_FONT | XCB_GC_GRAPHICS_EXPOSURES, valueListGContext);
-
-	gcontextInverse = xcb_generate_id(connection);
-	const uint32_t valueListGContextInverse[] { screen->white_pixel, screen->black_pixel, 0 };
-	xcb_create_gc(connection, gcontextInverse, screen->root, XCB_GC_FOREGROUND | XCB_GC_BACKGROUND
-	    | XCB_GC_GRAPHICS_EXPOSURES, valueListGContextInverse);
-*/
-
 }
 
 XcbIn::~XcbIn() {
-/*
-	if (connection != nullptr) {
-		xcb_close_font(connection, font);
-		xcb_disconnect(connection);
-	}
-*/
-	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", nullptr);
+	SWFLOG(getContext(), LOG_INFO, nullptr);
 }
 
 
 /*
  * ******************************************************** private
  */
-
-
-/*
- * event handling
- */
-
-void* XcbIn::eventPoll() {
-	return xcb_poll_for_event(connection);
-}
-
-void* XcbIn::eventWait() {
-	return xcb_poll_for_event(connection);
-}
-
-void XcbIn::gameEventSleep() const {
-	timespec ts;
-	ts.tv_sec = 0;
-	ts.tv_nsec = 1000 * 1000;
-	nanosleep(&ts, NULL);
-}
-
-long XcbIn::gameEventTicks() const {
-	timespec ts;
-	if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0)
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "fpsTicks", "clock gettime error");
-	return 1000L * ts.tv_sec + ts.tv_nsec / 1000L / 1000L;
-}
-
-void XcbIn::eventFree(void *event) {
-	free(event);
-}
 
 
 /*
@@ -119,88 +59,43 @@ xcb_connection_t* XcbIn::getConnection() const {
 	return connection;
 }
 
-/*
-xcb_screen_t* DisplayXcb::getScreen() const {
-	return screen;
-}
-
-xcb_window_t DisplayXcb::getWindow() const {
-	return window;
-}
-
-xcb_gcontext_t DisplayXcb::getGContext() const {
-	return gcontext;
-}
-
-xcb_gcontext_t DisplayXcb::getGContextInverse() const {
-	return gcontextInverse;
-}
-*/
-
-
-/*
- * drawing
- */
-
-//static xcb_rectangle_t rectBorder;
-
-/*
-void DisplayXcb::drawBorder(const std::pair<int,int> &offset, const std::pair<int,int> &dimension) const {
-	rectBorder.x = offset.first;
-	rectBorder.y = offset.second;
-	rectBorder.width = dimension.first;
-	rectBorder.height = dimension.second;
-	xcb_poly_rectangle(connection, window, gcontext, 1, &rectBorder);
-//	xcb_flush(connection);
-}
-*/
-
-/*
-//void DisplayXcb::drawText(const std::pair<int,int> &offset, const std::pair<int,int> &dimension,
-//	    const std::basic_string<char> &text) const {
-void DisplayXcb::draw(const Position &pos, const Style &stl, const std::basic_string<char> &text) const {
-	xcb_image_text_8(connection, text.size(), window, gcontext, pos.textX + 1, pos.textY + 12, text.c_str());
-//	xcb_flush(connection);
-}
-
-std::pair<int,int> DisplayXcb::screenDimension() const {
-	xcb_get_geometry_cookie_t cookie = xcb_get_geometry(connection, window);
-	xcb_get_geometry_reply_t *geometry = xcb_get_geometry_reply(connection, cookie, NULL);
-	const std::pair<int,int> dimension = { geometry->width, geometry->height };
-	free(geometry);
-	return dimension;
-}
-
-std::pair<int,int> DisplayXcb::fontDimension() const {
-	return { 10, 14 };
-}
-*/
-
 
 /*
  * event handling
  */
 
-void XcbIn::handleEvent(void *event) const {
+void XcbIn::eventFree(void *event) {
+	free(event);
+}
+
+void* XcbIn::eventPoll() {
+	return xcb_poll_for_event(connection);
+}
+
+void* XcbIn::eventWait() {
+	return xcb_poll_for_event(connection);
+}
+
+void XcbIn::in(void *event) const {
 	if (event == nullptr)
 		return;
 	const xcb_generic_event_t *e = (const xcb_generic_event_t*) event;
 	switch (e->response_type & ~0x80) {
 	case XCB_EXPOSE: {
 		xcb_expose_event_t *ee = (xcb_expose_event_t *) event;
-		getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "expose");
+		SWFLOG(getContext(), LOG_DEBUG, "expose");
 		((Component*)getContext()->getRootContainer())->invalidatePosition();
 		break;
 	}
 	case XCB_BUTTON_PRESS: {
 		xcb_button_press_event_t *bpe = (xcb_button_press_event_t*) event;
-		getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "button press %dx%d", bpe->event_x, bpe->event_y);
+		SWFLOG(getContext(), LOG_DEBUG, "button press %dx%d", bpe->event_x, bpe->event_y);
 		break;
 	}
 	case XCB_KEY_PRESS: {
 		xcb_key_press_event_t *kpe = (xcb_key_press_event_t*) event;
 		xcb_keysym_t sym = keysym(kpe->detail);
-//		getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "handleEvent", "key press %c %d", sym, sym);
+//		SWFLOG(getContext(), LOG_DEBUG, "key press %c %d", sym, sym);
 		switch (sym) {
 		default:
 			break;
@@ -210,6 +105,25 @@ void XcbIn::handleEvent(void *event) const {
 	default:
 		break;
 	}
+}
+
+
+/*
+ * game loop
+ */
+
+void XcbIn::gameLoopSleep() const {
+	timespec ts;
+	ts.tv_sec = 0;
+	ts.tv_nsec = 1000 * 1000;
+	nanosleep(&ts, NULL);
+}
+
+long XcbIn::gameLoopTicks() const {
+	timespec ts;
+	if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0)
+		SWFLOG(getContext(), LOG_WARN, "clock gettime error");
+	return 1000L * ts.tv_sec + ts.tv_nsec / 1000L / 1000L;
 }
 
 

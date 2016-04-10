@@ -114,7 +114,7 @@ const Position* Component::getPosition() {
 		return &position;
 	const FrontendOut *out = getContext()->getFrontendOut();
 	if (out == nullptr) {
-		getContext()->log(Context::LOG_WARN, LOG_FACILITY, "getPosition", "no frontendOut");
+		SWFLOG(getContext(), LOG_WARN, "no frontendOut");
 		return nullptr;
 	}
 	if (parent == nullptr) {
@@ -145,7 +145,7 @@ const Position* Component::getPosition() {
 	} else {
 		position.textY = position.y;
 	}
-	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "getPosition", "%d+%d %dx%d t%d+%d m%d p%d", position.x, position.y,
+	SWFLOG(getContext(), LOG_DEBUG, "%d+%d %dx%d t%d+%d m%d p%d", position.x, position.y,
 	    position.w, position.h, position.textX, position.textY, style.margin, style.padding);
 	return &position;
 }
@@ -169,7 +169,7 @@ bool Component::isStateFocus() const {
 }
 
 void Component::invalidatePosition() {
-	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "flushPositionCache", nullptr);
+	SWFLOG(getContext(), LOG_DEBUG, nullptr);
 	traverse(this, onInvalidatePosition, nullptr);
 }
 

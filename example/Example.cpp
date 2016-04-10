@@ -173,17 +173,17 @@ static void onRender(void *data) {
 #include "../frontend/in/CursesIn.hpp"
 #include "../frontend/out/CursesOut.hpp"
 
-static int onEventCurses(const bool isFinal, void *event, void *data) {
-	if (!isFinal || event == nullptr || data == nullptr)
+static int onEventCurses(void *event, void *data) {
+	if (event == nullptr || data == nullptr)
 		return 0;
 	Env *env = (Env*) data;
 	Context *ctx = env->context;
 	const int c = *(const int*) event;
 	if (c == ERR) {
-		ctx->log(Context::LOG_WARN, LOG_FACILITY, "onEventCurses", "input char == ERR");
+		SWFLOG(ctx, LOG_WARN, "input char == ERR");
 		return 0;
 	}
-	ctx->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventCurses", "%d %c", c, c);
+	SWFLOG(ctx, LOG_DEBUG, "%d %c", c, c);
 	switch (c) {
 	case 27:	// esc key
 		return ExitCode::QUIT;
@@ -201,11 +201,7 @@ static int onEventCurses(const bool isFinal, void *event, void *data) {
 	return 0;
 }
 
-static void onDrawCurses(const bool isFinal, void *data) {
-	if (isFinal) {
-		refresh();
-		return;
-	}
+static void onDrawCurses(void *data) {
 	const Env *env = (const Env*) data;
 	Context *ctx = env->context;
 	const CursesOut *out = (const CursesOut*) ctx->getFrontendOut();
@@ -234,7 +230,7 @@ static int startCurses(Env &env) {
 	WINDOW *w = CursesOut::initWindow();
 	CursesIn in = { *env.context };
 	CursesOut out = { *env.context, w };
-	return env.context->gameEventLoop(60, true, onEventCurses, onRender, onDrawCurses, &env);
+	return env.context->gameLoop(60, true, onEventCurses, onRender, onDrawCurses, &env);
 }
 
 static void finishCurses(Env &env) {
@@ -261,7 +257,7 @@ static int onEventGdi(void *event, void *data) {
 	Env *env = (Env*) data;
 //	Context *ctx = env->context;
 	const MSG *e = (const MSG*) event;
-//	context->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventGdi", "%d %c", c, c);
+//	SWFLOG(ctx, LOG_DEBUG, "%d %c", c, c);
 	switch (e->message) {
 	case WM_KEYDOWN:
 		switch (e->wParam) {
@@ -331,8 +327,8 @@ static void finishGdi(Env &env) {
 #include "../frontend/in/Sdl1In.hpp"
 #include "../frontend/out/Sdl1Out.hpp"
 
-static int onEventSdl(const bool isFinal, void *event, void *data) {
-	if (!isFinal || event == nullptr || data == nullptr)
+static int onEventSdl1(void *event, void *data) {
+	if (event == nullptr || data == nullptr)
 		return 0;
 	Env *env = (Env*) data;
 	Context *ctx = env->context;
@@ -351,8 +347,8 @@ static int onEventSdl(const bool isFinal, void *event, void *data) {
 			removeBoxes(*env);
 			break;
 		default:
-			ctx->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventSdl", "key press %c %d",
-			    e->key.keysym.sym, e->key.keysym.sym);
+			SWFLOG(ctx, LOG_DEBUG, "key press %c %d", e->key.keysym.sym,
+			    e->key.keysym.sym);
 			break;
 		}
 		break;
@@ -362,16 +358,12 @@ static int onEventSdl(const bool isFinal, void *event, void *data) {
 	return 0;
 }
 
-static void onDrawSdl(const bool isFinal, void *data) {
+static void onDrawSdl1(void *data) {
 	const Env *env = (const Env*) data;
 	Context *ctx = env->context;
-	const Sdl1Out *out = (const Sdl1Out*) context->getFrontendOut();
-	SDL_Surface *screen = (SDL_Surface*) out->getSurface();
-	if (isFinal) {
-		SDL_Flip(screen);
-		return;
-	}
-	SDL_FillRect(screen, NULL, 0x00000000);
+	const Sdl1Out *out = (const Sdl1Out*) ctx->getFrontendOut();
+	SDL_Surface *surface = (SDL_Surface*) out->getSurface();
+	SDL_FillRect(surface, NULL, 0x00000000);
 	const std::pair<int,int> scrDim = out->screenDimension();
 	Box boxScr;
 	int i = 17;
@@ -381,19 +373,21 @@ static void onDrawSdl(const bool isFinal, void *data) {
 			continue;
 		SDL_Rect r { (Sint16) boxScr.offset.first, (Sint16) boxScr.offset.second, (Uint16) boxScr.dimension.first,
 		    (Uint16) boxScr.dimension.second };
-		Uint32 col = SDL_MapRGB(screen->format, ((i + 3) * 23) & 0xff, ((i + 5) * 13) & 0xff, (i * 19) & 0xff);
-		SDL_FillRect(screen, &r, col);
+		Uint32 col = SDL_MapRGB(surface->format, ((i + 3) * 23) & 0xff, ((i + 5) * 13) & 0xff, (i * 19) & 0xff);
+		SDL_FillRect(surface, &r, col);
 	}
 }
 
-static int startSdl(Env &env) {
+static int startSdl1(Env &env) {
 	SDL_Surface *scr = Sdl1Out::initSurface();
+	Sdl1In in { *env.context };
 	Sdl1Out out { *env.context, scr };
-	return env.context->gameLoop(60, true, onEventSdl, onRender, onDrawSdl, &env);
+	return env.context->gameLoop(60, true, onEventSdl1, onRender, onDrawSdl1, &env);
 }
 
-static void finishSdl(Env &env) {
-	SDL_FreeSurface(env.context->getSurface());
+static void finishSdl1(Env &env) {
+	const Sdl1Out *out = (const Sdl1Out*) env.context->getFrontendOut();
+	SDL_FreeSurface(out->getSurface());
 	SDL_Quit();
 }
 
@@ -497,8 +491,8 @@ static void finishSdl2(Env &env) {
 #include "../frontend/in/XcbIn.hpp"
 #include "../frontend/out/XcbOut.hpp"
 
-static int onEventXcb(const bool isFinal, void *event, void *data) {
-	if (!isFinal || event == nullptr || data == nullptr)
+static int onEventXcb(void *event, void *data) {
+	if (event == nullptr || data == nullptr)
 		return 0;
 	Env *env = (Env*) data;
 	Context *ctx = env->context;
@@ -507,7 +501,7 @@ static int onEventXcb(const bool isFinal, void *event, void *data) {
 	switch (e->response_type & ~0x80) {
 	case XCB_BUTTON_PRESS: {
 		xcb_button_press_event_t *bpe = (xcb_button_press_event_t*) event;
-		ctx->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventXcb", "button press %dx%d", bpe->event_x, bpe->event_y);
+		SWFLOG(ctx, LOG_DEBUG, "button press %dx%d", bpe->event_x, bpe->event_y);
 		break;
 	}
 	case XCB_KEY_PRESS: {
@@ -525,7 +519,7 @@ static int onEventXcb(const bool isFinal, void *event, void *data) {
 			removeBoxes(*env);
 			break;
 		default:
-			ctx->log(Context::LOG_DEBUG, LOG_FACILITY, "onEventXcb", "key press %c %d", sym, sym);
+			SWFLOG(ctx, LOG_DEBUG, "key press %c %d", sym, sym);
 			break;
 		}
 		break;
@@ -536,14 +530,10 @@ static int onEventXcb(const bool isFinal, void *event, void *data) {
 	return 0;
 }
 
-static void onDrawXcb(const bool isFinal, void *data) {
+static void onDrawXcb(void *data) {
 	const Env *env = (const Env*) data;
 	Context *ctx = env->context;
 	const XcbOut *out = (const XcbOut*) ctx->getFrontendOut();
-	if (isFinal) {
-		xcb_flush(out->getConnection());
-		return;
-	}
 	const std::pair<int,int> scrDim = out->screenDimension();
 	xcb_rectangle_t rect { 0, 0, (uint16_t) scrDim.first, (uint16_t) scrDim.second };
 	xcb_poly_fill_rectangle(out->getConnection(), out->getWindow(), out->getGContextInverse(), 1, &rect);
@@ -566,7 +556,7 @@ static int startXcb(Env &env) {
 	xcb_font_t fn = XcbOut::initFont(cn);
 	XcbIn in { *env.context, cn };
 	XcbOut out { *env.context, cn, scr, win, fn };
-	return env.context->gameEventLoop(60, true, onEventXcb, onRender, onDrawXcb, &env);
+	return env.context->gameLoop(60, true, onEventXcb, onRender, onDrawXcb, &env);
 }
 
 static void finishXcb(Env &env) {
@@ -647,3 +637,4 @@ int main(int argc, char **argv) {
 
 	return 0;
 }
+

@@ -36,7 +36,7 @@ CursesOut::CursesOut(Context &ctx, WINDOW *w) : FrontendOut(ctx) {
 }
 
 CursesOut::~CursesOut() {
-	getContext()->log(Context::LOG_INFO, LOG_FACILITY, "<free>", nullptr);
+	SWFLOG(getContext(), LOG_INFO, nullptr);
 }
 
 
@@ -78,6 +78,10 @@ static const std::pair<int,int> fontDim { 1, 1 };
 
 std::pair<int,int> CursesOut::fontDimension() const {
 	return fontDim;
+}
+
+void CursesOut::gameLoopDrawFinish() const {
+	refresh();
 }
 
 

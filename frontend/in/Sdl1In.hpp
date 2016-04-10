@@ -30,17 +30,19 @@ class Sdl1In : public FrontendIn {
 private:
 	// event handling
 	SDL_Event currentEvent;
-	void* eventPoll() override;
-	void* eventWait() override;
-	void gameEventSleep() const override;
-	long gameEventTicks() const override;
 
 public:
 	Sdl1In(Context&);
 	~Sdl1In();
 
 	// event handling
-	void handleEvent(void*) const override;
+	void* eventPoll() override;
+	void* eventWait() override;
+	void in(void*) const override;
+
+	// game loop
+	void gameLoopSleep() const override;
+	long gameLoopTicks() const override;
 
 };
 

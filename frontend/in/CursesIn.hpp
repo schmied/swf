@@ -34,13 +34,14 @@ public:
 	CursesIn(Context&);
 	~CursesIn();
 
+	// event handling
 	void* eventPoll() override;
 	void* eventWait() override;
-	void gameEventSleep() const override;
-	long gameEventTicks() const override;
+	void in(void*) const override;
 
-	// event handling
-	void handleEvent(void*) const override;
+	// game loop
+	void gameLoopSleep() const override;
+	long gameLoopTicks() const override;
 
 	// curses helper
 	static WINDOW* initWindow();

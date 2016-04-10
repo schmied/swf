@@ -30,8 +30,6 @@ class FrontendIn {
 private:
 	Context *context;
 
-protected:
-
 public:
 	FrontendIn(Context&);
 	~FrontendIn();
@@ -39,17 +37,15 @@ public:
 	// getter
 	Context* getContext() const;
 
-	// game loop
-	virtual void gameLoopSleep() const = 0;		// gives cpu voluntary
-	virtual long gameLoopTicks() const = 0;		// must return ticks in milliseconds
-
 	// event handling
 	virtual void* eventPoll() = 0;
 	virtual void* eventWait() = 0;
+	virtual void in(void*) const = 0;
 	virtual void eventFree(void*);			// some stupid apis allocate events and leave to the user
 
-	// event handling
-	virtual void handleEvent(void*) const = 0;
+	// game loop
+	virtual void gameLoopSleep() const = 0;		// gives cpu voluntary
+	virtual long gameLoopTicks() const = 0;		// must return ticks in milliseconds
 
 };
 

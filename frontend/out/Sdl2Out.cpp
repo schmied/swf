@@ -85,7 +85,7 @@ Sdl2Out::Sdl2Out(Context &ctx, SDL_Window *win, SDL_Renderer *rnd) : FrontendOut
 /*
 		error = FT_Set_Pixel_Sizes(fontFace, fontWidth, fontHeight);
 		if (error) {
-			getContext()->log(Context::LOG_WARN, LOG_FACILITY, "<init>", "freetype set pixel sizes error: %d", error);
+			SWFLOG(getContext(), LOG_WARN, "freetype set pixel sizes error: %d", error);
 			return;
 		}
 */
@@ -358,7 +358,7 @@ SDL_Renderer* Sdl2Out::getRenderer() const {
 
 /*
 void DisplaySdl2::drawBorder(const std::pair<int,int> &offset, const std::pair<int,int> &dimension) const {
-//	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "drawBorder", "%d+%d %dx%d", offset.first, offset.second, dimension.first, dimension.second);
+//	SWFLOG(getContext(), LOG_DEBUG, "%d+%d %dx%d", offset.first, offset.second, dimension.first, dimension.second);
 	const Uint32 color = SDL_MapRGB(screen->format, 0xff, 0x00, 0x00);
 
 	// line method
@@ -388,7 +388,7 @@ void DisplaySdl2::drawBorder(const std::pair<int,int> &offset, const std::pair<i
 //void DisplaySdl2::drawText(const std::pair<int,int> &offset, const std::pair<int,int> &dimension,
 //	    const std::basic_string<char> &text) const {
 void Sdl2Out::draw(const Position &pos, const Style& stl, const std::basic_string<char> &text) const {
-//	getContext()->log(Context::LOG_DEBUG, LOG_FACILITY, "drawText", "%d+%d '%s'", offset.first, offset.second, text.c_str());
+//	SWFLOG(getContext(), LOG_DEBUG, "%d+%d '%s'", offset.first, offset.second, text.c_str());
 
 	SDL_Rect screenRect, fontPanelRect;
 
@@ -419,14 +419,14 @@ void Sdl2Out::draw(const Position &pos, const Style& stl, const std::basic_strin
 
 /*
 		if (screenRect.x + screenRect.w >= screen->w) {
-			getContext()->log(Context::LOG_WARN, LOG_FACILITY, "drawText", "%d + %d >= %d", screenRect.x,
+			SWFLOG(getContext(), LOG_WARN, "%d + %d >= %d", screenRect.x,
 			    screenRect.w, screen->w);
 			break;
 		}
 */
 		if (isPanelChar) {
 			if (SDL_RenderCopy(renderer, fontPanel, &fontPanelRect, &screenRect) != 0)
-//				getContext()->log(Context::LOG_WARN, LOG_FACILITY, "draw", "sdl2 render copy: %s",
+//				SWFLOG(getContext(), LOG_WARN, "sdl2 render copy: %s",
 //				    SDL_GetError());
 		;
 		} else {
@@ -451,7 +451,7 @@ void Sdl2Out::draw(const Position &pos, const Style& stl, const std::basic_strin
 	if (screenRect.x < offset.first + dimension.first) {
 		screenRect.w = offset.first + dimension.first - screenRect.x;
 		if (screenRect.w > 0 && SDL_FillRect(screen, &screenRect, 0x000ff000) == -1)
-			getContext()->log(Context::LOG_WARN, LOG_FACILITY, "drawText", "sdl fill rect error: %s", SDL_GetError());
+			SWFLOG(getContext(), LOG_WARN, "sdl fill rect error: %s", SDL_GetError());
 	}
 */
 
@@ -498,3 +498,4 @@ SDL_Renderer* Sdl2Out::initRenderer(SDL_Window *win) {
 	}
 	return rnd;
 }
+

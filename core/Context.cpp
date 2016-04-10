@@ -188,6 +188,15 @@ int Context::gameLoop(const int targetFps, const bool isSleepy, int (*onEvent)(v
 	   void (*onRender)(void*), void (*onDraw)(void*), void* userData) {
 	SWFLOG(this, LOG_INFO, "enter loop");
 
+	if (frontendIn == nullptr) {
+		SWFLOG(this, LOG_WARN, "no IN-frontend defined");
+		return -1;
+	}
+	if (frontendOut == nullptr) {
+		SWFLOG(this, LOG_WARN, "no OUT-frontend defined");
+		return -1;
+	}
+
 	fpsTicksPrevious = 0;
 	fpsFrameMillis = 0;
 	fpsCyclesPerFrame = 0;
@@ -202,7 +211,7 @@ int Context::gameLoop(const int targetFps, const bool isSleepy, int (*onEvent)(v
 			if (e != nullptr) {
 				exitCode = onEvent(e, userData);
 				if (!exitCode)
-					frontendIn->handleEvent(e);
+					frontendIn->in(e);
 			}
 			frontendIn->eventFree(e);
 			if (exitCode)
@@ -229,7 +238,7 @@ int Context::applicationLoop(int (*onEvent)(const bool, void*, void*), void* use
 		int exitCode = 0;
 		exitCode = onEvent(false, e, userData);
 		if (!exitCode) {
-			frontendIn->handleEvent(e);
+			frontendIn->in(e);
 			exitCode = onEvent(true, e, userData);
 		}
 		if (exitCode)
@@ -237,7 +246,6 @@ int Context::applicationLoop(int (*onEvent)(const bool, void*, void*), void* use
 		draw();
 	}
 }
-
 
 
 /*

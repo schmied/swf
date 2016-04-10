@@ -55,6 +55,11 @@ Sdl2In::~Sdl2In() {
 
 
 /*
+ * ******************************************************** public
+ */
+
+
+/*
  * event handling
  */
 
@@ -74,25 +79,7 @@ void* Sdl2In::eventWait() {
 	return &currentEvent;
 }
 
-void Sdl2In::gameLoopSleep() const {
-	SDL_Delay(1);	
-}
-
-long Sdl2In::gameLoopTicks() const {
-	return SDL_GetTicks();
-}
-
-
-/*
- * ******************************************************** public
- */
-
-
-/*
- * event handling
- */
-
-void Sdl2In::handleEvent(void *event) const {
+void Sdl2In::in(void *event) const {
 	if (event == nullptr)
 		return;
 	const SDL_Event *e = (const SDL_Event*) event;
@@ -114,3 +101,16 @@ void Sdl2In::handleEvent(void *event) const {
 		break;
 	}
 }
+
+/*
+ * game loop
+ */
+
+void Sdl2In::gameLoopSleep() const {
+	SDL_Delay(1);	
+}
+
+long Sdl2In::gameLoopTicks() const {
+	return SDL_GetTicks();
+}
+
