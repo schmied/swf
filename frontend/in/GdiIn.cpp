@@ -44,6 +44,21 @@ GdiIn::~GdiIn() {
  */
 
 
+
+/*
+ * ******************************************************** public
+ */
+
+
+ /*
+ * getter
+ */
+
+HWND GdiIn::getWindow() const {
+	return window;
+}
+
+
 /*
  * event handling
  */
@@ -64,34 +79,7 @@ void* GdiIn::eventWait() {
 	return &currentEvent;
 }
 
-void GdiIn::gameLoopSleep() const {
-	Sleep(1);
-}
-
-long GdiIn::gameLoopTicks() const {
-	return GetTickCount64();
-}
-
-
-/*
- * ******************************************************** public
- */
-
-
- /*
- * getter
- */
-
-HWND GdiIn::getWindow() const {
-	return window;
-}
-
-
-/*
- * event handling
- */
-
-void GdiIn::handleEvent(void *event) const {
+void GdiIn::in(void *event) const {
 	if (event == nullptr)
 		return;
 	const MSG *e = (const MSG*) event;
@@ -108,4 +96,17 @@ void GdiIn::handleEvent(void *event) const {
 	default:
 		break;
 	}
+}
+
+
+/*
+ * game loop
+ */
+
+void GdiIn::gameLoopSleep() const {
+	Sleep(1);
+}
+
+long GdiIn::gameLoopTicks() const {
+	return GetTickCount64();
 }

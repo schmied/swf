@@ -97,7 +97,7 @@ static bool scaleBox(const Box &box, Box &boxScr, const std::pair<int,int> &scrD
 
 struct Env {
 	Context *context;
-	std::vector<std::pair<int (*)(Env&),void(*)(Env&)>> startFunctions;
+	std::vector<std::pair<int(*)(Env&),void(*)(Env&)>> startFunctions;
 	std::vector<std::unique_ptr<Box>> boxes;
 };
 
@@ -312,8 +312,8 @@ static void finishGdi(Env &env) {
 	Context *ctx = env.context;
 	const GdiOut *out = (const GdiOut*) ctx->getFrontendOut();
 	HWND win = out->getWindow();
-	ctx.setFrontendIn(nullptr);
-	ctx.setFrontendOut(nullptr);
+	ctx->setFrontendIn(nullptr);
+	ctx->setFrontendOut(nullptr);
 	if (!DestroyWindow(win))
 		SWFLOG(env.context, LOG_WARN, "win32 destroy windows error: %d", GetLastError());
 	//HINSTANCE hInstance = GetModuleHandle(NULL);

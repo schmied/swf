@@ -33,11 +33,6 @@ private:
 
 	// event handling
 	MSG currentEvent;
-	void* eventPoll() override;
-	void* eventWait() override;
-
-	void gameLoopSleep() const override;
-	long gameLoopTicks() const override;
 
 public:
 	GdiIn(Context&, HWND);
@@ -47,7 +42,13 @@ public:
 	HWND getWindow() const;
 
 	// event handling
-	void handleEvent(void*) const override;
+	void* eventPoll() override;
+	void* eventWait() override;
+	void in(void*) const override;
+
+	// game loop
+	void gameLoopSleep() const override;
+	long gameLoopTicks() const override;
 
 };
 
