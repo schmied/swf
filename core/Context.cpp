@@ -59,7 +59,7 @@ Context::~Context() {
  */
 
  void Context::drawComponents() {
-	Component::traverse((Component*) rootContainer, Context::onDraw, frontendOut);
+	Component::traverse((Component*) rootContainer, Context::onDrawComponent, frontendOut);
 
 	if (frontendOut != nullptr) {
 		const std::pair<int,int> fontDimension = frontendOut->fontDimension();
@@ -216,7 +216,7 @@ int Context::gameLoop(const int targetFps, const bool isSleepy, int (*onEvent)(v
 			onRender(userData);
 		if (isElapsed) {
 			onDraw(userData);
-			draw();
+			drawComponents();
 			frontendOut->gameLoopDrawFinish();
 		}
 		if (!isElapsed && isSleepy) 
@@ -238,7 +238,7 @@ int Context::applicationLoop(int (*onEvent)(const bool, void*, void*), void* use
 		}
 		if (exitCode)
 			return exitCode;
-		draw();
+		drawComponents();
 	}
 }
 
