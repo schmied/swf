@@ -59,7 +59,7 @@ Context::~Context() {
  */
 
  void Context::drawComponents() {
-	Component::traverse((Component*) rootContainer, Context::onDrawComponent, frontendOut);
+	Component::traverseInclusive((Component*) rootContainer, Context::onDrawComponent, frontendOut);
 
 	if (frontendOut != nullptr) {
 		const std::pair<int,int> fontDimension = frontendOut->fontDimension();
@@ -103,10 +103,10 @@ TraverseCondition Context::onDrawComponent(Component *c, void *userData) {
 	FrontendOut *out = (FrontendOut*) userData;
 	if (out == nullptr) {
 		std::printf("%s onDraw() no frontend\n", LOG_FACILITY.c_str());
-		return returnCurrent;
+		return notMatchBreak;
 	}
 	c->onDraw(out);
-	return continueTraverse;
+	return notMatch;
 }
 
 

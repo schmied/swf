@@ -97,6 +97,12 @@ void Sdl2In::in(void *event) const {
 			break;
 		}
 		break;
+	case SDL_MOUSEBUTTONDOWN:
+		SWFLOG(getContext(), LOG_DEBUG, "click %dx%d", e->button.x, e->button.y);
+		break;
+	case SDL_MOUSEMOTION:
+		//SWFLOG(getContext(), LOG_DEBUG, "move %dx%d", e->motion.x, e->motion.y);
+		break;
 	default:
 		break;
 	}

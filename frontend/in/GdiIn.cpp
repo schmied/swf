@@ -95,10 +95,10 @@ void GdiIn::in(void *event) const {
 		}
 		break;
 	case WM_LBUTTONDOWN:
-		SWFLOG(getContext(), LOG_DEBUG, "click left %dx%d", GET_X_LPARAM(e->lParam), GET_Y_LPARAM(e->lParam));
+		SWFLOG(getContext(), LOG_DEBUG, "click %dx%d", GET_X_LPARAM(e->lParam), GET_Y_LPARAM(e->lParam));
 		break;
 	case WM_MOUSEMOVE:
-//		SWFLOG(getContext(), LOG_DEBUG, "mouse %dx%d", GET_X_LPARAM(e->lParam), GET_Y_LPARAM(e->lParam));
+//		SWFLOG(getContext(), LOG_DEBUG, "move %dx%d", GET_X_LPARAM(e->lParam), GET_Y_LPARAM(e->lParam));
 		break;
 	default:
 		break;

@@ -32,7 +32,8 @@ struct Style {
 	int margin, padding;
 };
 
-enum TraverseCondition { continueTraverse, returnCurrent, skipChildren };
+//enum TraverseCondition { continueTraverse, returnCurrent, skipChildren };
+enum TraverseCondition { match, matchBreak, notMatch, notMatchBreak };
 
 class Component {
 
@@ -70,11 +71,15 @@ public:
 	void onDraw(const FrontendOut*);
 
 	/* component traversing */
-	static Component* traverse(Component*, TraverseCondition (*)(Component*, void*), void*);
-//	static void traverse(const Component*, void (*)(const Component*, void*), void*);
-	static Component* traverseChildren(Component*, TraverseCondition (*)(Component*, void*), void*);
-//	static void traverseChildren(const Component*, void (*)(const Component*, void*), void*);
+	static bool traverseExclusive(Component*, TraverseCondition (*)(Component*, void*), void*, std::vector<Component*>*);
+	static bool traverseExclusive(Component*, TraverseCondition (*)(Component*, void*), void*);
+	static bool traverseInclusive(Component*, TraverseCondition (*)(Component*, void*), void*, std::vector<Component*>*);
+	static bool traverseInclusive(Component*, TraverseCondition (*)(Component*, void*), void*);
+	static Component* findComponentExclusive(Component*, TraverseCondition (*)(Component*, void*), void*);
+	static Component* findComponentInclusive(Component*, TraverseCondition (*)(Component*, void*), void*);
+	static std::vector<Component*> findComponentsExclusive(Component*, TraverseCondition (*)(Component*, void*), void*);
+	static std::vector<Component*> findComponentsInclusive(Component*, TraverseCondition (*)(Component*, void*), void*);
+
 };
 
 #endif // SWF_CORE_COMPONENT
-
