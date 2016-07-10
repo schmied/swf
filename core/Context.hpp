@@ -131,7 +131,8 @@ private:
 	std::deque<std::basic_string<char>*> logs;
 
 	// drawing
-	static void onDraw(Component*, void*);
+	void drawComponents();
+	static void onDrawComponent(Component*, void*);
 
 	// fps statistics
 	long fpsTicksPrevious;				// need to remember for elapsed ticks calculation
@@ -156,9 +157,6 @@ public:
 	const Container* getRootContainer();
 	void setRootContainer(Container*);
 
-	// drawing
-	void draw();
-
 	int gameLoop(const int, const bool, int (*)(void*, void*), void (*)(void*), void (*)(void*), void*);
 	int applicationLoop(int (*)(const bool, void*, void*), void*);
 
@@ -167,4 +165,3 @@ public:
 };
 
 #endif // SWF_CORE_CONTEXT
-

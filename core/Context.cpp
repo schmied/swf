@@ -58,7 +58,48 @@ Context::~Context() {
  * drawing
  */
 
-void Context::onDraw(Component *c, void *userData) {
+ void Context::drawComponents() {
+	Component::traverse((Component*) rootContainer, Context::onDraw, frontendOut);
+
+	if (frontendOut != nullptr) {
+		const std::pair<int,int> fontDimension = frontendOut->fontDimension();
+		const std::pair<int,int> screenDimension = frontendOut->screenDimension();
+		// draw log
+		if (logs.size() > 0) {
+//			const std::pair<int,int> logDimension { screenDimension.first / 2 - 2 * fontDimension.first,
+//			    fontDimension.second };
+//			std::pair<int,int> logOffset;
+			// 1 char left padding to screen
+			const int x = 1 * fontDimension.first;
+			// 1 char bottom padding to screen
+			const int y = screenDimension.second - (1 + logs.size()) * fontDimension.second;
+			Position pos {x, y, screenDimension.first / 2 - 2 * fontDimension.first, fontDimension.second, x, y};
+			Style stl {0, 0};
+			for (const auto log : logs) {
+				//display->draw(logOffset, logDimension, *log);
+				frontendOut->draw(pos, stl, *log);
+				pos.y += fontDimension.second;
+				pos.textY = pos.y;
+			}
+		}
+		// draw fps stats
+		const std::pair<int,int> frameStat = getFpsStat();
+		if (frameStat.first > 0 && frameStat.second > 0) {
+			char buf[100];
+			std::snprintf(buf, 100, "%7dcycl %3dms %3dfps", frameStat.second, frameStat.first, 1000 / frameStat.first);
+			const int w = std::strlen(buf) * fontDimension.first;
+			const int x = screenDimension.first - w - fontDimension.first;
+			const int y = screenDimension.second - 2 * fontDimension.second;
+//			const std::pair<int,int> statDimension { width, fontDimension.second };
+	//		display->draw(statOffset, statDimension, buf);
+			const Position pos {x, y, w, fontDimension.second, x, y};
+			Style stl {0, 0};
+			frontendOut->draw(pos, stl, buf);
+		}
+	}
+}
+
+void Context::onDrawComponent(Component *c, void *userData) {
 	FrontendOut *out = (FrontendOut*) userData;
 	if (out == nullptr) {
 		std::printf("%s onDraw() no frontend\n", LOG_FACILITY.c_str());
@@ -131,52 +172,6 @@ const Container* Context::getRootContainer() {
 
 void Context::setRootContainer(Container *rc) {
 	rootContainer = rc;
-}
-
-
-/*
- * drawing
- */
-
-void Context::draw() {
-	Component::traverse((Component*) rootContainer, Context::onDraw, frontendOut);
-
-	if (frontendOut != nullptr) {
-		const std::pair<int,int> fontDimension = frontendOut->fontDimension();
-		const std::pair<int,int> screenDimension = frontendOut->screenDimension();
-		// draw log
-		if (logs.size() > 0) {
-//			const std::pair<int,int> logDimension { screenDimension.first / 2 - 2 * fontDimension.first,
-//			    fontDimension.second };
-//			std::pair<int,int> logOffset;
-			// 1 char left padding to screen
-			const int x = 1 * fontDimension.first;
-			// 1 char bottom padding to screen
-			const int y = screenDimension.second - (1 + logs.size()) * fontDimension.second;
-			Position pos {x, y, screenDimension.first / 2 - 2 * fontDimension.first, fontDimension.second, x, y};
-			Style stl {0, 0};
-			for (const auto log : logs) {
-				//display->draw(logOffset, logDimension, *log);
-				frontendOut->draw(pos, stl, *log);
-				pos.y += fontDimension.second;
-				pos.textY = pos.y;
-			}
-		}
-		// draw fps stats
-		const std::pair<int,int> frameStat = getFpsStat();
-		if (frameStat.first > 0 && frameStat.second > 0) {
-			char buf[100];
-			std::snprintf(buf, 100, "%7dcycl %3dms %3dfps", frameStat.second, frameStat.first, 1000 / frameStat.first);
-			const int w = std::strlen(buf) * fontDimension.first;
-			const int x = screenDimension.first - w - fontDimension.first;
-			const int y = screenDimension.second - 2 * fontDimension.second;
-//			const std::pair<int,int> statDimension { width, fontDimension.second };
-	//		display->draw(statOffset, statDimension, buf);
-			const Position pos {x, y, w, fontDimension.second, x, y};
-			Style stl {0, 0};
-			frontendOut->draw(pos, stl, buf);
-		}
-	}
 }
 
 

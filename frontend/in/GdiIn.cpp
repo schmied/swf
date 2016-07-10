@@ -17,6 +17,7 @@
 #include <iostream>
 
 #include <windows.h>
+#include <windowsx.h>
 
 #include "GdiIn.hpp"
 
@@ -85,13 +86,19 @@ void GdiIn::in(void *event) const {
 	const MSG *e = (const MSG*) event;
 	switch (e->message) {
 	case WM_KEYDOWN:
+		SWFLOG(getContext(), LOG_DEBUG, "key %c %d", e->wParam, e->wParam);
 		switch (e->wParam) {
 		case VK_RETURN:
 			break;
 		default:
 			break;
 		}
-		SWFLOG(getContext(), LOG_DEBUG, "key %d %d", e->lParam, e->wParam);
+		break;
+	case WM_LBUTTONDOWN:
+		SWFLOG(getContext(), LOG_DEBUG, "click left %dx%d", GET_X_LPARAM(e->lParam), GET_Y_LPARAM(e->lParam));
+		break;
+	case WM_MOUSEMOVE:
+//		SWFLOG(getContext(), LOG_DEBUG, "mouse %dx%d", GET_X_LPARAM(e->lParam), GET_Y_LPARAM(e->lParam));
 		break;
 	default:
 		break;

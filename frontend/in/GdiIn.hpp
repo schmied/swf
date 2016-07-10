@@ -53,4 +53,3 @@ public:
 };
 
 #endif // SWF_FRONTEND_IN_GDI
-

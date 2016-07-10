@@ -436,8 +436,6 @@ static int onEventSdl2(void *event, void *data) {
 			removeBoxes(*env);
 			break;
 		default:
-			SWFLOG(ctx, LOG_DEBUG, "key press %c %d",
-			    e->key.keysym.sym, e->key.keysym.sym);
 			break;
 		}
 		break;
@@ -657,4 +655,3 @@ int main(int argc, char **argv) {
 
 	return 0;
 }
-
