@@ -32,6 +32,8 @@ struct Style {
 	int margin, padding;
 };
 
+enum TraverseCondition { continueTraverse, returnCurrent, skipChildren };
+
 class Component {
 
 private:
@@ -40,7 +42,7 @@ private:
 
 	// position
 	Position position;
-	static void onInvalidatePosition(Component*, void*);
+	static TraverseCondition onInvalidatePosition(Component*, void*);
 	inline bool isPositionValid() const;
 	int positionIndex() const;
 
@@ -68,9 +70,9 @@ public:
 	void onDraw(const FrontendOut*);
 
 	/* component traversing */
-	static void traverse(Component*, void (*)(Component*, void*), void*);
+	static Component* traverse(Component*, TraverseCondition (*)(Component*, void*), void*);
 //	static void traverse(const Component*, void (*)(const Component*, void*), void*);
-	static void traverseChildren(Component*, void (*)(Component*, void*), void*);
+	static Component* traverseChildren(Component*, TraverseCondition (*)(Component*, void*), void*);
 //	static void traverseChildren(const Component*, void (*)(const Component*, void*), void*);
 };
 

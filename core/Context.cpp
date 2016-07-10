@@ -99,13 +99,14 @@ Context::~Context() {
 	}
 }
 
-void Context::onDrawComponent(Component *c, void *userData) {
+TraverseCondition Context::onDrawComponent(Component *c, void *userData) {
 	FrontendOut *out = (FrontendOut*) userData;
 	if (out == nullptr) {
 		std::printf("%s onDraw() no frontend\n", LOG_FACILITY.c_str());
-		return;
+		return returnCurrent;
 	}
 	c->onDraw(out);
+	return continueTraverse;
 }
 
 
@@ -172,6 +173,17 @@ const Container* Context::getRootContainer() {
 
 void Context::setRootContainer(Container *rc) {
 	rootContainer = rc;
+}
+
+
+/*
+ * event
+ */
+
+void Context::eventClick(const int, const int) {
+}
+
+void Context::eventKey(const int) {
 }
 
 

@@ -63,8 +63,9 @@ Component::Component(Container* p) {
  * ******************************************************** private
  */
 
-void Component::onInvalidatePosition(Component *c, void *ud) {
+TraverseCondition Component::onInvalidatePosition(Component *c, void *ud) {
 	c->position.x = -1;
+	return continueTraverse;
 }
 
 inline bool Component::isPositionValid() const {
@@ -186,9 +187,22 @@ void Component::onDraw(const FrontendOut *out) {
  * component traversing
  */
 
-void Component::traverse(Component *c, void (*cb)(Component*, void*), void *userData) {
-	cb(c, userData);
-	traverseChildren(c, cb, userData);
+Component* Component::traverse(Component *c, TraverseCondition (*cb)(Component*, void*), void *userData) {
+	Component *childMatch;
+
+	switch (cb(c, userData)) {
+	case continueTraverse:
+		childMatch = traverseChildren(c, cb, userData);
+		if (childMatch != nullptr)
+			return childMatch;
+		break;
+	case returnCurrent:
+		return c;
+		break; // not reached
+	case skipChildren:
+		break;
+	}
+	return nullptr;
 }
 
 /*
@@ -198,11 +212,25 @@ void Component::traverse(const Component *c, void (*cb)(const Component*, void*)
 }
 */
 
-void Component::traverseChildren(Component *c, void (*cb)(Component*, void*), void *userData) {
+Component* Component::traverseChildren(Component *c, TraverseCondition (*cb)(Component*, void*), void *userData) {
+	Component *childMatch;
+
 	for (auto current : *c->contents()) {
-		cb(current, userData);
-		traverseChildren(current, cb, userData);
+		switch (cb(current, userData)) {
+		case continueTraverse:
+			childMatch = traverseChildren(current, cb, userData);
+			if (childMatch != nullptr)
+				return childMatch;
+			break;
+		case returnCurrent:
+			return current;
+			break; // not reached
+		case skipChildren:
+			// nothing
+			break;
+		}
 	}
+	return nullptr;
 }
 
 /*
