@@ -531,7 +531,6 @@ static int onEventXcb(void *event, void *data) {
 			removeBoxes(*env);
 			break;
 		default:
-			SWFLOG(ctx, LOG_DEBUG, "key press %c %d", sym, sym);
 			break;
 		}
 		break;

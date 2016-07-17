@@ -65,7 +65,7 @@ Component::Component(Container* p) {
 
 TraverseCondition Component::onInvalidatePosition(Component *c, void *ud) {
 	c->position.x = -1;
-	return notMatch;
+	return TraverseCondition::notMatch;
 }
 
 inline bool Component::isPositionValid() const {
@@ -192,7 +192,7 @@ bool Component::traverseExclusive(Component *c, TraverseCondition (*cb)(Componen
 	bool running;
 	for (auto current : *c->contents()) {
 		switch (cb(current, userData)) {
-		case match:
+		case TraverseCondition::match:
 			if (matches == nullptr)
 				SWFLOG(c->context, LOG_WARN, "cannot add match");
 			else
@@ -201,19 +201,19 @@ bool Component::traverseExclusive(Component *c, TraverseCondition (*cb)(Componen
 			if (!running)
 				return false;
 			break; // not reached
-		case matchBreak:
+		case TraverseCondition::matchBreak:
 			if (matches == nullptr)
 				SWFLOG(c->context, LOG_WARN, "cannot add match");
 			else
 				matches->push_back(current);
 			return false;
 			break; // not reached
-		case notMatch:
+		case TraverseCondition::notMatch:
 			running = traverseExclusive(current, cb, userData, matches);
 			if (!running)
 				return false;
 			break;
-		case notMatchBreak:
+		case TraverseCondition::notMatchBreak:
 			return false;
 		}
 	}
@@ -226,22 +226,22 @@ bool Component::traverseExclusive(Component *c, TraverseCondition (*cb)(Componen
 
 bool Component::traverseInclusive(Component *c, TraverseCondition (*cb)(Component*, void*), void *userData, std::vector<Component*> *matches) {
 	switch (cb(c, userData)) {
-	case match:
+	case TraverseCondition::match:
 		if (matches == nullptr)
 			SWFLOG(c->context, LOG_WARN, "cannot add match");
 		else
 			matches->push_back(c);
 		break;
-	case matchBreak:
+	case TraverseCondition::matchBreak:
 		if (matches == nullptr)
 			SWFLOG(c->context, LOG_WARN, "cannot add match");
 		else
 			matches->push_back(c);
 		return false;
 		break; // not reached
-	case notMatch:
+	case TraverseCondition::notMatch:
 		break;
-	case notMatchBreak:
+	case TraverseCondition::notMatchBreak:
 		return false;
 		break; // not reached
 	}

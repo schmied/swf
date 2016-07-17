@@ -33,7 +33,7 @@ struct Style {
 };
 
 //enum TraverseCondition { continueTraverse, returnCurrent, skipChildren };
-enum TraverseCondition { match, matchBreak, notMatch, notMatchBreak };
+enum class TraverseCondition { match, matchBreak, notMatch, notMatchBreak };
 
 class Component {
 

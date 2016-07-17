@@ -103,10 +103,10 @@ TraverseCondition Context::onDrawComponent(Component *c, void *userData) {
 	FrontendOut *out = (FrontendOut*) userData;
 	if (out == nullptr) {
 		std::printf("%s onDraw() no frontend\n", LOG_FACILITY.c_str());
-		return notMatchBreak;
+		return TraverseCondition::notMatchBreak;
 	}
 	c->onDraw(out);
-	return notMatch;
+	return TraverseCondition::notMatch;
 }
 
 
