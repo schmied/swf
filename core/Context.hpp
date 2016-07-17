@@ -134,10 +134,10 @@ private:
 	static void onDraw(Component*, void*);
 
 	// fps statistics
-	long fpsTicksPrevious;				// need to remember for elapsed ticks calculation
-	int fpsCyclesPerFrame;				// number of event loop cycles per frame
+	long fpsTicksPrevious;	// need to remember for elapsed ticks calculation
+	int fpsCyclesPerFrame;	// number of event loop cycles per frame
 	int fpsCyclesPerFrameCounter;
-	int fpsFrameMillis;				// duration of a frame
+	int fpsFrameMillis;	// duration of a frame
 	bool fpsIsTicksElapsed(const long, const long);
 	void fpsResetTicks(const long);
 

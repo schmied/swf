@@ -41,11 +41,11 @@ public:
 	virtual void* eventPoll() = 0;
 	virtual void* eventWait() = 0;
 	virtual void in(void*) const = 0;
-	virtual void eventFree(void*);			// some stupid apis allocate events and leave to the user
+	virtual void eventFree(void*);	// some stupid apis allocate events and leave to the user
 
 	// game loop
-	virtual void gameLoopSleep() const = 0;		// gives cpu voluntary
-	virtual long gameLoopTicks() const = 0;		// must return ticks in milliseconds
+	virtual void gameLoopSleep() const = 0;	// gives cpu voluntary
+	virtual long gameLoopTicks() const = 0;	// must return ticks in milliseconds
 
 };
 
