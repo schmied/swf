@@ -63,8 +63,9 @@ Component::Component(Container* p) {
  * ******************************************************** private
  */
 
-void Component::onInvalidatePosition(Component *c, void *ud) {
+TraverseCondition Component::onInvalidatePosition(Component *c, void *ud) {
 	c->position.x = -1;
+	return notMatch;
 }
 
 inline bool Component::isPositionValid() const {
@@ -81,7 +82,7 @@ int Component::positionIndex() const {
 
 
 /*
- * protected
+ * ******************************************************** protected
  */
 
 /*
@@ -170,7 +171,7 @@ bool Component::isStateFocus() const {
 
 void Component::invalidatePosition() {
 	SWFLOG(getContext(), LOG_DEBUG, nullptr);
-	traverse(this, onInvalidatePosition, nullptr);
+	traverseInclusive(this, onInvalidatePosition, nullptr);
 }
 
 void Component::onDraw(const FrontendOut *out) {
@@ -182,35 +183,101 @@ void Component::onDraw(const FrontendOut *out) {
 	out->draw(*p, *s, "blaau");
 }
 
+
 /*
  * component traversing
  */
 
-void Component::traverse(Component *c, void (*cb)(Component*, void*), void *userData) {
-	cb(c, userData);
-	traverseChildren(c, cb, userData);
-}
-
-/*
-void Component::traverse(const Component *c, void (*cb)(const Component*, void*), void *userData) {
-	cb(c, userData);
-	traverseChildren(c, cb, userData);
-}
-*/
-
-void Component::traverseChildren(Component *c, void (*cb)(Component*, void*), void *userData) {
+bool Component::traverseExclusive(Component *c, TraverseCondition (*cb)(Component*, void*), void *userData, std::vector<Component*> *matches) {
+	bool running;
 	for (auto current : *c->contents()) {
-		cb(current, userData);
-		traverseChildren(current, cb, userData);
+		switch (cb(current, userData)) {
+		case match:
+			if (matches == nullptr)
+				SWFLOG(c->context, LOG_WARN, "cannot add match");
+			else
+				matches->push_back(current);
+			running = traverseExclusive(current, cb, userData, matches);
+			if (!running)
+				return false;
+			break; // not reached
+		case matchBreak:
+			if (matches == nullptr)
+				SWFLOG(c->context, LOG_WARN, "cannot add match");
+			else
+				matches->push_back(current);
+			return false;
+			break; // not reached
+		case notMatch:
+			running = traverseExclusive(current, cb, userData, matches);
+			if (!running)
+				return false;
+			break;
+		case notMatchBreak:
+			return false;
+		}
 	}
+	return true;
 }
 
-/*
-void Component::traverseChildren(const Component *c, void (*cb)(const Component*, void*), void *userData) {
-	for (const auto current : *c->contents()) {
-		cb(current, userData);
-		traverseChildren(current, cb, userData);
-	}
+bool Component::traverseExclusive(Component *c, TraverseCondition (*cb)(Component*, void*), void *userData) {
+	return traverseExclusive(c, cb, userData, nullptr);
 }
-*/
 
+bool Component::traverseInclusive(Component *c, TraverseCondition (*cb)(Component*, void*), void *userData, std::vector<Component*> *matches) {
+	switch (cb(c, userData)) {
+	case match:
+		if (matches == nullptr)
+			SWFLOG(c->context, LOG_WARN, "cannot add match");
+		else
+			matches->push_back(c);
+		break;
+	case matchBreak:
+		if (matches == nullptr)
+			SWFLOG(c->context, LOG_WARN, "cannot add match");
+		else
+			matches->push_back(c);
+		return false;
+		break; // not reached
+	case notMatch:
+		break;
+	case notMatchBreak:
+		return false;
+		break; // not reached
+	}
+	return traverseExclusive(c, cb, userData, matches);
+}
+
+bool Component::traverseInclusive(Component *c, TraverseCondition (*cb)(Component*, void*), void *userData) {
+	return traverseInclusive(c, cb, userData, nullptr);
+}
+
+Component* Component::findComponentExclusive(Component *c, TraverseCondition (*cb)(Component*, void*), void *userData) {
+	std::vector<Component*> matches {};
+	traverseExclusive(c, cb, userData, &matches);
+	if (matches.size() == 1)
+		return matches[0];
+	SWFLOG(c->context, LOG_DEBUG, "more than one match");
+	return nullptr;
+}
+
+Component* Component::findComponentInclusive(Component *c, TraverseCondition (*cb)(Component*, void*), void *userData) {
+	std::vector<Component*> matches {};
+	traverseInclusive(c, cb, userData, &matches);
+	if (matches.size() == 1)
+		return matches[0];
+	SWFLOG(c->context, LOG_DEBUG, "more than one match");
+	return nullptr;
+}
+
+std::vector<Component*> Component::findComponentsExclusive(Component *c, TraverseCondition (*cb)(Component*, void*), void *userData) {
+	std::vector<Component*> matches {};
+	traverseExclusive(c, cb, userData, &matches);
+	return matches;
+}
+
+std::vector<Component*> Component::findComponentsInclusive(Component *c, TraverseCondition (*cb)(Component*, void*), void *userData) {
+	std::vector<Component*> matches {};
+	traverseInclusive(c, cb, userData, &matches);
+	return matches;
+}

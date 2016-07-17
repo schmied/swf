@@ -85,7 +85,7 @@ void Sdl2In::in(void *event) const {
 	const SDL_Event *e = (const SDL_Event*) event;
 	switch (e->type) {
 	case SDL_KEYDOWN:
-//		SWFLOG(getContext(), LOG_DEBUG, "typ %d sym %d", e->type, e->key.keysym.sym);
+		SWFLOG(getContext(), LOG_DEBUG, "key %c %d", e->key.keysym.sym, e->key.keysym.sym);
 		switch (e->key.keysym.sym) {
 		case SDLK_RETURN:
 			break;
@@ -96,6 +96,12 @@ void Sdl2In::in(void *event) const {
 		default:
 			break;
 		}
+		break;
+	case SDL_MOUSEBUTTONDOWN:
+		SWFLOG(getContext(), LOG_DEBUG, "click %dx%d", e->button.x, e->button.y);
+		break;
+	case SDL_MOUSEMOTION:
+		//SWFLOG(getContext(), LOG_DEBUG, "move %dx%d", e->motion.x, e->motion.y);
 		break;
 	default:
 		break;
@@ -113,4 +119,3 @@ void Sdl2In::gameLoopSleep() const {
 long Sdl2In::gameLoopTicks() const {
 	return SDL_GetTicks();
 }
-

@@ -50,4 +50,3 @@ public:
 };
 
 #endif // SWF_CORE_FRONTEND_OUT
-

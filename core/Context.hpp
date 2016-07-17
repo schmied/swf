@@ -21,7 +21,9 @@
 #include <map>
 #include <string>
 
-class Component;
+#include "Component.hpp"
+
+//class Component;
 class Container;
 class FrontendIn;
 class FrontendOut;
@@ -131,7 +133,8 @@ private:
 	std::deque<std::basic_string<char>*> logs;
 
 	// drawing
-	static void onDraw(Component*, void*);
+	void drawComponents();
+	static TraverseCondition onDrawComponent(Component*, void*);
 
 	// fps statistics
 	long fpsTicksPrevious;	// need to remember for elapsed ticks calculation
@@ -156,9 +159,11 @@ public:
 	const Container* getRootContainer();
 	void setRootContainer(Container*);
 
-	// drawing
-	void draw();
+	// event
+	void eventClick(const int, const int);
+	void eventKey(const int);
 
+	// loop
 	int gameLoop(const int, const bool, int (*)(void*, void*), void (*)(void*), void (*)(void*), void*);
 	int applicationLoop(int (*)(const bool, void*, void*), void*);
 
@@ -167,4 +172,3 @@ public:
 };
 
 #endif // SWF_CORE_CONTEXT
-

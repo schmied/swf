@@ -89,13 +89,13 @@ void XcbIn::in(void *event) const {
 	}
 	case XCB_BUTTON_PRESS: {
 		xcb_button_press_event_t *bpe = (xcb_button_press_event_t*) event;
-		SWFLOG(getContext(), LOG_DEBUG, "button press %dx%d", bpe->event_x, bpe->event_y);
+		SWFLOG(getContext(), LOG_DEBUG, "button %dx%d", bpe->event_x, bpe->event_y);
 		break;
 	}
 	case XCB_KEY_PRESS: {
 		xcb_key_press_event_t *kpe = (xcb_key_press_event_t*) event;
 		xcb_keysym_t sym = keysym(kpe->detail);
-//		SWFLOG(getContext(), LOG_DEBUG, "key press %c %d", sym, sym);
+		SWFLOG(getContext(), LOG_DEBUG, "key %c %d", sym, sym);
 		switch (sym) {
 		default:
 			break;

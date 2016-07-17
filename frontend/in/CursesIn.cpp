@@ -73,7 +73,7 @@ void CursesIn::in(void *event) const {
 	if (event == nullptr)
 		return;
 	const int c = *(const int*) event;
-//	SWFLOG(getContext(), LOG_DEBUG, "char %d", c);
+	SWFLOG(getContext(), LOG_DEBUG, "key %d", c);
 	switch (c) {
 	case 8:			// BS (backspace)
 		break;

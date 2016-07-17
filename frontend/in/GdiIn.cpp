@@ -17,6 +17,7 @@
 #include <iostream>
 
 #include <windows.h>
+#include <windowsx.h>
 
 #include "GdiIn.hpp"
 
@@ -44,6 +45,21 @@ GdiIn::~GdiIn() {
  */
 
 
+
+/*
+ * ******************************************************** public
+ */
+
+
+ /*
+ * getter
+ */
+
+HWND GdiIn::getWindow() const {
+	return window;
+}
+
+
 /*
  * event handling
  */
@@ -64,48 +80,40 @@ void* GdiIn::eventWait() {
 	return &currentEvent;
 }
 
-void GdiIn::gameLoopSleep() const {
-	Sleep(1);
-}
-
-long GdiIn::gameLoopTicks() const {
-	return GetTickCount64();
-}
-
-
-/*
- * ******************************************************** public
- */
-
-
- /*
- * getter
- */
-
-HWND GdiIn::getWindow() const {
-	return window;
-}
-
-
-/*
- * event handling
- */
-
-void GdiIn::handleEvent(void *event) const {
+void GdiIn::in(void *event) const {
 	if (event == nullptr)
 		return;
 	const MSG *e = (const MSG*) event;
 	switch (e->message) {
 	case WM_KEYDOWN:
+		SWFLOG(getContext(), LOG_DEBUG, "key %c %d", e->wParam, e->wParam);
 		switch (e->wParam) {
 		case VK_RETURN:
 			break;
 		default:
 			break;
 		}
-		SWFLOG(getContext(), LOG_DEBUG, "key %d %d", e->lParam, e->wParam);
+		break;
+	case WM_LBUTTONDOWN:
+		SWFLOG(getContext(), LOG_DEBUG, "click %dx%d", GET_X_LPARAM(e->lParam), GET_Y_LPARAM(e->lParam));
+		break;
+	case WM_MOUSEMOVE:
+//		SWFLOG(getContext(), LOG_DEBUG, "move %dx%d", GET_X_LPARAM(e->lParam), GET_Y_LPARAM(e->lParam));
 		break;
 	default:
 		break;
 	}
+}
+
+
+/*
+ * game loop
+ */
+
+void GdiIn::gameLoopSleep() const {
+	Sleep(1);
+}
+
+long GdiIn::gameLoopTicks() const {
+	return GetTickCount64();
 }
