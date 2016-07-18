@@ -10,6 +10,7 @@
 *.user
 .vs
 .ycm_extra_conf.pyc
+contrib/*
 ipch
 Debug
 Release
