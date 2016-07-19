@@ -11,8 +11,6 @@
 .vs
 a_conf.pyc
 .ycm_extr
-!/contrib
-contrib/*
 ipch
 Debug
 Release
