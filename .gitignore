@@ -9,7 +9,9 @@
 *.swp
 *.user
 .vs
-.ycm_extra_conf.pyc
+a_conf.pyc
+.ycm_extr
+!/contrib
 contrib/*
 ipch
 Debug
